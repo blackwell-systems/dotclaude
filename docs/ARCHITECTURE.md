@@ -17,7 +17,7 @@ Technical overview of how dotclaude works internally.
 │  │  • settings.json │                  │    oss/CLAUDE.md       │   │
 │  │  • scripts/      │                  │  • blackwell-systems/  │   │
 │  │  • agents/       │                  │    CLAUDE.md           │   │
-│  │                  │                  │  • best-western/       │   │
+│  │                  │                  │  • employer-work/       │   │
 │  │  [Shared across  │                  │    CLAUDE.md           │   │
 │  │   ALL profiles]  │                  │                        │   │
 │  └──────────────────┘                  │  [Context-specific     │   │
@@ -544,7 +544,7 @@ dotclaude/                              # Repository (version controlled)
 │   │   └── CLAUDE.md
 │   ├── blackwell-systems/
 │   │   └── CLAUDE.md
-│   └── best-western/
+│   └── employer-work/
 │       └── CLAUDE.md
 └── docs/
     ├── USAGE.md                        # Complete user guide

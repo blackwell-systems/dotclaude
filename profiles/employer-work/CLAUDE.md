@@ -1,6 +1,6 @@
-# Profile: Best Western
+# Profile: Employer Work
 
-<!-- Profile-specific additions for Best Western employment work -->
+<!-- Profile-specific additions for employer work -->
 
 **TODO: Add profile-specific content here**
 
@@ -8,7 +8,7 @@ This file will be merged with the base CLAUDE.md when this profile is active.
 
 ## Purpose
 
-Define standards, practices, and guidelines specific to Best Western employer work.
+Define standards, practices, and guidelines specific to employer work.
 
 ## Topics to Cover
 

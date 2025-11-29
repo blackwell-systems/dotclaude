@@ -92,7 +92,7 @@ switch-to-blackwell() {
 }
 
 switch-to-work() {
-    activate-profile best-western
+    activate-profile employer-work
 }
 
 # Export functions
@@ -111,4 +111,4 @@ echo ""
 echo "Quick switches:"
 echo "  switch-to-oss            - Activate blackwell-systems-oss"
 echo "  switch-to-blackwell      - Activate blackwell-systems"
-echo "  switch-to-work           - Activate best-western"
+echo "  switch-to-work           - Activate employer-work"

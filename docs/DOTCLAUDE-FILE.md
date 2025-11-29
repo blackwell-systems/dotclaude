@@ -57,7 +57,7 @@ Git branch: main
 ╰─────────────────────────────────────────────────────────────╯
 
   This project uses:    blackwell-systems-oss
-  Currently active:     best-western
+  Currently active:     employer-work
 
   To activate the project profile:
     dotclaude activate blackwell-systems-oss
@@ -99,7 +99,7 @@ Organize your projects with appropriate profiles:
 ├── proprietary-business/
 │   └── .dotclaude          # profile: blackwell-systems
 └── employer-work/
-    └── .dotclaude          # profile: best-western
+    └── .dotclaude          # profile: employer-work
 ```
 
 ### 3. Context Switching
@@ -112,7 +112,7 @@ cd ~/code/my-oss-project
 # Reminds you to switch if needed
 
 cd ~/code/employer-work
-# Session starts, detects best-western profile
+# Session starts, detects employer-work profile
 # Reminds you to switch if needed
 ```
 
@@ -233,7 +233,7 @@ profile: blackwell-systems-oss
 
 ```bash
 # Employer work - corporate compliance
-profile=best-western
+profile=employer-work
 ```
 
 ## Future Enhancements

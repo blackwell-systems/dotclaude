@@ -56,7 +56,7 @@ dotclaude activate blackwell-systems
 # → Loads internal policies, private repo standards
 
 # Switch to employer work
-dotclaude activate best-western
+dotclaude activate employer-work
 # → Loads corporate compliance, employer guidelines
 ```
 
@@ -73,7 +73,7 @@ dotclaude/
 └── profiles/              # Context-specific additions
     ├── blackwell-systems-oss/
     ├── blackwell-systems/
-    └── best-western/
+    └── employer-work/
 ```
 
 When you activate a profile, base + profile merge into `~/.claude/`.

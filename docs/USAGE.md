@@ -29,7 +29,7 @@ dotclaude supports multiple work profiles, allowing different configurations for
 **Included Profiles:**
 - `blackwell-systems-oss` - Open source Blackwell Systems projects
 - `blackwell-systems` - Proprietary Blackwell Systems business projects
-- `best-western` - Best Western employer work
+- `employer-work` - Acme Corp employer work
 
 ### What Happens When You Activate a Profile
 
@@ -65,7 +65,7 @@ dotclaude supports multiple work profiles, allowing different configurations for
 - Business-specific tech stack
 - Private repo security
 
-**best-western:**
+**employer-work:**
 - Corporate compliance policies
 - Employer coding standards
 - Specific frameworks/tools
@@ -184,7 +184,7 @@ Git branch: main
 ╰─────────────────────────────────────────────────────────────╯
 
   This project uses:    blackwell-systems-oss
-  Currently active:     best-western
+  Currently active:     employer-work
 
   To activate the project profile:
     dotclaude activate blackwell-systems-oss
@@ -216,7 +216,7 @@ Use `.dotclaude` files across your projects:
 ├── proprietary-business/
 │   └── .dotclaude          # profile: blackwell-systems
 └── employer-work/
-    └── .dotclaude          # profile: best-western
+    └── .dotclaude          # profile: employer-work
 ```
 
 Never forget which profile to use for each project.
@@ -228,7 +228,7 @@ When jumping between projects with different contexts, auto-detection prevents m
 ```bash
 # Working on employer project
 cd ~/employer-work
-# Reminded to use: best-western profile
+# Reminded to use: employer-work profile
 
 # Switch to OSS project
 cd ~/my-oss-project
@@ -317,7 +317,7 @@ dotclaude list
 
     ● blackwell-systems-oss (active)
     ○ blackwell-systems
-    ○ best-western
+    ○ employer-work
 
   Total: 3 profiles
 
@@ -422,7 +422,7 @@ dotclaude switch
 
     [1] blackwell-systems-oss (active)
     [2] blackwell-systems
-    [3] best-western
+    [3] employer-work
 
   Enter number (or 'q' to quit): 2
 
@@ -482,7 +482,7 @@ Compare two profiles or compare current profile with another.
 dotclaude diff blackwell-systems-oss blackwell-systems
 
 # Compare current profile with another
-dotclaude diff best-western
+dotclaude diff employer-work
 ```
 
 **Output:**
