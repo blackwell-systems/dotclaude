@@ -80,11 +80,37 @@ When you activate a profile, base + profile merge into `~/.claude/`.
 
 ## Documentation
 
+**📚 [View Documentation Site](https://blackwell-ai.github.io/dotclaude/)** (Recommended)
+
+Or browse markdown files directly:
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
 - **[docs/DOTCLAUDE-FILE.md](docs/DOTCLAUDE-FILE.md)** - `.dotclaude` file format and auto-detection
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and technical design
 - **[docs/IDEMPOTENCY-AUDIT.md](docs/IDEMPOTENCY-AUDIT.md)** - Idempotency analysis
 - **[docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)** - Security hardening details
+
+### Local Documentation Site
+
+View the documentation site locally:
+
+```bash
+# Install docsify-cli globally
+npm install -g docsify-cli
+
+# Serve the docs
+cd ~/code/dotclaude
+docsify serve .
+
+# Open http://localhost:3000 in your browser
+```
+
+Or use Python's built-in server:
+
+```bash
+cd ~/code/dotclaude
+python3 -m http.server 3000
+# Open http://localhost:3000 in your browser
+```
 
 ## Installation
 
