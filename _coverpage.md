@@ -3,9 +3,8 @@
 > The definitive profile management system for Claude Code
 
 ```bash
-# Quick Install
-git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
-cd ~/code/dotclaude && ./install.sh
+# One-line install
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
 - Layered profiles (base + context overlays)
