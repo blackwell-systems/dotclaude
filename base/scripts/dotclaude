@@ -21,6 +21,34 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
 
+# Load validation library
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/validation.sh" ]; then
+    source "$SCRIPT_DIR/lib/validation.sh"
+else
+    # Fallback inline validation if lib not found
+    validate_profile_name() {
+        if [[ ! "$1" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo -e "${RED}Error: Invalid profile name: $1${NC}" >&2
+            echo "  Profile names must contain only letters, numbers, hyphens, and underscores" >&2
+            return 1
+        fi
+    }
+fi
+
+# Trap handler for cleanup
+cleanup() {
+    release_lock 2>/dev/null || true
+}
+trap cleanup EXIT ERR INT TERM
+
+# Validate repository structure on startup
+if ! validate_repo_dir "$REPO_DIR" 2>/dev/null; then
+    echo -e "${RED}Error: Invalid dotclaude repository at: $REPO_DIR${NC}" >&2
+    echo "  Set DOTCLAUDE_REPO_DIR environment variable to correct location" >&2
+    exit 1
+fi
+
 # ============================================================================
 # UI Components
 # ============================================================================
@@ -148,12 +176,23 @@ cmd_activate() {
         exit 1
     fi
 
+    # Validate profile name (prevent path traversal)
+    if ! validate_profile_name "$profile_name"; then
+        exit 1
+    fi
+
     local profile_dir="$PROFILES_DIR/$profile_name"
 
     if [ ! -d "$profile_dir" ]; then
         error_box "Profile '$profile_name' not found"
         echo "  Run 'dotclaude list' to see available profiles"
         echo ""
+        exit 1
+    fi
+
+    # Acquire lock to prevent concurrent activation
+    if ! acquire_lock "$CLAUDE_DIR/.lock" 10; then
+        error_box "Lock acquisition failed"
         exit 1
     fi
 
@@ -171,6 +210,7 @@ cmd_activate() {
     if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
         local backup="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
         cp "$CLAUDE_DIR/CLAUDE.md" "$backup"
+        chmod 600 "$backup" 2>/dev/null || true  # Secure permissions
         echo "  [1/3] Backed up existing CLAUDE.md"
 
         # Keep only 5 most recent backups
@@ -199,6 +239,7 @@ cmd_activate() {
         if [ -f "$CLAUDE_DIR/settings.json" ] && [ "$current_profile" != "$profile_name" ]; then
             local backup="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
             cp "$CLAUDE_DIR/settings.json" "$backup"
+            chmod 600 "$backup" 2>/dev/null || true  # Secure permissions
 
             # Keep only 5 most recent backups
             ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
@@ -280,6 +321,11 @@ cmd_create() {
         exit 1
     fi
 
+    # Validate profile name (prevent path traversal and injection)
+    if ! validate_profile_name "$profile_name"; then
+        exit 1
+    fi
+
     local profile_dir="$PROFILES_DIR/$profile_name"
 
     if [ -d "$profile_dir" ]; then
@@ -293,10 +339,11 @@ cmd_create() {
 
     mkdir -p "$profile_dir"
 
-    cat > "$profile_dir/CLAUDE.md" <<EOF
-# Profile: $profile_name
+    # Use single quotes to prevent variable expansion in heredoc
+    cat > "$profile_dir/CLAUDE.md" <<'EOF'
+# Profile: PROFILE_NAME_PLACEHOLDER
 
-<!-- Profile-specific additions for $profile_name -->
+<!-- Profile-specific additions for PROFILE_NAME_PLACEHOLDER -->
 
 **TODO: Add profile-specific content here**
 
@@ -316,6 +363,9 @@ Define standards, practices, and guidelines specific to this context.
 - Deployment procedures
 - Team collaboration practices
 EOF
+
+    # Safely replace placeholder with actual profile name
+    sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
 
     success_box "Profile '$profile_name' created"
 
@@ -342,6 +392,11 @@ cmd_edit() {
         profile_name=$(cat "$CLAUDE_DIR/.current-profile")
     fi
 
+    # Validate profile name
+    if ! validate_profile_name "$profile_name"; then
+        exit 1
+    fi
+
     local profile_dir="$PROFILES_DIR/$profile_name"
 
     if [ ! -d "$profile_dir" ]; then
@@ -350,6 +405,14 @@ cmd_edit() {
     fi
 
     local editor="${EDITOR:-nano}"
+
+    # Validate editor command exists
+    if ! command -v "$editor" &> /dev/null; then
+        error_box "Editor not found: $editor"
+        echo "  Set EDITOR environment variable to a valid editor"
+        exit 1
+    fi
+
     "$editor" "$profile_dir/CLAUDE.md"
 }
 

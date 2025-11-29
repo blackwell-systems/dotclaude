@@ -17,6 +17,28 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# Load validation library
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/validation.sh" ]; then
+    source "$SCRIPT_DIR/lib/validation.sh"
+else
+    # Fallback inline validation
+    validate_profile_name() {
+        if [[ ! "$1" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo -e "${RED}Error: Invalid profile name: $1${NC}" >&2
+            return 1
+        fi
+    }
+fi
+
+# Trap handler for cleanup
+cleanup() {
+    if [ -n "$LOCKFILE" ] && [ -f "$LOCKFILE" ]; then
+        rm -f "$LOCKFILE" 2>/dev/null || true
+    fi
+}
+trap cleanup EXIT ERR INT TERM
+
 usage() {
     echo "Usage: activate-profile <profile-name>"
     echo ""
@@ -37,12 +59,27 @@ if [ $# -eq 0 ]; then
 fi
 
 PROFILE_NAME=$1
+
+# Validate profile name (prevent path traversal and injection)
+if ! validate_profile_name "$PROFILE_NAME"; then
+    exit 1
+fi
+
 PROFILE_DIR="$PROFILES_DIR/$PROFILE_NAME"
 
 if [ ! -d "$PROFILE_DIR" ]; then
     echo -e "${RED}Error: Profile '$PROFILE_NAME' not found${NC}"
     echo ""
     usage
+fi
+
+# Acquire lock to prevent concurrent operations
+LOCKFILE="$CLAUDE_DIR/.activation.lock"
+exec 200>"$LOCKFILE"
+if ! flock -w 10 200; then
+    echo -e "${RED}Error: Another activation in progress${NC}"
+    echo "  Wait for the other operation to complete"
+    exit 1
 fi
 
 echo -e "${BLUE}=== Claude Code Profile Activation ===${NC}"
@@ -64,6 +101,9 @@ if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$CURRENT_PROFILE" != "$PROFILE_NAME" ]; 
     BACKUP="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
     echo -e "${YELLOW}Backing up existing CLAUDE.md${NC}"
     cp "$CLAUDE_DIR/CLAUDE.md" "$BACKUP"
+
+    # Set secure permissions on backup (may contain sensitive data)
+    chmod 600 "$BACKUP" 2>/dev/null || true
 
     # Keep only 5 most recent backups
     ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
@@ -96,6 +136,9 @@ if [ -f "$PROFILE_DIR/settings.json" ]; then
         BACKUP="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
         echo -e "  ${YELLOW}Backing up existing settings.json${NC}"
         cp "$CLAUDE_DIR/settings.json" "$BACKUP"
+
+        # Set secure permissions on backup (contains hooks/sensitive config)
+        chmod 600 "$BACKUP" 2>/dev/null || true
 
         # Keep only 5 most recent backups
         ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true

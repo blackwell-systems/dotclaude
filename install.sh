@@ -44,7 +44,22 @@ fi
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+RED='\033[0;31m'
 NC='\033[0m'
+
+# Load validation library if available
+if [ -f "$BASE_DIR/scripts/lib/validation.sh" ]; then
+    source "$BASE_DIR/scripts/lib/validation.sh"
+else
+    # Fallback inline validation
+    validate_directory() {
+        if [ -L "$1" ]; then
+            echo -e "${RED}Error: Path is a symlink: $1${NC}" >&2
+            return 1
+        fi
+        return 0
+    }
+fi
 
 echo -e "${BLUE}=== dotclaude installer ===${NC}"
 echo "Repo: $REPO_DIR"
@@ -106,6 +121,12 @@ if [ -d "$BASE_DIR/agents" ]; then
             target_dir="$CLAUDE_DIR/agents/$agent_name"
 
             if [ -d "$target_dir" ]; then
+                # Validate not a symlink before removing (symlink attack prevention)
+                if [ -L "$target_dir" ]; then
+                    echo -e "  ${RED}✗${NC} Agent '$agent_name' is a symlink (refusing to remove)"
+                    continue
+                fi
+
                 if [ "$NON_INTERACTIVE" = "true" ] || [ "$FORCE_INSTALL" = "true" ]; then
                     # Auto-overwrite in non-interactive or force mode
                     rm -rf "$target_dir"
