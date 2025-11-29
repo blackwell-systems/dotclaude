@@ -39,7 +39,7 @@ php -S localhost:3000
 
 The site is automatically deployed to GitHub Pages from the `main` branch.
 
-**URL:** https://blackwell-ai.github.io/dotclaude/
+**URL:** https://blackwell-systems.github.io/dotclaude/
 
 ### Setup (One-Time)
 

@@ -4,7 +4,7 @@
 
 ```bash
 # Quick Install
-git clone https://github.com/blackwell-ai/dotclaude.git ~/code/dotclaude
+git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
 cd ~/code/dotclaude && ./install.sh
 ```
 
@@ -18,4 +18,4 @@ cd ~/code/dotclaude && ./install.sh
 - Multi-provider support (AWS Bedrock + Claude Max)
 
 [Get Started](README.md)
-[View on GitHub](https://github.com/blackwell-ai/dotclaude)
+[View on GitHub](https://github.com/blackwell-systems/dotclaude)

@@ -80,7 +80,7 @@ When you activate a profile, base + profile merge into `~/.claude/`.
 
 ## Documentation
 
-**📚 [View Documentation Site](https://blackwell-ai.github.io/dotclaude/)** (Recommended)
+**📚 [View Documentation Site](https://blackwell-systems.github.io/dotclaude/)** (Recommended)
 
 Or browse markdown files directly:
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
