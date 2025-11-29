@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Claude Code Profile Management Functions
+# Add these to your ~/.bashrc or ~/.zshrc
+
+# Activate a profile
+activate-profile() {
+    if [ -f "$HOME/.claude/scripts/activate-profile.sh" ]; then
+        bash "$HOME/.claude/scripts/activate-profile.sh" "$@"
+    else
+        echo "Error: activate-profile.sh not found"
+        echo "Run the install script from your CLAUDE repo"
+        return 1
+    fi
+}
+
+# Show current active profile
+show-profile() {
+    if [ -f "$HOME/.claude/.current-profile" ]; then
+        local PROFILE=$(cat "$HOME/.claude/.current-profile")
+        echo "Active profile: $PROFILE"
+
+        if [ -f "$HOME/.claude/CLAUDE.md" ]; then
+            local LINES=$(wc -l < "$HOME/.claude/CLAUDE.md")
+            echo "CLAUDE.md: $LINES lines"
+        fi
+
+        if [ -f "$HOME/.claude/settings.json" ]; then
+            echo "settings.json: exists"
+        fi
+    else
+        echo "No profile currently active"
+        echo "Run: activate-profile <profile-name>"
+    fi
+}
+
+# List available profiles
+list-profiles() {
+    local REPO_DIR="${CLAUDE_REPO_DIR:-$HOME/code/CLAUDE}"
+
+    if [ ! -d "$REPO_DIR/global/profiles" ]; then
+        echo "Error: Profiles directory not found at $REPO_DIR/global/profiles"
+        echo "Set CLAUDE_REPO_DIR environment variable if repo is in a different location"
+        return 1
+    fi
+
+    echo "Available profiles:"
+    echo ""
+
+    local CURRENT=""
+    if [ -f "$HOME/.claude/.current-profile" ]; then
+        CURRENT=$(cat "$HOME/.claude/.current-profile")
+    fi
+
+    for profile_dir in "$REPO_DIR/global/profiles"/*; do
+        if [ -d "$profile_dir" ]; then
+            local profile=$(basename "$profile_dir")
+            if [ "$profile" = "$CURRENT" ]; then
+                echo "  * $profile (active)"
+            else
+                echo "    $profile"
+            fi
+        fi
+    done
+
+    echo ""
+    echo "To activate a profile:"
+    echo "  activate-profile <profile-name>"
+}
+
+# Quick switch between common profiles
+switch-to-oss() {
+    activate-profile blackwell-systems-oss
+}
+
+switch-to-blackwell() {
+    activate-profile blackwell-systems
+}
+
+switch-to-work() {
+    activate-profile best-western
+}
+
+# Export functions
+export -f activate-profile 2>/dev/null || true
+export -f show-profile 2>/dev/null || true
+export -f list-profiles 2>/dev/null || true
+export -f switch-to-oss 2>/dev/null || true
+export -f switch-to-blackwell 2>/dev/null || true
+export -f switch-to-work 2>/dev/null || true
+
+echo "Claude Code profile management loaded:"
+echo "  activate-profile <name>  - Activate a profile"
+echo "  show-profile             - Show current active profile"
+echo "  list-profiles            - List all available profiles"
+echo ""
+echo "Quick switches:"
+echo "  switch-to-oss            - Activate blackwell-systems-oss"
+echo "  switch-to-blackwell      - Activate blackwell-systems"
+echo "  switch-to-work           - Activate best-western"

@@ -31,47 +31,186 @@ These configs work with BOTH:
 4. Project `.claude/settings.json` (team-shared)
 5. Global `~/.claude/settings.json` (from this repo)
 
-## Domain-Specific Configurations
+## Multi-Profile System
 
-### Current Approach: Project-Level Override
+This repo supports multiple work profiles, allowing different configurations for different contexts (OSS projects, proprietary work, employer work, etc.).
 
-For separate work contexts (e.g., Blackwell Systems vs employer work):
+### How Profiles Work
 
-**Option 1: Single Global + Project Override (Recommended)**
-- Keep ONE global `~/.claude/` with shared tools (hooks, common agents)
-- Use project-level `.claude/settings.json` to differentiate domains
-- Simple, maintainable, no context switching needed
+**Architecture:**
+- **Base** - Shared configuration (git workflow, security, tool usage) that applies to ALL profiles
+- **Profiles** - Context-specific additions (coding standards, compliance, tech stacks)
+- **Activation** - Merge base + profile → `~/.claude/` when activated
 
-**Option 2: Symbolic Link Switching**
+**Included Profiles:**
+- `blackwell-systems-oss` - Open source Blackwell Systems projects
+- `blackwell-systems` - Proprietary Blackwell Systems business projects
+- `best-western` - Best Western employer work
+
+### Quick Start
+
 ```bash
-# Shell functions
-use-blackwell() { ln -sf ~/.claude-blackwell ~/.claude; }
-use-work() { ln -sf ~/.claude-work ~/.claude; }
+# Install base configuration and scripts
+./install.sh
+
+# During install, select a profile to activate
+# Or activate later:
+activate-profile blackwell-systems-oss
+
+# Show current profile
+show-profile
+
+# List all profiles
+list-profiles
+
+# Quick switches
+switch-to-oss          # → blackwell-systems-oss
+switch-to-blackwell    # → blackwell-systems
+switch-to-work         # → best-western
 ```
 
-**Option 3: Environment Variable (Experimental)**
-```bash
-export CLAUDE_CONFIG_DIR=~/.claude-blackwell
-export CLAUDE_CONFIG_DIR=~/.claude-work
+### What Happens When You Activate a Profile
+
+1. **Merges CLAUDE.md**: Base guidelines + profile-specific additions
+2. **Applies settings.json**: Profile settings override base (if profile has custom settings)
+3. **Marks active profile**: Creates `~/.claude/.current-profile` marker
+4. **Backs up existing**: Previous config backed up with timestamp
+
+**Example merged CLAUDE.md:**
 ```
+[Base configuration content]
+# ... git workflow, security, tool usage ...
+
+# =========================================
+# Profile-Specific Additions: blackwell-systems-oss
+# =========================================
+
+[Profile-specific content]
+# ... OSS licensing, public docs, community guidelines ...
+```
+
+### Profile Management Commands
+
+**Activate a profile:**
+```bash
+activate-profile <profile-name>
+```
+
+**Show current active profile:**
+```bash
+show-profile
+# Output:
+# Active profile: blackwell-systems-oss
+# CLAUDE.md: 245 lines
+# settings.json: exists
+```
+
+**List available profiles:**
+```bash
+list-profiles
+# Output:
+#   * blackwell-systems-oss (active)
+#     blackwell-systems
+#     best-western
+```
+
+**Quick switches:**
+```bash
+switch-to-oss          # Activate blackwell-systems-oss
+switch-to-blackwell    # Activate blackwell-systems
+switch-to-work         # Activate best-western
+```
+
+### Creating Custom Profiles
+
+Add a new profile:
+
+```bash
+# 1. Create profile directory
+mkdir -p global/profiles/my-new-profile
+
+# 2. Create profile-specific CLAUDE.md
+cat > global/profiles/my-new-profile/CLAUDE.md << 'EOF'
+# Profile: My New Profile
+
+Profile-specific guidelines here...
+EOF
+
+# 3. (Optional) Create profile-specific settings.json
+cat > global/profiles/my-new-profile/settings.json << 'EOF'
+{
+  "hooks": {
+    "SessionStart": [...]
+  }
+}
+EOF
+
+# 4. Activate it
+activate-profile my-new-profile
+```
+
+### Profile Use Cases
+
+**blackwell-systems-oss:**
+- Open source best practices
+- Public documentation emphasis
+- MIT/Apache licensing guidance
+- Community contribution guidelines
+
+**blackwell-systems:**
+- Proprietary code handling
+- Internal documentation standards
+- Business-specific tech stack
+- Private repo security
+
+**best-western:**
+- Corporate compliance policies
+- Employer coding standards
+- Specific frameworks/tools
+- Security/audit requirements
 
 ## Repository Structure
 
 ```
 CLAUDE/
-├── README.md                    # This file
-├── install.sh                   # Deploy configs to ~/.claude/
-├── global/
-│   ├── CLAUDE.md               # Global instructions for all projects
-│   ├── settings.json           # Global settings & hooks
-│   ├── scripts/
-│   │   ├── sync-feature-branch.sh    # Interactive branch sync tool
-│   │   └── shell-functions.sh        # Shell helper functions
-│   └── agents/
-│       └── best-in-class-gap-analysis/
-│           └── definition.json
-└── docs/
-    └── strategy.md             # Detailed configuration strategy
+├── README.md                           # This file
+├── install.sh                          # Multi-profile installer
+│
+└── global/
+    ├── base/                           # Shared across ALL profiles
+    │   ├── CLAUDE.md                  # Base development standards
+    │   ├── settings.json              # Base hooks & settings
+    │   ├── scripts/
+    │   │   ├── sync-feature-branch.sh        # Git branch sync tool
+    │   │   ├── shell-functions.sh            # Git workflow helpers
+    │   │   ├── activate-profile.sh           # Profile activation
+    │   │   └── profile-management.sh         # Profile commands
+    │   └── agents/
+    │       └── best-in-class-gap-analysis/   # Competitive analysis
+    │           └── definition.json
+    │
+    └── profiles/                       # Profile-specific additions
+        ├── blackwell-systems-oss/
+        │   └── CLAUDE.md              # OSS-specific guidelines
+        ├── blackwell-systems/
+        │   └── CLAUDE.md              # Proprietary guidelines
+        └── best-western/
+            └── CLAUDE.md              # Employer guidelines
+```
+
+**Deployed Structure (after activation):**
+```
+~/.claude/
+├── .current-profile               # Active profile marker
+├── CLAUDE.md                      # Base + Profile merged
+├── settings.json                  # Base or Profile settings
+├── scripts/                       # Management scripts
+│   ├── sync-feature-branch.sh
+│   ├── shell-functions.sh
+│   ├── activate-profile.sh
+│   └── profile-management.sh
+└── agents/                        # Shared agents
+    └── best-in-class-gap-analysis/
 ```
 
 ## Features
