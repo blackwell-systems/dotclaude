@@ -1,0 +1,27 @@
+{
+  "alwaysThinkingEnabled": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== Claude Code Session Started ===' && date && echo 'Working directory:' $(pwd) && if git rev-parse --git-dir > /dev/null 2>&1; then BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown'); echo \"Git branch: $BRANCH\"; if [[ \"$BRANCH\" != \"main\" && \"$BRANCH\" != \"master\" && \"$BRANCH\" != \"unknown\" ]]; then BEHIND=$(git rev-list --count $BRANCH..main 2>/dev/null || git rev-list --count $BRANCH..master 2>/dev/null || echo '0'); if [ \"$BEHIND\" -gt 0 ]; then echo \"⚠️  Branch is $BEHIND commits behind main - consider running: sync-feature-branch\"; fi; fi; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_USE_ARGS\" | grep -q 'git checkout main\\|git checkout master\\|git pull'; then if git rev-parse --git-dir > /dev/null 2>&1; then echo '💡 Tip: Feature branches may be behind main. Run sync-feature-branch to check.'; fi; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
