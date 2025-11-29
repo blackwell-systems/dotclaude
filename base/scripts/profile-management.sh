@@ -38,8 +38,8 @@ show-profile() {
 list-profiles() {
     local REPO_DIR="${CLAUDE_REPO_DIR:-$HOME/code/CLAUDE}"
 
-    if [ ! -d "$REPO_DIR/global/profiles" ]; then
-        echo "Error: Profiles directory not found at $REPO_DIR/global/profiles"
+    if [ ! -d "$REPO_DIR/profiles" ]; then
+        echo "Error: Profiles directory not found at $REPO_DIR/profiles"
         echo "Set CLAUDE_REPO_DIR environment variable if repo is in a different location"
         return 1
     fi
@@ -52,7 +52,7 @@ list-profiles() {
         CURRENT=$(cat "$HOME/.claude/.current-profile")
     fi
 
-    for profile_dir in "$REPO_DIR/global/profiles"/*; do
+    for profile_dir in "$REPO_DIR/profiles"/*; do
         if [ -d "$profile_dir" ]; then
             local profile=$(basename "$profile_dir")
             if [ "$profile" = "$CURRENT" ]; then

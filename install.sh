@@ -7,8 +7,8 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="$HOME/.claude"
-BASE_DIR="$REPO_DIR/global/base"
-PROFILES_DIR="$REPO_DIR/global/profiles"
+BASE_DIR="$REPO_DIR/base"
+PROFILES_DIR="$REPO_DIR/profiles"
 
 # Colors
 GREEN='\033[0;32m'

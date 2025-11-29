@@ -127,17 +127,17 @@ Add a new profile:
 
 ```bash
 # 1. Create profile directory
-mkdir -p global/profiles/my-new-profile
+mkdir -p profiles/my-new-profile
 
 # 2. Create profile-specific CLAUDE.md
-cat > global/profiles/my-new-profile/CLAUDE.md << 'EOF'
+cat > profiles/my-new-profile/CLAUDE.md << 'EOF'
 # Profile: My New Profile
 
 Profile-specific guidelines here...
 EOF
 
 # 3. (Optional) Create profile-specific settings.json
-cat > global/profiles/my-new-profile/settings.json << 'EOF'
+cat > profiles/my-new-profile/settings.json << 'EOF'
 {
   "hooks": {
     "SessionStart": [...]
@@ -176,26 +176,25 @@ CLAUDE/
 ├── README.md                           # This file
 ├── install.sh                          # Multi-profile installer
 │
-└── global/
-    ├── base/                           # Shared across ALL profiles
-    │   ├── CLAUDE.md                  # Base development standards
-    │   ├── settings.json              # Base hooks & settings
-    │   ├── scripts/
-    │   │   ├── sync-feature-branch.sh        # Git branch sync tool
-    │   │   ├── shell-functions.sh            # Git workflow helpers
-    │   │   ├── activate-profile.sh           # Profile activation
-    │   │   └── profile-management.sh         # Profile commands
-    │   └── agents/
-    │       └── best-in-class-gap-analysis/   # Competitive analysis
-    │           └── definition.json
-    │
-    └── profiles/                       # Profile-specific additions
-        ├── blackwell-systems-oss/
-        │   └── CLAUDE.md              # OSS-specific guidelines
-        ├── blackwell-systems/
-        │   └── CLAUDE.md              # Proprietary guidelines
-        └── best-western/
-            └── CLAUDE.md              # Employer guidelines
+├── base/                               # Shared across ALL profiles
+│   ├── CLAUDE.md                      # Base development standards
+│   ├── settings.json                  # Base hooks & settings
+│   ├── scripts/
+│   │   ├── sync-feature-branch.sh    # Git branch sync tool
+│   │   ├── shell-functions.sh        # Git workflow helpers
+│   │   ├── activate-profile.sh       # Profile activation
+│   │   └── profile-management.sh     # Profile commands
+│   └── agents/
+│       └── best-in-class-gap-analysis/  # Competitive analysis
+│           └── definition.json
+│
+└── profiles/                           # Profile-specific additions
+    ├── blackwell-systems-oss/
+    │   └── CLAUDE.md                  # OSS-specific guidelines
+    ├── blackwell-systems/
+    │   └── CLAUDE.md                  # Proprietary guidelines
+    └── best-western/
+        └── CLAUDE.md                  # Employer guidelines
 ```
 
 **Deployed Structure (after activation):**
@@ -589,21 +588,17 @@ Hooks are just **bash scripts** that run at specific lifecycle events. They have
 
 ### 1. Deploy Configs
 
-Deploy these configs to your `~/.claude/` directory:
+Deploy base configuration and activate a profile:
 
 ```bash
 ./install.sh
 ```
 
-Or manually:
-```bash
-mkdir -p ~/.claude/{agents,scripts}
-cp global/CLAUDE.md ~/.claude/
-cp global/settings.json ~/.claude/
-cp -r global/agents/* ~/.claude/agents/
-cp -r global/scripts/* ~/.claude/scripts/
-chmod +x ~/.claude/scripts/*.sh
-```
+The installer will:
+1. Copy base scripts and agents to `~/.claude/`
+2. Prompt you to select a profile
+3. Merge base + profile configuration
+4. Display setup instructions for shell functions
 
 ### 2. Enable Shell Functions (Optional but Recommended)
 
