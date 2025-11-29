@@ -1,14 +1,22 @@
-# Claude Code Global Configuration
+# dotclaude
 
-This repository manages global Claude Code configurations that can be shared across all projects.
+Version-controlled profile system for managing `~/.claude/` configurations across different work contexts.
 
-## Overview
+## What is dotclaude?
 
-This repo contains:
-- Global CLAUDE.md instructions
-- Global settings.json (hooks, preferences)
-- Shared agents/skills
-- Deployment scripts
+**dotclaude** manages your Claude Code configuration as layered, version-controlled profiles - similar to dotfiles but specifically for `~/.claude/`.
+
+**The Problem:** You work in multiple contexts (OSS projects, proprietary business, employer work) that need different standards, practices, and tooling.
+
+**The Solution:** Base configuration + profile overlays that merge on activation.
+
+## What You Get
+
+- **Base layer**: Shared standards across all work (git workflow, security, tools)
+- **Profile layers**: Context-specific additions (OSS licensing, corporate compliance, tech stacks)
+- **Profile switching**: One command to switch between work personas
+- **Version control**: All configs tracked in git, shareable across machines
+- **Bonus features**: Git branch sync automation, competitive analysis agent
 
 ## Multi-Provider Strategy
 
@@ -602,12 +610,16 @@ The installer will:
 
 ### 2. Enable Shell Functions (Optional but Recommended)
 
-To use `sync-feature-branch` and other git workflow helpers, add to your `~/.bashrc` or `~/.zshrc`:
+To use profile management and git workflow helpers, add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-# Claude Code git workflow functions
+# dotclaude functions
+export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"  # Adjust path if needed
 if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
     source "$HOME/.claude/scripts/shell-functions.sh"
+fi
+if [ -f "$HOME/.claude/scripts/profile-management.sh" ]; then
+    source "$HOME/.claude/scripts/profile-management.sh"
 fi
 ```
 

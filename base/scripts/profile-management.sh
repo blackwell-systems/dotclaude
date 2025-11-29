@@ -9,7 +9,7 @@ activate-profile() {
         bash "$HOME/.claude/scripts/activate-profile.sh" "$@"
     else
         echo "Error: activate-profile.sh not found"
-        echo "Run the install script from your CLAUDE repo"
+        echo "Run the install script from your dotclaude repo"
         return 1
     fi
 }
@@ -36,11 +36,11 @@ show-profile() {
 
 # List available profiles
 list-profiles() {
-    local REPO_DIR="${CLAUDE_REPO_DIR:-$HOME/code/CLAUDE}"
+    local REPO_DIR="${DOTCLAUDE_REPO_DIR:-$HOME/code/dotclaude}"
 
     if [ ! -d "$REPO_DIR/profiles" ]; then
         echo "Error: Profiles directory not found at $REPO_DIR/profiles"
-        echo "Set CLAUDE_REPO_DIR environment variable if repo is in a different location"
+        echo "Set DOTCLAUDE_REPO_DIR environment variable if repo is in a different location"
         return 1
     fi
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Claude Code Multi-Profile Configuration Installer
+# dotclaude installer
 # Installs base configuration and scripts, then activates a profile
 
 set -e
@@ -16,7 +16,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}=== Claude Code Multi-Profile Configuration Installer ===${NC}"
+echo -e "${BLUE}=== dotclaude installer ===${NC}"
 echo "Repo: $REPO_DIR"
 echo "Target: $CLAUDE_DIR"
 echo ""
@@ -102,8 +102,8 @@ echo -e "${BLUE}=== Shell Functions Setup ===${NC}"
 echo ""
 echo "To enable all helper functions, add to your ~/.bashrc or ~/.zshrc:"
 echo ""
-echo -e "${YELLOW}  # Claude Code functions${NC}"
-echo -e "${YELLOW}  export CLAUDE_REPO_DIR=\"$REPO_DIR\"${NC}"
+echo -e "${YELLOW}  # dotclaude functions${NC}"
+echo -e "${YELLOW}  export DOTCLAUDE_REPO_DIR=\"$REPO_DIR\"${NC}"
 echo -e "${YELLOW}  if [ -f \"\$HOME/.claude/scripts/shell-functions.sh\" ]; then${NC}"
 echo -e "${YELLOW}      source \"\$HOME/.claude/scripts/shell-functions.sh\"${NC}"
 echo -e "${YELLOW}  fi${NC}"
