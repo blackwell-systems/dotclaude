@@ -18,6 +18,10 @@ Version-controlled profile system for managing `~/.claude/` configurations acros
 
 - **Layered profiles**: Base configuration + context-specific overlays
 - **One-command switching**: Switch between work contexts instantly
+- **Auto-detection**: `.dotclaude` file detects profile mismatches automatically
+- **Preview mode**: Dry-run activation to see changes before applying
+- **Profile comparison**: Diff profiles to see differences
+- **Backup & restore**: Automatic backups with interactive restoration
 - **Version controlled**: Track all configs in git, sync across machines
 - **Multi-provider**: Works with both AWS Bedrock and Claude Max
 - **Git workflow automation**: Long-lived feature branch sync tools
@@ -77,6 +81,7 @@ When you activate a profile, base + profile merge into `~/.claude/`.
 ## Documentation
 
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
+- **[docs/DOTCLAUDE-FILE.md](docs/DOTCLAUDE-FILE.md)** - `.dotclaude` file format and auto-detection
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and technical design
 - **[docs/IDEMPOTENCY-AUDIT.md](docs/IDEMPOTENCY-AUDIT.md)** - Idempotency analysis
 - **[docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)** - Security hardening details

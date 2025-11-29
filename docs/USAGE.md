@@ -6,6 +6,7 @@ Complete reference for using dotclaude, the definitive profile management system
 
 - [Multi-Profile System](#multi-profile-system)
 - [Multi-Provider Strategy](#multi-provider-strategy)
+- [Auto-Detection](#auto-detection)
 - [Command Reference](#command-reference)
 - [Long-Lived Feature Branch Management](#long-lived-feature-branch-management)
 - [Profile Management](#profile-management)
@@ -134,6 +135,136 @@ These configs work with BOTH:
 3. Project `.claude/settings.local.json` (gitignored)
 4. Project `.claude/settings.json` (team-shared)
 5. Global `~/.claude/settings.json` (from this repo)
+
+---
+
+## Auto-Detection
+
+dotclaude can automatically detect when you're working on a project that requires a specific profile.
+
+### The `.dotclaude` File
+
+Place a `.dotclaude` file in your project root to specify which profile should be used:
+
+```bash
+cd ~/code/my-oss-project
+echo "profile: blackwell-systems-oss" > .dotclaude
+```
+
+**Supported formats:**
+
+```yaml
+# YAML-style (recommended)
+profile: blackwell-systems-oss
+```
+
+```bash
+# Shell-style
+profile=blackwell-systems-oss
+```
+
+### How It Works
+
+When Claude Code starts a session, it automatically:
+1. Checks for `.dotclaude` file in current directory
+2. Reads the specified profile name
+3. Compares with currently active profile
+4. If they differ, displays a reminder to switch
+
+**Example session output with profile mismatch:**
+
+```
+=== Claude Code Session Started ===
+Fri Nov 29 14:30:00 PST 2024
+Working directory: /home/user/code/my-oss-project
+Git branch: main
+
+╭─────────────────────────────────────────────────────────────╮
+│  🍃 Profile Mismatch Detected                               │
+╰─────────────────────────────────────────────────────────────╯
+
+  This project uses:    blackwell-systems-oss
+  Currently active:     best-western
+
+  To activate the project profile:
+    dotclaude activate blackwell-systems-oss
+```
+
+### Use Cases
+
+**1. Team Collaboration**
+
+Commit `.dotclaude` to your repository:
+
+```bash
+# In your OSS project
+echo "profile: blackwell-systems-oss" > .dotclaude
+git add .dotclaude
+git commit -m "Add dotclaude profile configuration"
+```
+
+All team members using dotclaude will be reminded to use the correct profile.
+
+**2. Personal Organization**
+
+Use `.dotclaude` files across your projects:
+
+```
+~/code/
+├── my-oss-project/
+│   └── .dotclaude          # profile: blackwell-systems-oss
+├── proprietary-business/
+│   └── .dotclaude          # profile: blackwell-systems
+└── employer-work/
+    └── .dotclaude          # profile: best-western
+```
+
+Never forget which profile to use for each project.
+
+**3. Context Switching Safety**
+
+When jumping between projects with different contexts, auto-detection prevents mistakes:
+
+```bash
+# Working on employer project
+cd ~/employer-work
+# Reminded to use: best-western profile
+
+# Switch to OSS project
+cd ~/my-oss-project
+# Reminded to use: blackwell-systems-oss profile
+```
+
+### Security
+
+The `.dotclaude` file is validated for security:
+- Profile names must be alphanumeric + hyphens/underscores only
+- Path traversal attempts are blocked
+- Profile existence is verified before displaying reminder
+- **Detection only** - never auto-activates without your confirmation
+
+### Git Integration
+
+**Should you commit `.dotclaude`?**
+
+✅ **Commit when:**
+- Team project with shared profile
+- Want consistent setup across machines
+- OSS project with documented standards
+
+❌ **Don't commit when:**
+- Personal project with unique profile
+- Profile is machine-specific
+- Team members use different dotclaude setups
+
+Add to `.gitignore` if needed:
+```bash
+echo ".dotclaude" >> .gitignore
+```
+
+### Complete Documentation
+
+For full details, see **[docs/DOTCLAUDE-FILE.md](DOTCLAUDE-FILE.md)**
 
 ---
 
