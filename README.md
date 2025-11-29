@@ -596,41 +596,89 @@ Hooks are just **bash scripts** that run at specific lifecycle events. They have
 
 ## Installation
 
-### 1. Deploy Configs
-
-Deploy base configuration and activate a profile:
+Run the installer:
 
 ```bash
+git clone https://github.com/yourusername/dotclaude.git ~/code/dotclaude
+cd ~/code/dotclaude
 ./install.sh
 ```
 
 The installer will:
-1. Copy base scripts and agents to `~/.claude/`
-2. Prompt you to select a profile
-3. Merge base + profile configuration
-4. Display setup instructions for shell functions
+1. Install `dotclaude` CLI to `~/.local/bin/`
+2. Copy base scripts and agents to `~/.claude/`
+3. Prompt you to select and activate a profile
 
-### 2. Enable Shell Functions (Optional but Recommended)
-
-To use profile management and git workflow helpers, add to your `~/.bashrc` or `~/.zshrc`:
+**Optional:** Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-# dotclaude functions
-export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"  # Adjust path if needed
-if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
-    source "$HOME/.claude/scripts/shell-functions.sh"
-fi
-if [ -f "$HOME/.claude/scripts/profile-management.sh" ]; then
-    source "$HOME/.claude/scripts/profile-management.sh"
-fi
+export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"
+export PATH="$HOME/.local/bin:$PATH"  # If not already in PATH
 ```
 
-Then restart your shell:
-```bash
-source ~/.bashrc  # or source ~/.zshrc
-```
+---
 
 ## Usage
+
+### The `dotclaude` Command
+
+All functionality is accessed through the unified `dotclaude` CLI:
+
+```
+╭─────────────────────────────────────────────────────────────╮
+│  🌲 dotclaude                                               │
+╰─────────────────────────────────────────────────────────────╯
+
+  The definitive profile management system for Claude Code
+```
+
+### Quick Start
+
+```bash
+# Show current profile
+dotclaude show
+
+# List all profiles
+dotclaude list
+
+# Switch profiles interactively
+dotclaude switch
+
+# Activate specific profile
+dotclaude activate blackwell-systems-oss
+
+# Create new profile
+dotclaude create my-new-profile
+
+# Get help
+dotclaude help
+```
+
+### Core Commands
+
+**Profile Management:**
+```bash
+dotclaude show              # Show current profile
+dotclaude list              # List all profiles
+dotclaude activate <name>   # Activate a profile
+dotclaude switch            # Interactive profile switcher
+dotclaude create <name>     # Create new profile
+dotclaude edit [name]       # Edit profile in $EDITOR
+```
+
+**Git Workflow:**
+```bash
+dotclaude sync              # Sync feature branch with main
+dotclaude branches          # Check branch status
+```
+
+**System:**
+```bash
+dotclaude version           # Show version
+dotclaude help              # Show help
+```
+
+### Detailed Usage
 
 ### Global Instructions (CLAUDE.md)
 Loaded at session start for ALL projects. Use for:
