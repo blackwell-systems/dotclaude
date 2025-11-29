@@ -230,6 +230,49 @@ dotclaude activate blackwell-systems-oss
 ╰─────────────────────────────────────────────────────────────╯
 ```
 
+**Dry-Run Mode:**
+
+Preview changes before activating:
+
+```bash
+dotclaude activate blackwell-systems-oss --dry-run
+# Or: dotclaude activate blackwell-systems-oss --preview
+```
+
+**Output:**
+```
+╭─────────────────────────────────────────────────────────────╮
+│  🌲 dotclaude                                               │
+╰─────────────────────────────────────────────────────────────╯
+
+  DRY-RUN MODE - Preview changes for: blackwell-systems-oss
+
+  Changes that would be made:
+
+    [BACKUP] Existing CLAUDE.md would be backed up
+    [MERGE] CLAUDE.md: base + blackwell-systems-oss
+            Base: 150 lines
+            Profile: 45 lines
+            Result: ~200 lines
+
+    [APPLY] settings.json: profile-specific
+            [BACKUP] Existing settings.json would be backed up
+
+    [SET] Active profile: blackwell-systems-oss
+
+  Files that would be modified:
+    • ~/.claude/CLAUDE.md
+    • ~/.claude/settings.json
+    • ~/.claude/.current-profile
+    • ~/.claude/CLAUDE.md.backup.20241129-HHMMSS
+
+╭─────────────────────────────────────────────────────────────╮
+│  🍃 Tip: Run without --dry-run to apply changes            │
+╰─────────────────────────────────────────────────────────────╯
+```
+
+**Use case:** Preview what will change before committing to a profile switch.
+
 #### `dotclaude switch`
 Interactive profile switcher.
 
@@ -299,6 +342,121 @@ dotclaude edit blackwell-systems-oss
 ```
 
 Opens the profile's `CLAUDE.md` in your configured editor (`$EDITOR` or `nano` by default).
+
+#### `dotclaude diff <profile1> [profile2]`
+Compare two profiles or compare current profile with another.
+
+```bash
+# Compare two profiles
+dotclaude diff blackwell-systems-oss blackwell-systems
+
+# Compare current profile with another
+dotclaude diff best-western
+```
+
+**Output:**
+```
+╭─────────────────────────────────────────────────────────────╮
+│  🌲 dotclaude                                               │
+╰─────────────────────────────────────────────────────────────╯
+
+  Comparing profiles: blackwell-systems-oss vs blackwell-systems
+
+  CLAUDE.md differences:
+
+    Differences found:
+
+      @@ -1,5 +1,5 @@
+      -# Profile: blackwell-systems-oss
+      +# Profile: blackwell-systems
+
+      -Open source best practices
+      +Proprietary code handling
+
+      -## Licensing
+      -All projects use MIT or Apache 2.0 licenses
+      +## Confidentiality
+      +Proprietary code, no public sharing
+
+      ... (150 more lines)
+
+    Tip: See full diff with:
+      diff -u profiles/blackwell-systems-oss/CLAUDE.md profiles/blackwell-systems/CLAUDE.md
+
+  settings.json:
+
+    ✓ No differences
+
+╭─────────────────────────────────────────────────────────────╮
+│  🍃 Tip: Use 'dotclaude activate <profile> --dry-run' to preview activation│
+╰─────────────────────────────────────────────────────────────╯
+```
+
+**Use cases:**
+- See differences before switching profiles
+- Compare OSS vs proprietary guidelines
+- Verify profile-specific settings
+
+#### `dotclaude restore`
+Restore from backup interactively.
+
+```bash
+dotclaude restore
+```
+
+**Output:**
+```
+╭─────────────────────────────────────────────────────────────╮
+│  🌲 dotclaude                                               │
+╰─────────────────────────────────────────────────────────────╯
+
+  Backup Restoration
+
+  Available backups:
+
+  CLAUDE.md backups:
+    [1] 20241129-143022 (24K)
+    [2] 20241129-120145 (22K)
+    [3] 20241128-183045 (23K)
+
+  settings.json backups:
+    [4] 20241129-143022 (4.2K)
+    [5] 20241129-120145 (3.8K)
+
+  Select backup to restore (or 'q' to quit): 1
+
+  ⚠  This will overwrite:
+    /home/user/.claude/CLAUDE.md
+
+  Continue? (y/N): y
+
+  [BACKUP] Current file backed up to:
+    CLAUDE.md.backup.20241129-150322
+  [RESTORE] Restored from: CLAUDE.md.backup.20241129-143022
+  [UPDATE] Active profile: blackwell-systems-oss
+
+╭─────────────────────────────────────────────────────────────╮
+│  ✓ Backup restored successfully                            │
+╰─────────────────────────────────────────────────────────────╯
+
+  Restored: /home/user/.claude/CLAUDE.md
+
+╭─────────────────────────────────────────────────────────────╮
+│  🍃 Tip: Verify with 'dotclaude show'                      │
+╰─────────────────────────────────────────────────────────────╯
+```
+
+**Features:**
+- Interactive selection from all available backups
+- Shows timestamp and file size
+- Separate lists for CLAUDE.md and settings.json backups
+- Creates backup of current file before restoring
+- Auto-detects and updates active profile marker
+
+**Use cases:**
+- Undo a profile switch
+- Recover from accidental changes
+- Roll back to previous configuration
 
 ### Git Workflow Commands
 

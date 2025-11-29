@@ -160,11 +160,31 @@ cmd_list() {
 }
 
 cmd_activate() {
-    local profile_name="$1"
+    local profile_name=""
+    local dry_run=false
+
+    # Parse arguments
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --dry-run|--preview)
+                dry_run=true
+                shift
+                ;;
+            -*)
+                error_box "Unknown flag: $1"
+                echo "  Usage: dotclaude activate <profile-name> [--dry-run]"
+                exit 1
+                ;;
+            *)
+                profile_name="$1"
+                shift
+                ;;
+        esac
+    done
 
     if [ -z "$profile_name" ]; then
         error_box "Profile name required"
-        echo "  Usage: dotclaude activate <profile-name>"
+        echo "  Usage: dotclaude activate <profile-name> [--dry-run]"
         echo ""
         echo "  Available profiles:"
         for profile_dir in "$PROFILES_DIR"/*; do
@@ -190,6 +210,69 @@ cmd_activate() {
         exit 1
     fi
 
+    # Check if we're re-activating the same profile
+    local current_profile=""
+    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+        current_profile=$(cat "$CLAUDE_DIR/.current-profile")
+    fi
+
+    # DRY-RUN MODE
+    if [ "$dry_run" = true ]; then
+        header
+        echo "  ${YELLOW}DRY-RUN MODE${NC} - Preview changes for: ${BOLD}$profile_name${NC}"
+        echo ""
+
+        echo "  ${BOLD}Changes that would be made:${NC}"
+        echo ""
+
+        # Show backup status
+        if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
+            echo "    ${YELLOW}[BACKUP]${NC} Existing CLAUDE.md would be backed up"
+        elif [ "$current_profile" = "$profile_name" ]; then
+            echo "    ${BLUE}[UPDATE]${NC} Already on '$profile_name', would update in place"
+        else
+            echo "    ${BLUE}[NEW]${NC} No existing CLAUDE.md"
+        fi
+
+        # Show CLAUDE.md merge
+        echo "    ${GREEN}[MERGE]${NC} CLAUDE.md: base + $profile_name"
+        local base_lines=$(wc -l < "$BASE_DIR/CLAUDE.md")
+        local profile_lines=$(wc -l < "$profile_dir/CLAUDE.md")
+        local total_lines=$((base_lines + profile_lines + 5))
+        echo "            Base: $base_lines lines"
+        echo "            Profile: $profile_lines lines"
+        echo "            Result: ~$total_lines lines"
+
+        # Show settings
+        echo ""
+        if [ -f "$profile_dir/settings.json" ]; then
+            echo "    ${GREEN}[APPLY]${NC} settings.json: profile-specific"
+            if [ -f "$CLAUDE_DIR/settings.json" ] && [ "$current_profile" != "$profile_name" ]; then
+                echo "            ${YELLOW}[BACKUP]${NC} Existing settings.json would be backed up"
+            fi
+        else
+            echo "    ${GREEN}[APPLY]${NC} settings.json: base"
+        fi
+
+        # Show profile marker
+        echo ""
+        echo "    ${GREEN}[SET]${NC} Active profile: $profile_name"
+
+        echo ""
+        echo "  ${BOLD}Files that would be modified:${NC}"
+        echo "    • ~/.claude/CLAUDE.md"
+        echo "    • ~/.claude/settings.json"
+        echo "    • ~/.claude/.current-profile"
+        if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
+            echo "    • ~/.claude/CLAUDE.md.backup.$(date +%Y%m%d-HHMMSS)"
+        fi
+
+        echo ""
+        footer_tip "Run without --dry-run to apply changes"
+        return 0
+    fi
+
+    # REAL ACTIVATION
     # Acquire lock to prevent concurrent activation
     if ! acquire_lock "$CLAUDE_DIR/.lock" 10; then
         error_box "Lock acquisition failed"
@@ -199,12 +282,6 @@ cmd_activate() {
     header
     echo "  Activating profile: ${BOLD}$profile_name${NC}"
     echo ""
-
-    # Check if we're re-activating the same profile (skip backup if so)
-    local current_profile=""
-    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
-        current_profile=$(cat "$CLAUDE_DIR/.current-profile")
-    fi
 
     # Backup existing CLAUDE.md if switching profiles
     if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
@@ -416,6 +493,254 @@ cmd_edit() {
     "$editor" "$profile_dir/CLAUDE.md"
 }
 
+cmd_diff() {
+    local profile1="$1"
+    local profile2="$2"
+
+    # If only one argument, compare current vs specified profile
+    if [ -z "$profile2" ]; then
+        if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
+            error_box "No active profile to compare"
+            echo "  Usage: dotclaude diff <profile1> <profile2>"
+            echo "     Or: dotclaude diff <profile>  (compare current vs profile)"
+            exit 1
+        fi
+        profile2="$profile1"
+        profile1="$(cat "$CLAUDE_DIR/.current-profile")"
+    fi
+
+    if [ -z "$profile1" ] || [ -z "$profile2" ]; then
+        error_box "Two profiles required"
+        echo "  Usage: dotclaude diff <profile1> <profile2>"
+        echo "     Or: dotclaude diff <profile>  (compare current vs profile)"
+        exit 1
+    fi
+
+    # Validate profile names
+    if ! validate_profile_name "$profile1" || ! validate_profile_name "$profile2"; then
+        exit 1
+    fi
+
+    local profile1_dir="$PROFILES_DIR/$profile1"
+    local profile2_dir="$PROFILES_DIR/$profile2"
+
+    if [ ! -d "$profile1_dir" ]; then
+        error_box "Profile '$profile1' not found"
+        exit 1
+    fi
+
+    if [ ! -d "$profile2_dir" ]; then
+        error_box "Profile '$profile2' not found"
+        exit 1
+    fi
+
+    header
+    echo "  Comparing profiles: ${BOLD}$profile1${NC} vs ${BOLD}$profile2${NC}"
+    echo ""
+
+    # Compare CLAUDE.md files
+    echo "  ${BOLD}CLAUDE.md differences:${NC}"
+    echo ""
+
+    if [ ! -f "$profile1_dir/CLAUDE.md" ]; then
+        echo "    ${RED}✗${NC} $profile1: CLAUDE.md not found"
+    elif [ ! -f "$profile2_dir/CLAUDE.md" ]; then
+        echo "    ${RED}✗${NC} $profile2: CLAUDE.md not found"
+    else
+        # Use diff to show differences
+        if diff -q "$profile1_dir/CLAUDE.md" "$profile2_dir/CLAUDE.md" > /dev/null 2>&1; then
+            echo "    ${GREEN}✓${NC} No differences"
+        else
+            echo "    ${YELLOW}Differences found:${NC}"
+            echo ""
+            # Show unified diff with context
+            diff -u "$profile1_dir/CLAUDE.md" "$profile2_dir/CLAUDE.md" | tail -n +3 | head -n 50 | while IFS= read -r line; do
+                if [[ "$line" =~ ^- ]]; then
+                    echo "      ${RED}$line${NC}"
+                elif [[ "$line" =~ ^\+ ]]; then
+                    echo "      ${GREEN}$line${NC}"
+                elif [[ "$line" =~ ^@ ]]; then
+                    echo "      ${CYAN}$line${NC}"
+                else
+                    echo "      $line"
+                fi
+            done
+            echo ""
+            local total_diff_lines=$(diff -u "$profile1_dir/CLAUDE.md" "$profile2_dir/CLAUDE.md" | wc -l)
+            if [ "$total_diff_lines" -gt 53 ]; then
+                echo "      ${YELLOW}... ($(($total_diff_lines - 53)) more lines)${NC}"
+                echo ""
+                echo "    ${BLUE}Tip:${NC} See full diff with:"
+                echo "      diff -u $profile1_dir/CLAUDE.md $profile2_dir/CLAUDE.md"
+            fi
+        fi
+    fi
+
+    # Compare settings.json files
+    echo ""
+    echo "  ${BOLD}settings.json:${NC}"
+    echo ""
+
+    local settings1="$profile1_dir/settings.json"
+    local settings2="$profile2_dir/settings.json"
+
+    # Use base if profile doesn't have settings
+    if [ ! -f "$settings1" ]; then
+        settings1="$BASE_DIR/settings.json"
+        echo "    $profile1: using base settings"
+    fi
+    if [ ! -f "$settings2" ]; then
+        settings2="$BASE_DIR/settings.json"
+        echo "    $profile2: using base settings"
+    fi
+
+    if diff -q "$settings1" "$settings2" > /dev/null 2>&1; then
+        echo "    ${GREEN}✓${NC} No differences"
+    else
+        echo "    ${YELLOW}Differences found${NC}"
+        echo ""
+        echo "    ${BLUE}Tip:${NC} See full diff with:"
+        echo "      diff -u $settings1 $settings2"
+    fi
+
+    echo ""
+    footer_tip "Use 'dotclaude activate <profile> --dry-run' to preview activation"
+}
+
+cmd_restore() {
+    header
+    echo "  ${BOLD}Backup Restoration${NC}"
+    echo ""
+
+    # Find all backups
+    local -a claude_backups=()
+    local -a settings_backups=()
+
+    if compgen -G "$CLAUDE_DIR/CLAUDE.md.backup.*" > /dev/null; then
+        while IFS= read -r backup; do
+            claude_backups+=("$backup")
+        done < <(ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null)
+    fi
+
+    if compgen -G "$CLAUDE_DIR/settings.json.backup.*" > /dev/null; then
+        while IFS= read -r backup; do
+            settings_backups+=("$backup")
+        done < <(ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null)
+    fi
+
+    if [ ${#claude_backups[@]} -eq 0 ] && [ ${#settings_backups[@]} -eq 0 ]; then
+        echo "  ${YELLOW}No backups found${NC}"
+        echo ""
+        echo "  Backups are created automatically when switching profiles."
+        echo ""
+        footer_tip "Use 'dotclaude activate' to switch profiles"
+        return 0
+    fi
+
+    echo "  ${BOLD}Available backups:${NC}"
+    echo ""
+
+    local -a all_backups=()
+    local index=1
+
+    # List CLAUDE.md backups
+    if [ ${#claude_backups[@]} -gt 0 ]; then
+        echo "  ${CYAN}CLAUDE.md backups:${NC}"
+        for backup in "${claude_backups[@]}"; do
+            local basename=$(basename "$backup")
+            local timestamp=$(echo "$basename" | sed 's/CLAUDE.md.backup.//')
+            local size=$(du -h "$backup" | cut -f1)
+            echo "    [$index] $timestamp ($size)"
+            all_backups+=("$backup")
+            index=$((index + 1))
+        done
+        echo ""
+    fi
+
+    # List settings.json backups
+    if [ ${#settings_backups[@]} -gt 0 ]; then
+        echo "  ${CYAN}settings.json backups:${NC}"
+        for backup in "${settings_backups[@]}"; do
+            local basename=$(basename "$backup")
+            local timestamp=$(echo "$basename" | sed 's/settings.json.backup.//')
+            local size=$(du -h "$backup" | cut -f1)
+            echo "    [$index] $timestamp ($size)"
+            all_backups+=("$backup")
+            index=$((index + 1))
+        done
+        echo ""
+    fi
+
+    read -p "  Select backup to restore (or 'q' to quit): " choice
+
+    if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
+        echo ""
+        echo "  Cancelled"
+        echo ""
+        return 0
+    fi
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#all_backups[@]}" ]; then
+        error_box "Invalid selection"
+        exit 1
+    fi
+
+    local selected_backup="${all_backups[$((choice - 1))]}"
+    local basename=$(basename "$selected_backup")
+    local target_file=""
+
+    if [[ "$basename" =~ ^CLAUDE.md.backup ]]; then
+        target_file="$CLAUDE_DIR/CLAUDE.md"
+    else
+        target_file="$CLAUDE_DIR/settings.json"
+    fi
+
+    echo ""
+    echo "  ${YELLOW}⚠  This will overwrite:${NC}"
+    echo "    $target_file"
+    echo ""
+    read -p "  Continue? (y/N): " -n 1 -r
+    echo ""
+
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo ""
+        echo "  Cancelled"
+        echo ""
+        return 0
+    fi
+
+    # Create backup of current file before restoring
+    local current_backup="${target_file}.backup.$(date +%Y%m%d-%H%M%S)"
+    if [ -f "$target_file" ]; then
+        cp "$target_file" "$current_backup"
+        chmod 600 "$current_backup" 2>/dev/null || true
+        echo ""
+        echo "  ${BLUE}[BACKUP]${NC} Current file backed up to:"
+        echo "    $(basename "$current_backup")"
+    fi
+
+    # Restore the selected backup
+    cp "$selected_backup" "$target_file"
+    echo "  ${GREEN}[RESTORE]${NC} Restored from: $(basename "$selected_backup")"
+
+    # Update .current-profile marker if we can detect it
+    if [[ "$basename" =~ ^CLAUDE.md.backup ]]; then
+        # Try to detect profile from CLAUDE.md content
+        local detected_profile=$(grep -oP '# Profile: \K[^\s]+' "$target_file" | head -1)
+        if [ -n "$detected_profile" ]; then
+            echo "$detected_profile" > "$CLAUDE_DIR/.current-profile"
+            echo "  ${GREEN}[UPDATE]${NC} Active profile: $detected_profile"
+        fi
+    fi
+
+    echo ""
+    success_box "Backup restored successfully"
+
+    echo "  Restored: $target_file"
+    echo ""
+    footer_tip "Verify with 'dotclaude show'"
+}
+
 cmd_help() {
     local command="$1"
 
@@ -430,12 +755,14 @@ cmd_help() {
         echo "  ${BOLD}CORE COMMANDS${NC}"
         echo "    ${GREEN}show${NC}              Show current active profile"
         echo "    ${GREEN}list${NC}              List all available profiles"
-        echo "    ${GREEN}activate${NC} <name>   Activate a profile"
+        echo "    ${GREEN}activate${NC} <name>   Activate a profile (--dry-run to preview)"
         echo "    ${GREEN}switch${NC}            Interactive profile switcher"
+        echo "    ${GREEN}diff${NC} <p1> [p2]    Compare profiles or current vs profile"
         echo ""
         echo "  ${BOLD}PROFILE MANAGEMENT${NC}"
         echo "    ${GREEN}create${NC} <name>     Create a new profile"
         echo "    ${GREEN}edit${NC} [name]       Edit profile (current if not specified)"
+        echo "    ${GREEN}restore${NC}           Restore from backup interactively"
         echo ""
         echo "  ${BOLD}GIT WORKFLOW${NC}"
         echo "    ${GREEN}sync${NC}              Sync feature branch with main"
@@ -517,6 +844,12 @@ main() {
             ;;
         edit)
             cmd_edit "$@"
+            ;;
+        diff)
+            cmd_diff "$@"
+            ;;
+        restore)
+            cmd_restore "$@"
             ;;
         sync)
             cmd_sync "$@"

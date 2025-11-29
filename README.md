@@ -109,10 +109,12 @@ The installer:
 # Profile management
 dotclaude show              # Show current profile
 dotclaude list              # List all profiles
-dotclaude activate <name>   # Activate a profile
+dotclaude activate <name>   # Activate a profile (add --dry-run to preview)
 dotclaude switch            # Interactive switcher
+dotclaude diff <p1> [p2]    # Compare profiles or current vs profile
 dotclaude create <name>     # Create new profile
 dotclaude edit [name]       # Edit profile
+dotclaude restore           # Restore from backup
 
 # Git workflow
 dotclaude sync              # Sync feature branch
