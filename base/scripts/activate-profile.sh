@@ -53,11 +53,22 @@ echo ""
 # Create ~/.claude if it doesn't exist
 mkdir -p "$CLAUDE_DIR"
 
-# Backup existing CLAUDE.md if it exists
-if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
+# Check if we're re-activating the same profile (skip backup if so)
+CURRENT_PROFILE=""
+if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+    CURRENT_PROFILE=$(cat "$CLAUDE_DIR/.current-profile")
+fi
+
+# Backup existing CLAUDE.md if it exists and we're switching profiles
+if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$CURRENT_PROFILE" != "$PROFILE_NAME" ]; then
     BACKUP="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
-    echo -e "${YELLOW}Backing up existing CLAUDE.md to: $BACKUP${NC}"
+    echo -e "${YELLOW}Backing up existing CLAUDE.md${NC}"
     cp "$CLAUDE_DIR/CLAUDE.md" "$BACKUP"
+
+    # Keep only 5 most recent backups
+    ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+elif [ "$CURRENT_PROFILE" = "$PROFILE_NAME" ]; then
+    echo -e "${GREEN}Already on profile '$PROFILE_NAME', updating in place${NC}"
 fi
 
 # Merge base CLAUDE.md + profile CLAUDE.md
@@ -80,10 +91,14 @@ if [ -f "$PROFILE_DIR/settings.json" ]; then
     echo -e "  ${YELLOW}Note: Profile has custom settings.json${NC}"
     echo "  Base settings will be overridden by profile settings"
 
-    if [ -f "$CLAUDE_DIR/settings.json" ]; then
+    # Only backup if switching profiles
+    if [ -f "$CLAUDE_DIR/settings.json" ] && [ "$CURRENT_PROFILE" != "$PROFILE_NAME" ]; then
         BACKUP="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
-        echo -e "  ${YELLOW}Backing up existing settings.json to: $BACKUP${NC}"
+        echo -e "  ${YELLOW}Backing up existing settings.json${NC}"
         cp "$CLAUDE_DIR/settings.json" "$BACKUP"
+
+        # Keep only 5 most recent backups
+        ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
     fi
 
     # For now, just use profile settings (could merge with jq in future)

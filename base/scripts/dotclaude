@@ -161,11 +161,22 @@ cmd_activate() {
     echo "  Activating profile: ${BOLD}$profile_name${NC}"
     echo ""
 
-    # Backup existing CLAUDE.md
-    if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
+    # Check if we're re-activating the same profile (skip backup if so)
+    local current_profile=""
+    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+        current_profile=$(cat "$CLAUDE_DIR/.current-profile")
+    fi
+
+    # Backup existing CLAUDE.md if switching profiles
+    if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
         local backup="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
         cp "$CLAUDE_DIR/CLAUDE.md" "$backup"
         echo "  [1/3] Backed up existing CLAUDE.md"
+
+        # Keep only 5 most recent backups
+        ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+    elif [ "$current_profile" = "$profile_name" ]; then
+        echo "  [1/3] Already on '$profile_name', updating in place"
     else
         echo "  [1/3] No existing CLAUDE.md to backup"
     fi
@@ -184,9 +195,13 @@ cmd_activate() {
 
     # Apply settings
     if [ -f "$profile_dir/settings.json" ]; then
-        if [ -f "$CLAUDE_DIR/settings.json" ]; then
+        # Only backup if switching profiles
+        if [ -f "$CLAUDE_DIR/settings.json" ] && [ "$current_profile" != "$profile_name" ]; then
             local backup="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
             cp "$CLAUDE_DIR/settings.json" "$backup"
+
+            # Keep only 5 most recent backups
+            ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
         fi
         cp "$profile_dir/settings.json" "$CLAUDE_DIR/settings.json"
         echo "  [3/3] Applied profile settings"
