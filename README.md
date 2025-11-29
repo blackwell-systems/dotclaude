@@ -114,7 +114,18 @@ python3 -m http.server 3000
 
 ## Installation
 
+**Quick install (recommended):**
+
 ```bash
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
+```
+
+**Or clone first:**
+
+```bash
+git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
+cd ~/code/dotclaude
+
 # Basic installation
 ./install.sh
 
