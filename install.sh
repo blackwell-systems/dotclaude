@@ -21,12 +21,31 @@ echo "Repo: $REPO_DIR"
 echo "Target: $CLAUDE_DIR"
 echo ""
 
-# Create ~/.claude if it doesn't exist
+# Create directories
 mkdir -p "$CLAUDE_DIR/agents"
 mkdir -p "$CLAUDE_DIR/scripts"
+mkdir -p "$HOME/.local/bin"
+
+# Install dotclaude CLI
+echo "[1/3] Installing dotclaude CLI..."
+if [ -f "$BASE_DIR/scripts/dotclaude" ]; then
+    cp "$BASE_DIR/scripts/dotclaude" "$HOME/.local/bin/dotclaude"
+    chmod +x "$HOME/.local/bin/dotclaude"
+    echo -e "  ${GREEN}✓${NC} Installed to ~/.local/bin/dotclaude"
+
+    # Check if ~/.local/bin is in PATH
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        echo -e "  ${YELLOW}⚠${NC}  ~/.local/bin is not in your PATH"
+        echo "     Add this to your ~/.bashrc or ~/.zshrc:"
+        echo "     export PATH=\"\$HOME/.local/bin:\$PATH\""
+    fi
+else
+    echo "  ${YELLOW}⚠${NC}  dotclaude CLI not found in base/scripts"
+fi
 
 # Install scripts (needed for profile activation)
-echo "[1/2] Installing management scripts..."
+echo ""
+echo "[2/3] Installing management scripts..."
 if [ -d "$BASE_DIR/scripts" ]; then
     cp -r "$BASE_DIR/scripts/"* "$CLAUDE_DIR/scripts/"
     chmod +x "$CLAUDE_DIR/scripts/"*.sh
@@ -37,7 +56,7 @@ fi
 
 # Install agents
 echo ""
-echo "[2/2] Installing global agents..."
+echo "[3/3] Installing global agents..."
 if [ -d "$BASE_DIR/agents" ]; then
     for agent_dir in "$BASE_DIR/agents"/*; do
         if [ -d "$agent_dir" ]; then
@@ -89,50 +108,35 @@ if [[ "$PROFILE_NAME" != "skip" && -n "$PROFILE_NAME" ]]; then
     else
         echo -e "${YELLOW}Profile '$PROFILE_NAME' not found. Skipping profile activation.${NC}"
         echo "You can activate a profile later with:"
-        echo "  activate-profile <profile-name>"
+        echo "  dotclaude activate <profile-name>"
     fi
 else
     echo "Skipped profile activation"
     echo "To activate a profile later:"
-    echo "  activate-profile <profile-name>"
+    echo "  dotclaude activate <profile-name>"
 fi
 
 echo ""
-echo -e "${BLUE}=== Shell Functions Setup ===${NC}"
+echo -e "${BLUE}=== Setup Complete ===${NC}"
 echo ""
-echo "To enable all helper functions, add to your ~/.bashrc or ~/.zshrc:"
+echo "Set DOTCLAUDE_REPO_DIR in your shell (optional):"
 echo ""
-echo -e "${YELLOW}  # dotclaude functions${NC}"
+echo -e "${YELLOW}  # Add to ~/.bashrc or ~/.zshrc${NC}"
 echo -e "${YELLOW}  export DOTCLAUDE_REPO_DIR=\"$REPO_DIR\"${NC}"
-echo -e "${YELLOW}  if [ -f \"\$HOME/.claude/scripts/shell-functions.sh\" ]; then${NC}"
-echo -e "${YELLOW}      source \"\$HOME/.claude/scripts/shell-functions.sh\"${NC}"
-echo -e "${YELLOW}  fi${NC}"
-echo -e "${YELLOW}  if [ -f \"\$HOME/.claude/scripts/profile-management.sh\" ]; then${NC}"
-echo -e "${YELLOW}      source \"\$HOME/.claude/scripts/profile-management.sh\"${NC}"
-echo -e "${YELLOW}  fi${NC}"
 echo ""
-echo "Then restart your shell or run: source ~/.bashrc"
+echo -e "${BLUE}=== Getting Started ===${NC}"
 echo ""
-echo -e "${BLUE}=== Available Commands ===${NC}"
+echo "Try these commands:"
 echo ""
-echo "Profile management:"
-echo "  - activate-profile <name>  Activate a profile"
-echo "  - show-profile             Show current profile"
-echo "  - list-profiles            List available profiles"
-echo "  - switch-to-oss            Quick switch to blackwell-systems-oss"
-echo "  - switch-to-blackwell      Quick switch to blackwell-systems"
-echo "  - switch-to-work           Quick switch to best-western"
-echo ""
-echo "Git workflow:"
-echo "  - sync-feature-branch      Sync current branch with main"
-echo "  - check-branches           Check all branches status"
-echo "  - pr-merged                Workflow after PR is merged"
-echo "  - list-feature-branches    List all feature branches"
+echo "  ${GREEN}dotclaude show${NC}              Show current profile"
+echo "  ${GREEN}dotclaude list${NC}              List available profiles"
+echo "  ${GREEN}dotclaude switch${NC}            Interactive profile switcher"
+echo "  ${GREEN}dotclaude help${NC}              Show all commands"
 echo ""
 echo -e "${GREEN}╭─────────────────────────────────────────────────────────────╮${NC}"
 echo -e "${GREEN}│  ✓ Installation Complete                                    │${NC}"
 echo -e "${GREEN}╰─────────────────────────────────────────────────────────────╯${NC}"
 echo ""
 echo "╭─────────────────────────────────────────────────────────────╮"
-echo "│  🍃 Tip: Run 'show-profile' to see your current setup      │"
+echo "│  🍃 Tip: Run 'dotclaude help' to see all commands          │"
 echo "╰─────────────────────────────────────────────────────────────╯"

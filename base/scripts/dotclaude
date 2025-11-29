@@ -1,0 +1,464 @@
+#!/bin/bash
+
+# dotclaude - The definitive profile management system for Claude Code
+# Version: 1.0.0
+
+set -e
+
+VERSION="1.0.0"
+CLAUDE_DIR="$HOME/.claude"
+REPO_DIR="${DOTCLAUDE_REPO_DIR:-$HOME/code/dotclaude}"
+BASE_DIR="$REPO_DIR/base"
+PROFILES_DIR="$REPO_DIR/profiles"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# ============================================================================
+# UI Components
+# ============================================================================
+
+header() {
+    echo ""
+    echo -e "${BOLD}╭─────────────────────────────────────────────────────────────╮${NC}"
+    echo -e "${BOLD}│  🌲 dotclaude                                               │${NC}"
+    echo -e "${BOLD}╰─────────────────────────────────────────────────────────────╯${NC}"
+    echo ""
+}
+
+footer_tip() {
+    local message="$1"
+    echo ""
+    echo "╭─────────────────────────────────────────────────────────────╮"
+    echo -e "│  🍃 Tip: ${message}$(printf ' %.0s' {1..100})" | cut -c1-61 | sed 's/$/│/'
+    echo "╰─────────────────────────────────────────────────────────────╯"
+    echo ""
+}
+
+success_box() {
+    local message="$1"
+    echo ""
+    echo -e "${GREEN}╭─────────────────────────────────────────────────────────────╮${NC}"
+    echo -e "${GREEN}│  ✓ ${message}$(printf ' %.0s' {1..100})${NC}" | cut -c1-61 | sed "s/\$/│/"
+    echo -e "${GREEN}╰─────────────────────────────────────────────────────────────╯${NC}"
+    echo ""
+}
+
+error_box() {
+    local message="$1"
+    echo ""
+    echo -e "${RED}╭─────────────────────────────────────────────────────────────╮${NC}"
+    echo -e "${RED}│  ✗ ${message}$(printf ' %.0s' {1..100})${NC}" | cut -c1-61 | sed "s/\$/│/"
+    echo -e "${RED}╰─────────────────────────────────────────────────────────────╯${NC}"
+    echo ""
+}
+
+# ============================================================================
+# Core Commands
+# ============================================================================
+
+cmd_show() {
+    header
+
+    if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
+        echo "  No profile currently active"
+        echo ""
+        footer_tip "Run 'dotclaude list' to see available profiles"
+        return 1
+    fi
+
+    local profile=$(cat "$CLAUDE_DIR/.current-profile")
+    echo -e "  ${BOLD}Active Profile:${NC} ${GREEN}$profile${NC}"
+    echo ""
+
+    echo "  Configuration:"
+    if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
+        local lines=$(wc -l < "$CLAUDE_DIR/CLAUDE.md")
+        echo "    • CLAUDE.md: $lines lines"
+    fi
+    if [ -f "$CLAUDE_DIR/settings.json" ]; then
+        echo "    • settings.json: configured"
+    fi
+
+    echo ""
+    echo "  Location:"
+    echo "    • ~/.claude/"
+
+    footer_tip "Run 'dotclaude switch' to change profiles"
+}
+
+cmd_list() {
+    header
+
+    if [ ! -d "$PROFILES_DIR" ]; then
+        error_box "Profiles directory not found at $PROFILES_DIR"
+        echo "  Set DOTCLAUDE_REPO_DIR environment variable if repo is elsewhere"
+        echo ""
+        exit 1
+    fi
+
+    local current=""
+    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+        current=$(cat "$CLAUDE_DIR/.current-profile")
+    fi
+
+    echo "  Available Profiles:"
+    echo ""
+
+    local count=0
+    for profile_dir in "$PROFILES_DIR"/*; do
+        if [ -d "$profile_dir" ]; then
+            local profile=$(basename "$profile_dir")
+            if [ "$profile" = "$current" ]; then
+                echo -e "    ${GREEN}●${NC} ${BOLD}$profile${NC} ${GREEN}(active)${NC}"
+            else
+                echo "    ○ $profile"
+            fi
+            count=$((count + 1))
+        fi
+    done
+
+    echo ""
+    echo "  Total: $count profiles"
+
+    footer_tip "Use 'dotclaude activate <name>' or 'dotclaude switch'"
+}
+
+cmd_activate() {
+    local profile_name="$1"
+
+    if [ -z "$profile_name" ]; then
+        error_box "Profile name required"
+        echo "  Usage: dotclaude activate <profile-name>"
+        echo ""
+        echo "  Available profiles:"
+        for profile_dir in "$PROFILES_DIR"/*; do
+            if [ -d "$profile_dir" ]; then
+                echo "    • $(basename "$profile_dir")"
+            fi
+        done
+        echo ""
+        exit 1
+    fi
+
+    local profile_dir="$PROFILES_DIR/$profile_name"
+
+    if [ ! -d "$profile_dir" ]; then
+        error_box "Profile '$profile_name' not found"
+        echo "  Run 'dotclaude list' to see available profiles"
+        echo ""
+        exit 1
+    fi
+
+    header
+    echo "  Activating profile: ${BOLD}$profile_name${NC}"
+    echo ""
+
+    # Backup existing CLAUDE.md
+    if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
+        local backup="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
+        cp "$CLAUDE_DIR/CLAUDE.md" "$backup"
+        echo "  [1/3] Backed up existing CLAUDE.md"
+    else
+        echo "  [1/3] No existing CLAUDE.md to backup"
+    fi
+
+    # Merge base + profile CLAUDE.md
+    {
+        cat "$BASE_DIR/CLAUDE.md"
+        echo ""
+        echo "# ========================================="
+        echo "# Profile: $profile_name"
+        echo "# ========================================="
+        echo ""
+        cat "$profile_dir/CLAUDE.md"
+    } > "$CLAUDE_DIR/CLAUDE.md"
+    echo "  [2/3] Merged base + profile configuration"
+
+    # Apply settings
+    if [ -f "$profile_dir/settings.json" ]; then
+        if [ -f "$CLAUDE_DIR/settings.json" ]; then
+            local backup="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
+            cp "$CLAUDE_DIR/settings.json" "$backup"
+        fi
+        cp "$profile_dir/settings.json" "$CLAUDE_DIR/settings.json"
+        echo "  [3/3] Applied profile settings"
+    else
+        cp "$BASE_DIR/settings.json" "$CLAUDE_DIR/settings.json"
+        echo "  [3/3] Applied base settings"
+    fi
+
+    # Mark as current
+    echo "$profile_name" > "$CLAUDE_DIR/.current-profile"
+
+    success_box "Profile '$profile_name' activated"
+
+    echo "  Configuration deployed to: $CLAUDE_DIR"
+    echo ""
+    echo "  Verify with:"
+    echo "    • dotclaude show"
+    echo "    • cat ~/.claude/CLAUDE.md"
+
+    footer_tip "Happy coding!"
+}
+
+cmd_switch() {
+    header
+
+    echo "  Select a profile to activate:"
+    echo ""
+
+    local current=""
+    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+        current=$(cat "$CLAUDE_DIR/.current-profile")
+    fi
+
+    local -a profiles=()
+    local index=1
+
+    for profile_dir in "$PROFILES_DIR"/*; do
+        if [ -d "$profile_dir" ]; then
+            local profile=$(basename "$profile_dir")
+            if [ "$profile" = "$current" ]; then
+                echo -e "    ${GREEN}[$index]${NC} ${BOLD}$profile${NC} ${GREEN}(active)${NC}"
+            else
+                echo "    [$index] $profile"
+            fi
+            profiles+=("$profile")
+            index=$((index + 1))
+        fi
+    done
+
+    echo ""
+    read -p "  Enter number (or 'q' to quit): " choice
+
+    if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
+        echo ""
+        echo "  Cancelled"
+        echo ""
+        exit 0
+    fi
+
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [ "$choice" -lt 1 ] || [ "$choice" -gt "${#profiles[@]}" ]; then
+        error_box "Invalid selection"
+        exit 1
+    fi
+
+    local selected_profile="${profiles[$((choice - 1))]}"
+    cmd_activate "$selected_profile"
+}
+
+cmd_create() {
+    local profile_name="$1"
+
+    if [ -z "$profile_name" ]; then
+        error_box "Profile name required"
+        echo "  Usage: dotclaude create <profile-name>"
+        echo ""
+        exit 1
+    fi
+
+    local profile_dir="$PROFILES_DIR/$profile_name"
+
+    if [ -d "$profile_dir" ]; then
+        error_box "Profile '$profile_name' already exists"
+        exit 1
+    fi
+
+    header
+    echo "  Creating new profile: ${BOLD}$profile_name${NC}"
+    echo ""
+
+    mkdir -p "$profile_dir"
+
+    cat > "$profile_dir/CLAUDE.md" <<EOF
+# Profile: $profile_name
+
+<!-- Profile-specific additions for $profile_name -->
+
+**TODO: Add profile-specific content here**
+
+This file will be merged with the base CLAUDE.md when this profile is active.
+
+## Purpose
+
+Define standards, practices, and guidelines specific to this context.
+
+## Topics to Cover
+
+- Context-specific coding standards
+- Tech stack preferences
+- Workflows and processes
+- Documentation practices
+- Security policies
+- Deployment procedures
+- Team collaboration practices
+EOF
+
+    success_box "Profile '$profile_name' created"
+
+    echo "  Location: $profile_dir"
+    echo ""
+    echo "  Next steps:"
+    echo "    • dotclaude edit $profile_name"
+    echo "    • dotclaude activate $profile_name"
+
+    footer_tip "Edit the profile to add your guidelines"
+}
+
+cmd_edit() {
+    local profile_name="$1"
+
+    if [ -z "$profile_name" ]; then
+        # Edit current profile
+        if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
+            error_box "No active profile to edit"
+            echo "  Specify a profile: dotclaude edit <profile-name>"
+            echo ""
+            exit 1
+        fi
+        profile_name=$(cat "$CLAUDE_DIR/.current-profile")
+    fi
+
+    local profile_dir="$PROFILES_DIR/$profile_name"
+
+    if [ ! -d "$profile_dir" ]; then
+        error_box "Profile '$profile_name' not found"
+        exit 1
+    fi
+
+    local editor="${EDITOR:-nano}"
+    "$editor" "$profile_dir/CLAUDE.md"
+}
+
+cmd_help() {
+    local command="$1"
+
+    if [ -z "$command" ]; then
+        header
+
+        echo "  ${BOLD}The definitive profile management system for Claude Code${NC}"
+        echo ""
+        echo "  ${BOLD}USAGE${NC}"
+        echo "    dotclaude <command> [options]"
+        echo ""
+        echo "  ${BOLD}CORE COMMANDS${NC}"
+        echo "    ${GREEN}show${NC}              Show current active profile"
+        echo "    ${GREEN}list${NC}              List all available profiles"
+        echo "    ${GREEN}activate${NC} <name>   Activate a profile"
+        echo "    ${GREEN}switch${NC}            Interactive profile switcher"
+        echo ""
+        echo "  ${BOLD}PROFILE MANAGEMENT${NC}"
+        echo "    ${GREEN}create${NC} <name>     Create a new profile"
+        echo "    ${GREEN}edit${NC} [name]       Edit profile (current if not specified)"
+        echo ""
+        echo "  ${BOLD}GIT WORKFLOW${NC}"
+        echo "    ${GREEN}sync${NC}              Sync feature branch with main"
+        echo "    ${GREEN}branches${NC}          Check branch status"
+        echo ""
+        echo "  ${BOLD}SYSTEM${NC}"
+        echo "    ${GREEN}version${NC}           Show version"
+        echo "    ${GREEN}help${NC} [command]    Show help"
+        echo ""
+
+        footer_tip "Run 'dotclaude help <command>' for detailed help"
+        exit 0
+    fi
+
+    # Command-specific help
+    case "$command" in
+        show|list|activate|switch|create|edit)
+            echo "Help for '$command' coming soon..."
+            ;;
+        *)
+            error_box "Unknown command: $command"
+            ;;
+    esac
+}
+
+cmd_version() {
+    header
+    echo "  ${BOLD}dotclaude${NC} version ${GREEN}$VERSION${NC}"
+    echo ""
+    echo "  The definitive profile management system for Claude Code"
+    echo ""
+    echo "  Repository: $REPO_DIR"
+    echo "  Configuration: $CLAUDE_DIR"
+    echo ""
+}
+
+cmd_sync() {
+    if [ -f "$BASE_DIR/scripts/sync-feature-branch.sh" ]; then
+        bash "$BASE_DIR/scripts/sync-feature-branch.sh"
+    else
+        error_box "Git sync tool not found"
+        exit 1
+    fi
+}
+
+cmd_branches() {
+    if [ -f "$BASE_DIR/scripts/shell-functions.sh" ]; then
+        source "$BASE_DIR/scripts/shell-functions.sh"
+        check-branches
+    else
+        error_box "Branch check tool not found"
+        exit 1
+    fi
+}
+
+# ============================================================================
+# Main Dispatcher
+# ============================================================================
+
+main() {
+    local command="${1:-help}"
+    shift || true
+
+    case "$command" in
+        show)
+            cmd_show "$@"
+            ;;
+        list|ls)
+            cmd_list "$@"
+            ;;
+        activate|use)
+            cmd_activate "$@"
+            ;;
+        switch|select)
+            cmd_switch "$@"
+            ;;
+        create|new)
+            cmd_create "$@"
+            ;;
+        edit)
+            cmd_edit "$@"
+            ;;
+        sync)
+            cmd_sync "$@"
+            ;;
+        branches|br)
+            cmd_branches "$@"
+            ;;
+        version|-v|--version)
+            cmd_version "$@"
+            ;;
+        help|-h|--help)
+            cmd_help "$@"
+            ;;
+        *)
+            error_box "Unknown command: $command"
+            echo "  Run 'dotclaude help' for usage information"
+            echo ""
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
