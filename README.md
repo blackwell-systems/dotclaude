@@ -2,6 +2,8 @@
 
 Version-controlled profile system for managing `~/.claude/` configurations across different work contexts.
 
+> **Disclaimer:** dotclaude is an independent, open-source tool and is not affiliated with or endorsed by Anthropic or the Claude product.
+
 ## What is dotclaude?
 
 **dotclaude** manages your Claude Code configuration as layered, version-controlled profiles - similar to dotfiles but specifically for `~/.claude/`.
