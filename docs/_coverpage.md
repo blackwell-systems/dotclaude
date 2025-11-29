@@ -1,9 +1,10 @@
+![logo](assets/dotclaude_logo.png ':size=120x120')
+
 # dotclaude
 
 > The definitive profile management system for Claude Code
 
 ```bash
-# One-line install
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
