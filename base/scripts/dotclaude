@@ -48,6 +48,21 @@ else
             return 1
         fi
     }
+
+    validate_repo_dir() {
+        local repo_dir="$1"
+
+        if [ -z "$repo_dir" ] || [ ! -d "$repo_dir" ]; then
+            return 1
+        fi
+
+        # Only require base directory - profiles can be created as needed
+        if [ ! -d "$repo_dir/base" ]; then
+            return 1
+        fi
+
+        return 0
+    }
 fi
 
 # Trap handler for cleanup
