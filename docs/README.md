@@ -34,6 +34,10 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 - [Sample Profile](https://github.com/blackwell-systems/dotclaude/blob/main/examples/sample-profile/README.md) - Complete example profile with explanations
 - [Base Configuration](https://github.com/blackwell-systems/dotclaude/blob/main/base/CLAUDE.md) - Universal standards that apply to all profiles
 
+## Legal & Brand
+
+- [Brand Guidelines](BRAND.md) - Trademark usage and brand guidelines
+
 ---
 
 **Looking for something specific?**

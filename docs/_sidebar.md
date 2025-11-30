@@ -46,4 +46,5 @@
 - **Resources**
   - [GitHub](https://github.com/blackwell-systems/dotclaude)
   - [Issues](https://github.com/blackwell-systems/dotclaude/issues)
+  - [Brand Guidelines](BRAND.md)
   - [Changelog](#)
