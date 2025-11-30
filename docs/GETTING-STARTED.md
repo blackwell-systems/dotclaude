@@ -120,6 +120,14 @@ dotclaude/
 
 ## Installation Options
 
+### Platform Requirements
+
+- **Linux** - Fully supported
+- **macOS** - Fully supported
+- **Windows** - Requires [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux 2)
+
+> **Windows Users:** dotclaude requires a Unix/Linux environment with Bash. Native Windows (CMD/PowerShell) is not supported. Install WSL2 first, then run the installation commands from your WSL2 terminal.
+
 ### Quick Install (Recommended)
 
 ```bash
