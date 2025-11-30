@@ -20,7 +20,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
@@ -28,7 +27,8 @@ NC='\033[0m'
 # Debug function
 debug() {
     if [ "$DEBUG" = "1" ]; then
-        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        local timestamp
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         echo -e "${CYAN}[DEBUG $timestamp]${NC} $*" >&2
         # Also log to file for troubleshooting
         echo "[$timestamp] $*" >> "$DEBUG_LOG" 2>/dev/null || true
@@ -131,13 +131,15 @@ cmd_show() {
         return 1
     fi
 
-    local profile=$(cat "$CLAUDE_DIR/.current-profile")
+    local profile
+    profile=$(cat "$CLAUDE_DIR/.current-profile")
     echo -e "  ${BOLD}Active Profile:${NC} ${GREEN}$profile${NC}"
     echo ""
 
     echo "  Configuration:"
     if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
-        local lines=$(wc -l < "$CLAUDE_DIR/CLAUDE.md")
+        local lines
+        lines=$(wc -l < "$CLAUDE_DIR/CLAUDE.md")
         echo "    • CLAUDE.md: $lines lines"
     fi
     if [ -f "$CLAUDE_DIR/settings.json" ]; then
@@ -188,7 +190,8 @@ cmd_list() {
     local count=0
     for profile_dir in "$PROFILES_DIR"/*; do
         if [ -d "$profile_dir" ]; then
-            local profile=$(basename "$profile_dir")
+            local profile
+            profile=$(basename "$profile_dir")
             if [ "$profile" = "$current" ]; then
                 echo -e "    ${GREEN}●${NC} ${BOLD}$profile${NC} ${GREEN}(active)${NC}"
             else
@@ -292,8 +295,10 @@ cmd_activate() {
 
         # Show CLAUDE.md merge
         echo "    ${GREEN}[MERGE]${NC} CLAUDE.md: base + $profile_name"
-        local base_lines=$(wc -l < "$BASE_DIR/CLAUDE.md")
-        local profile_lines=$(wc -l < "$profile_dir/CLAUDE.md")
+        local base_lines
+        base_lines=$(wc -l < "$BASE_DIR/CLAUDE.md")
+        local profile_lines
+        profile_lines=$(wc -l < "$profile_dir/CLAUDE.md")
         local total_lines=$((base_lines + profile_lines + 5))
         echo "            Base: $base_lines lines"
         echo "            Profile: $profile_lines lines"
@@ -341,13 +346,14 @@ cmd_activate() {
 
     # Backup existing CLAUDE.md if switching profiles
     if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$current_profile" != "$profile_name" ]; then
-        local backup="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
+        local backup
+        backup="$CLAUDE_DIR/CLAUDE.md.backup.$(date +%Y%m%d-%H%M%S)"
         cp "$CLAUDE_DIR/CLAUDE.md" "$backup"
         chmod 600 "$backup" 2>/dev/null || true  # Secure permissions
         echo "  [1/3] Backed up existing CLAUDE.md"
 
         # Keep only 5 most recent backups
-        ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+        find "$CLAUDE_DIR" -name "CLAUDE.md.backup.*" -type f -print0 2>/dev/null | sort -zr | tail -zn +6 | xargs -0 rm -f 2>/dev/null || true
     elif [ "$current_profile" = "$profile_name" ]; then
         echo "  [1/3] Already on '$profile_name', updating in place"
     else
@@ -370,12 +376,13 @@ cmd_activate() {
     if [ -f "$profile_dir/settings.json" ]; then
         # Only backup if switching profiles
         if [ -f "$CLAUDE_DIR/settings.json" ] && [ "$current_profile" != "$profile_name" ]; then
-            local backup="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
+            local backup
+            backup="$CLAUDE_DIR/settings.json.backup.$(date +%Y%m%d-%H%M%S)"
             cp "$CLAUDE_DIR/settings.json" "$backup"
             chmod 600 "$backup" 2>/dev/null || true  # Secure permissions
 
             # Keep only 5 most recent backups
-            ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+            find "$CLAUDE_DIR" -name "settings.json.backup.*" -type f -print0 2>/dev/null | sort -zr | tail -zn +6 | xargs -0 rm -f 2>/dev/null || true
         fi
         cp "$profile_dir/settings.json" "$CLAUDE_DIR/settings.json"
         echo "  [3/3] Applied profile settings"
@@ -431,7 +438,8 @@ cmd_switch() {
 
     for profile_dir in "$PROFILES_DIR"/*; do
         if [ -d "$profile_dir" ]; then
-            local profile=$(basename "$profile_dir")
+            local profile
+            profile=$(basename "$profile_dir")
             if [ "$profile" = "$current" ]; then
                 echo -e "    ${GREEN}[$index]${NC} ${BOLD}$profile${NC} ${GREEN}(active)${NC}"
             else
@@ -443,7 +451,7 @@ cmd_switch() {
     done
 
     echo ""
-    read -p "  Enter number (or 'q' to quit): " choice
+    read -r -p "  Enter number (or 'q' to quit): " choice
 
     if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
         echo ""
@@ -724,9 +732,10 @@ cmd_diff() {
                 fi
             done
             echo ""
-            local total_diff_lines=$(diff -u "$profile1_dir/CLAUDE.md" "$profile2_dir/CLAUDE.md" | wc -l)
+            local total_diff_lines
+            total_diff_lines=$(diff -u "$profile1_dir/CLAUDE.md" "$profile2_dir/CLAUDE.md" | wc -l)
             if [ "$total_diff_lines" -gt 53 ]; then
-                echo "      ${YELLOW}... ($(($total_diff_lines - 53)) more lines)${NC}"
+                echo "      ${YELLOW}... ($((total_diff_lines - 53)) more lines)${NC}"
                 echo ""
                 echo "    ${BLUE}Tip:${NC} See full diff with:"
                 echo "      diff -u $profile1_dir/CLAUDE.md $profile2_dir/CLAUDE.md"
@@ -821,9 +830,12 @@ cmd_restore() {
     if [ ${#claude_backups[@]} -gt 0 ]; then
         echo "  ${CYAN}CLAUDE.md backups:${NC}"
         for backup in "${claude_backups[@]}"; do
-            local basename=$(basename "$backup")
-            local timestamp=$(echo "$basename" | sed 's/CLAUDE.md.backup.//')
-            local size=$(du -h "$backup" | cut -f1)
+            local basename
+            basename=$(basename "$backup")
+            local timestamp
+            timestamp="${basename#CLAUDE.md.backup.}"
+            local size
+            size=$(du -h "$backup" | cut -f1)
             echo "    [$index] $timestamp ($size)"
             all_backups+=("$backup")
             index=$((index + 1))
@@ -835,9 +847,12 @@ cmd_restore() {
     if [ ${#settings_backups[@]} -gt 0 ]; then
         echo "  ${CYAN}settings.json backups:${NC}"
         for backup in "${settings_backups[@]}"; do
-            local basename=$(basename "$backup")
-            local timestamp=$(echo "$basename" | sed 's/settings.json.backup.//')
-            local size=$(du -h "$backup" | cut -f1)
+            local basename
+            basename=$(basename "$backup")
+            local timestamp
+            timestamp="${basename#settings.json.backup.}"
+            local size
+            size=$(du -h "$backup" | cut -f1)
             echo "    [$index] $timestamp ($size)"
             all_backups+=("$backup")
             index=$((index + 1))
@@ -845,7 +860,7 @@ cmd_restore() {
         echo ""
     fi
 
-    read -p "  Select backup to restore (or 'q' to quit): " choice
+    read -r -p "  Select backup to restore (or 'q' to quit): " choice
 
     if [ "$choice" = "q" ] || [ "$choice" = "Q" ]; then
         echo ""
@@ -860,7 +875,8 @@ cmd_restore() {
     fi
 
     local selected_backup="${all_backups[$((choice - 1))]}"
-    local basename=$(basename "$selected_backup")
+    local basename
+    basename=$(basename "$selected_backup")
     local target_file=""
 
     if [[ "$basename" =~ ^CLAUDE.md.backup ]]; then
@@ -884,7 +900,8 @@ cmd_restore() {
     fi
 
     # Create backup of current file before restoring
-    local current_backup="${target_file}.backup.$(date +%Y%m%d-%H%M%S)"
+    local current_backup
+    current_backup="${target_file}.backup.$(date +%Y%m%d-%H%M%S)"
     if [ -f "$target_file" ]; then
         cp "$target_file" "$current_backup"
         chmod 600 "$current_backup" 2>/dev/null || true
@@ -900,7 +917,8 @@ cmd_restore() {
     # Update .current-profile marker if we can detect it
     if [[ "$basename" =~ ^CLAUDE.md.backup ]]; then
         # Try to detect profile from CLAUDE.md content
-        local detected_profile=$(grep -oP '# Profile: \K[^\s]+' "$target_file" | head -1)
+        local detected_profile
+        detected_profile=$(grep -oP '# Profile: \K[^\s]+' "$target_file" | head -1)
         if [ -n "$detected_profile" ]; then
             echo "$detected_profile" > "$CLAUDE_DIR/.current-profile"
             echo "  ${GREEN}[UPDATE]${NC} Active profile: $detected_profile"
