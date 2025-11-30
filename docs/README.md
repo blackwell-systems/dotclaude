@@ -5,13 +5,13 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 ## Getting Started
 
 **New to dotclaude?** Start here:
-- [Main README](https://github.com/blackwell-systems/dotclaude#readme) - Overview, concepts, and Quick Start guide
-- [Installation Guide](https://github.com/blackwell-systems/dotclaude#installation) - Setup and installation options
-- [Features Overview](https://github.com/blackwell-systems/dotclaude#features) - What dotclaude offers
+- [Getting Started Guide](GETTING-STARTED.md) - Installation, concepts, and first steps
+- [Commands Reference](COMMANDS.md) - Complete command guide for all 10 commands
+- [FAQ](FAQ.md) - Common questions answered
 
 ## User Documentation
 
-- [Complete Usage Guide](USAGE.md) - Comprehensive command reference and workflows
+- [Complete Usage Guide](USAGE.md) - Comprehensive workflows and advanced features
 - [Auto-Detection](USAGE.md#auto-detection) - Using `.dotclaude` files for automatic profile detection
 - [Profile Management](USAGE.md#multi-profile-system) - Creating and managing profiles
 - [Git Workflow Tools](USAGE.md#long-lived-feature-branch-management) - Long-lived branch management
@@ -29,7 +29,7 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 ---
 
 **Looking for something specific?**
-- Quick Start → [Main README](https://github.com/blackwell-systems/dotclaude#quick-start)
-- Command reference → [Usage Guide](USAGE.md#command-reference)
-- How profiles work → [Main README](https://github.com/blackwell-systems/dotclaude#how-it-works-the-merge)
-- Troubleshooting → [Usage Guide](USAGE.md)
+- Quick Start → [Getting Started Guide](GETTING-STARTED.md#quick-start)
+- Command reference → [Commands Reference](COMMANDS.md)
+- How profiles work → [Getting Started Guide](GETTING-STARTED.md#how-it-works-the-merge)
+- Troubleshooting → [FAQ](FAQ.md#troubleshooting)

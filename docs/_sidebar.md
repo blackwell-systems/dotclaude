@@ -1,29 +1,38 @@
 <!-- _sidebar.md -->
 
 - **Getting Started**
-  - [Quick Start](https://github.com/blackwell-systems/dotclaude#quick-start)
-  - [Installation](https://github.com/blackwell-systems/dotclaude#installation)
-  - [Features](https://github.com/blackwell-systems/dotclaude#features)
+  - [Overview](GETTING-STARTED.md)
+  - [Quick Start](GETTING-STARTED.md#quick-start)
+  - [Installation](GETTING-STARTED.md#installation)
+
+- **Commands**
+  - [Commands Overview](COMMANDS.md)
+  - [Profile Management](COMMANDS.md#profile-management-commands)
+    - [show](COMMANDS.md#dotclaude-show)
+    - [list](COMMANDS.md#dotclaude-list)
+    - [activate](COMMANDS.md#dotclaude-activate)
+    - [switch](COMMANDS.md#dotclaude-switch)
+    - [create](COMMANDS.md#dotclaude-create)
+    - [edit](COMMANDS.md#dotclaude-edit)
+    - [diff](COMMANDS.md#dotclaude-diff)
+    - [restore](COMMANDS.md#dotclaude-restore)
+  - [Git Workflow](COMMANDS.md#git-workflow-commands)
+    - [sync](COMMANDS.md#dotclaude-sync)
+    - [branches](COMMANDS.md#dotclaude-branches)
+  - [System](COMMANDS.md#system-commands)
+    - [version](COMMANDS.md#dotclaude-version)
+    - [help](COMMANDS.md#dotclaude-help)
+  - [Debug Mode](COMMANDS.md#debug-mode)
 
 - **User Guide**
   - [Usage Overview](USAGE.md)
   - [Multi-Profile System](USAGE.md#multi-profile-system)
   - [Auto-Detection](USAGE.md#auto-detection)
-  - [Command Reference](USAGE.md#command-reference)
+  - [Long-Lived Branches](USAGE.md#long-lived-feature-branch-management)
 
-- **Commands**
-  - [Profile Management](USAGE.md#profile-management-commands)
-    - [show](USAGE.md#dotclaude-show)
-    - [list](USAGE.md#dotclaude-list)
-    - [activate](USAGE.md#dotclaude-activate-profile-name)
-    - [switch](USAGE.md#dotclaude-switch)
-    - [diff](USAGE.md#dotclaude-diff-profile1-profile2)
-    - [restore](USAGE.md#dotclaude-restore)
-    - [create](USAGE.md#dotclaude-create-profile-name)
-    - [edit](USAGE.md#dotclaude-edit-profile-name)
-  - [Git Workflow](USAGE.md#git-workflow-commands)
-    - [sync](USAGE.md#dotclaude-sync)
-    - [branches](USAGE.md#dotclaude-branches)
+- **Help**
+  - [FAQ](FAQ.md)
+  - [Troubleshooting](FAQ.md#troubleshooting)
 
 - **Features**
   - [Long-Lived Branches](USAGE.md#long-lived-feature-branch-management)
