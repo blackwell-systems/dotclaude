@@ -27,7 +27,7 @@ Welcome to the dotclaude documentation site!
 **One-line install:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/client-work/dotclaude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
 **Basic commands:**
