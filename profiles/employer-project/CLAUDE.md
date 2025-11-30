@@ -1,6 +1,6 @@
-# Profile: Employer Work
+# Profile: Employer Project
 
-<!-- Profile-specific additions for employer work -->
+<!-- Profile-specific additions for employer projects -->
 
 **TODO: Add profile-specific content here**
 
@@ -8,7 +8,7 @@ This file will be merged with the base CLAUDE.md when this profile is active.
 
 ## Purpose
 
-Define standards, practices, and guidelines specific to employer work.
+Define standards, practices, and guidelines specific to employer projects.
 
 ## Topics to Cover
 

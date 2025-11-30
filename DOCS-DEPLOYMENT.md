@@ -39,7 +39,7 @@ php -S localhost:3000
 
 The site is automatically deployed to GitHub Pages from the `main` branch.
 
-**URL:** https://blackwell-systems.github.io/dotclaude/
+**URL:** https://proprietary-project.github.io/dotclaude/
 
 ### Setup (One-Time)
 
@@ -63,7 +63,7 @@ GitHub Pages will automatically build and deploy when you push to main.
 
 Uses Blackwell Systems™ shared Docsify theme:
 - Base: vue.css (Docsify default)
-- Branding: https://blackwell-systems.github.io/blackwell-docs-theme/docsify.css
+- Branding: https://proprietary-project.github.io/blackwell-docs-theme/docsify.css
 
 Project-specific color overrides in `index.html`:
 ```css
@@ -122,5 +122,5 @@ GitHub Pages will auto-deploy within ~1 minute.
 ## Resources
 
 - [Docsify Documentation](https://docsify.js.org/)
-- [Blackwell Docs Theme](https://github.com/blackwell-systems/blackwell-docs-theme)
+- [Blackwell Docs Theme](https://github.com/proprietary-project/blackwell-docs-theme)
 - [GitHub Pages Documentation](https://docs.github.com/en/pages)

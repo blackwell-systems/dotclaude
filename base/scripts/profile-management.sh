@@ -84,15 +84,15 @@ list-profiles() {
 
 # Quick switch between common profiles
 switch-to-oss() {
-    activate-profile blackwell-systems-oss
+    activate-profile oss-project
 }
 
 switch-to-blackwell() {
-    activate-profile blackwell-systems
+    activate-profile proprietary-project
 }
 
 switch-to-work() {
-    activate-profile employer-work
+    activate-profile employer-project
 }
 
 # Export functions
@@ -109,6 +109,6 @@ echo "  show-profile             - Show current active profile"
 echo "  list-profiles            - List all available profiles"
 echo ""
 echo "Quick switches:"
-echo "  switch-to-oss            - Activate blackwell-systems-oss"
-echo "  switch-to-blackwell      - Activate blackwell-systems"
-echo "  switch-to-work           - Activate employer-work"
+echo "  switch-to-oss            - Activate oss-project"
+echo "  switch-to-blackwell      - Activate proprietary-project"
+echo "  switch-to-work           - Activate employer-project"

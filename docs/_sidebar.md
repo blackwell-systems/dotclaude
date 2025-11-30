@@ -37,6 +37,6 @@
   - [Idempotency Audit](IDEMPOTENCY-AUDIT.md)
 
 - **Resources**
-  - [GitHub](https://github.com/blackwell-systems/dotclaude)
-  - [Issues](https://github.com/blackwell-systems/dotclaude/issues)
+  - [GitHub](https://github.com/proprietary-project/dotclaude)
+  - [Issues](https://github.com/proprietary-project/dotclaude/issues)
   - [Changelog](#)

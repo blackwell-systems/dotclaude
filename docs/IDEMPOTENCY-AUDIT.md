@@ -186,9 +186,9 @@ To test, run these commands multiple times and check results:
 ./install.sh
 
 # Should produce same result each time
-dotclaude activate blackwell-systems-oss
-dotclaude activate blackwell-systems-oss
-dotclaude activate blackwell-systems-oss
+dotclaude activate oss-project
+dotclaude activate oss-project
+dotclaude activate oss-project
 
 # Check for backup accumulation
 ls -la ~/.claude/*.backup.*

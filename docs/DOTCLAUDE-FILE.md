@@ -13,7 +13,7 @@ Place a `.dotclaude` file in the root of your project directory:
 ```bash
 cd ~/code/my-project
 cat > .dotclaude << EOF
-profile: blackwell-systems-oss
+profile: oss-project
 EOF
 ```
 
@@ -24,13 +24,13 @@ The `.dotclaude` file supports two formats:
 ### YAML-Style (Recommended)
 
 ```yaml
-profile: blackwell-systems-oss
+profile: oss-project
 ```
 
 ### Shell-Style
 
 ```bash
-profile=blackwell-systems-oss
+profile=oss-project
 ```
 
 Both formats are equivalent. Use whichever your team prefers.
@@ -56,11 +56,11 @@ Git branch: main
 │  🍃 Profile Mismatch Detected                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  This project uses:    blackwell-systems-oss
-  Currently active:     employer-work
+  This project uses:    oss-project
+  Currently active:     employer-project
 
   To activate the project profile:
-    dotclaude activate blackwell-systems-oss
+    dotclaude activate oss-project
 ```
 
 ## Security
@@ -80,7 +80,7 @@ Commit `.dotclaude` to your project repository:
 
 ```bash
 # In your OSS project
-echo "profile: blackwell-systems-oss" > .dotclaude
+echo "profile: oss-project" > .dotclaude
 git add .dotclaude
 git commit -m "Add dotclaude profile configuration"
 git push
@@ -95,11 +95,11 @@ Organize your projects with appropriate profiles:
 ```
 ~/code/
 ├── my-oss-project/
-│   └── .dotclaude          # profile: blackwell-systems-oss
+│   └── .dotclaude          # profile: oss-project
 ├── proprietary-business/
-│   └── .dotclaude          # profile: blackwell-systems
-└── employer-work/
-    └── .dotclaude          # profile: employer-work
+│   └── .dotclaude          # profile: proprietary-project
+└── employer-project/
+    └── .dotclaude          # profile: employer-project
 ```
 
 ### 3. Context Switching
@@ -108,11 +108,11 @@ When jumping between projects, you'll automatically be reminded:
 
 ```bash
 cd ~/code/my-oss-project
-# Session starts, detects blackwell-systems-oss profile
+# Session starts, detects oss-project profile
 # Reminds you to switch if needed
 
-cd ~/code/employer-work
-# Session starts, detects employer-work profile
+cd ~/code/employer-project
+# Session starts, detects employer-project profile
 # Reminds you to switch if needed
 ```
 
@@ -146,9 +146,9 @@ If your project has different environments, use subdirectories:
 
 ```
 my-project/
-├── .dotclaude              # profile: blackwell-systems-oss
+├── .dotclaude              # profile: oss-project
 ├── internal/
-│   └── .dotclaude          # profile: blackwell-systems
+│   └── .dotclaude          # profile: proprietary-project
 └── docs/
     └── .dotclaude          # profile: documentation-profile
 ```
@@ -226,14 +226,14 @@ profile: my-profile
 
 ```yaml
 # OSS project - public standards
-profile: blackwell-systems-oss
+profile: oss-project
 ```
 
 ### Shell-style with Comments
 
 ```bash
 # Employer work - corporate compliance
-profile=employer-work
+profile=employer-project
 ```
 
 ## Future Enhancements
@@ -241,7 +241,7 @@ profile=employer-work
 Potential future additions to `.dotclaude` file:
 
 ```yaml
-profile: blackwell-systems-oss
+profile: oss-project
 
 # Future: Auto-activation (opt-in)
 auto_activate: false

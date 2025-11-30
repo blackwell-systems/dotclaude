@@ -50,7 +50,7 @@ usage() {
     done
     echo ""
     echo "Example:"
-    echo "  activate-profile blackwell-systems-oss"
+    echo "  activate-profile oss-project"
     exit 1
 }
 

@@ -27,9 +27,9 @@ dotclaude supports multiple work profiles, allowing different configurations for
 - **Activation** - Merge base + profile → `~/.claude/` when activated
 
 **Included Profiles:**
-- `blackwell-systems-oss` - Open source Blackwell Systems projects
-- `blackwell-systems` - Proprietary Blackwell Systems business projects
-- `employer-work` - Acme Corp employer work
+- `oss-project` - Open source Blackwell Systems projects
+- `proprietary-project` - Proprietary Blackwell Systems business projects
+- `employer-project` - Acme Corp employer work
 
 ### What Happens When You Activate a Profile
 
@@ -44,7 +44,7 @@ dotclaude supports multiple work profiles, allowing different configurations for
 # ... git workflow, security, tool usage ...
 
 # =========================================
-# Profile-Specific Additions: blackwell-systems-oss
+# Profile-Specific Additions: oss-project
 # =========================================
 
 [Profile-specific content]
@@ -53,19 +53,19 @@ dotclaude supports multiple work profiles, allowing different configurations for
 
 ### Profile Use Cases
 
-**blackwell-systems-oss:**
+**oss-project:**
 - Open source best practices
 - Public documentation emphasis
 - MIT/Apache licensing guidance
 - Community contribution guidelines
 
-**blackwell-systems:**
+**proprietary-project:**
 - Proprietary code handling
 - Internal documentation standards
 - Business-specific tech stack
 - Private repo security
 
-**employer-work:**
+**employer-project:**
 - Corporate compliance policies
 - Employer coding standards
 - Specific frameworks/tools
@@ -148,19 +148,19 @@ Place a `.dotclaude` file in your project root to specify which profile should b
 
 ```bash
 cd ~/code/my-oss-project
-echo "profile: blackwell-systems-oss" > .dotclaude
+echo "profile: oss-project" > .dotclaude
 ```
 
 **Supported formats:**
 
 ```yaml
 # YAML-style (recommended)
-profile: blackwell-systems-oss
+profile: oss-project
 ```
 
 ```bash
 # Shell-style
-profile=blackwell-systems-oss
+profile=oss-project
 ```
 
 ### How It Works
@@ -183,11 +183,11 @@ Git branch: main
 │  🍃 Profile Mismatch Detected                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  This project uses:    blackwell-systems-oss
-  Currently active:     employer-work
+  This project uses:    oss-project
+  Currently active:     employer-project
 
   To activate the project profile:
-    dotclaude activate blackwell-systems-oss
+    dotclaude activate oss-project
 ```
 
 ### Use Cases
@@ -198,7 +198,7 @@ Commit `.dotclaude` to your repository:
 
 ```bash
 # In your OSS project
-echo "profile: blackwell-systems-oss" > .dotclaude
+echo "profile: oss-project" > .dotclaude
 git add .dotclaude
 git commit -m "Add dotclaude profile configuration"
 ```
@@ -212,11 +212,11 @@ Use `.dotclaude` files across your projects:
 ```
 ~/code/
 ├── my-oss-project/
-│   └── .dotclaude          # profile: blackwell-systems-oss
+│   └── .dotclaude          # profile: oss-project
 ├── proprietary-business/
-│   └── .dotclaude          # profile: blackwell-systems
-└── employer-work/
-    └── .dotclaude          # profile: employer-work
+│   └── .dotclaude          # profile: proprietary-project
+└── employer-project/
+    └── .dotclaude          # profile: employer-project
 ```
 
 Never forget which profile to use for each project.
@@ -227,12 +227,12 @@ When jumping between projects with different contexts, auto-detection prevents m
 
 ```bash
 # Working on employer project
-cd ~/employer-work
-# Reminded to use: employer-work profile
+cd ~/employer-project
+# Reminded to use: employer-project profile
 
 # Switch to OSS project
 cd ~/my-oss-project
-# Reminded to use: blackwell-systems-oss profile
+# Reminded to use: oss-project profile
 ```
 
 ### Security
@@ -285,7 +285,7 @@ dotclaude show
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Active Profile: blackwell-systems-oss
+  Active Profile: oss-project
 
   Configuration:
     • CLAUDE.md: 245 lines
@@ -315,9 +315,9 @@ dotclaude list
 
   Available Profiles:
 
-    ● blackwell-systems-oss (active)
-    ○ blackwell-systems
-    ○ employer-work
+    ● oss-project (active)
+    ○ proprietary-project
+    ○ employer-project
 
   Total: 3 profiles
 
@@ -330,7 +330,7 @@ dotclaude list
 Activate a specific profile.
 
 ```bash
-dotclaude activate blackwell-systems-oss
+dotclaude activate oss-project
 # Aliases: dotclaude use <profile-name>
 ```
 
@@ -340,14 +340,14 @@ dotclaude activate blackwell-systems-oss
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Activating profile: blackwell-systems-oss
+  Activating profile: oss-project
 
   [1/3] Backed up existing CLAUDE.md
   [2/3] Merged base + profile configuration
   [3/3] Applied profile settings
 
 ╭─────────────────────────────────────────────────────────────╮
-│  ✓ Profile 'blackwell-systems-oss' activated               │
+│  ✓ Profile 'oss-project' activated               │
 ╰─────────────────────────────────────────────────────────────╯
 
   Configuration deployed to: /home/user/.claude
@@ -366,8 +366,8 @@ dotclaude activate blackwell-systems-oss
 Preview changes before activating:
 
 ```bash
-dotclaude activate blackwell-systems-oss --dry-run
-# Or: dotclaude activate blackwell-systems-oss --preview
+dotclaude activate oss-project --dry-run
+# Or: dotclaude activate oss-project --preview
 ```
 
 **Output:**
@@ -376,12 +376,12 @@ dotclaude activate blackwell-systems-oss --dry-run
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  DRY-RUN MODE - Preview changes for: blackwell-systems-oss
+  DRY-RUN MODE - Preview changes for: oss-project
 
   Changes that would be made:
 
     [BACKUP] Existing CLAUDE.md would be backed up
-    [MERGE] CLAUDE.md: base + blackwell-systems-oss
+    [MERGE] CLAUDE.md: base + oss-project
             Base: 150 lines
             Profile: 45 lines
             Result: ~200 lines
@@ -389,7 +389,7 @@ dotclaude activate blackwell-systems-oss --dry-run
     [APPLY] settings.json: profile-specific
             [BACKUP] Existing settings.json would be backed up
 
-    [SET] Active profile: blackwell-systems-oss
+    [SET] Active profile: oss-project
 
   Files that would be modified:
     • ~/.claude/CLAUDE.md
@@ -420,13 +420,13 @@ dotclaude switch
 
   Select a profile to activate:
 
-    [1] blackwell-systems-oss (active)
-    [2] blackwell-systems
-    [3] employer-work
+    [1] oss-project (active)
+    [2] proprietary-project
+    [3] employer-project
 
   Enter number (or 'q' to quit): 2
 
-  Activating profile: blackwell-systems
+  Activating profile: proprietary-project
   ...
 ```
 
@@ -469,7 +469,7 @@ Edit a profile's CLAUDE.md in $EDITOR.
 dotclaude edit
 
 # Edit specific profile
-dotclaude edit blackwell-systems-oss
+dotclaude edit oss-project
 ```
 
 Opens the profile's `CLAUDE.md` in your configured editor (`$EDITOR` or `nano` by default).
@@ -479,10 +479,10 @@ Compare two profiles or compare current profile with another.
 
 ```bash
 # Compare two profiles
-dotclaude diff blackwell-systems-oss blackwell-systems
+dotclaude diff oss-project proprietary-project
 
 # Compare current profile with another
-dotclaude diff employer-work
+dotclaude diff employer-project
 ```
 
 **Output:**
@@ -491,15 +491,15 @@ dotclaude diff employer-work
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Comparing profiles: blackwell-systems-oss vs blackwell-systems
+  Comparing profiles: oss-project vs proprietary-project
 
   CLAUDE.md differences:
 
     Differences found:
 
       @@ -1,5 +1,5 @@
-      -# Profile: blackwell-systems-oss
-      +# Profile: blackwell-systems
+      -# Profile: oss-project
+      +# Profile: proprietary-project
 
       -Open source best practices
       +Proprietary code handling
@@ -512,7 +512,7 @@ dotclaude diff employer-work
       ... (150 more lines)
 
     Tip: See full diff with:
-      diff -u profiles/blackwell-systems-oss/CLAUDE.md profiles/blackwell-systems/CLAUDE.md
+      diff -u profiles/oss-project/CLAUDE.md profiles/proprietary-project/CLAUDE.md
 
   settings.json:
 
@@ -564,7 +564,7 @@ dotclaude restore
   [BACKUP] Current file backed up to:
     CLAUDE.md.backup.20241129-150322
   [RESTORE] Restored from: CLAUDE.md.backup.20241129-143022
-  [UPDATE] Active profile: blackwell-systems-oss
+  [UPDATE] Active profile: oss-project
 
 ╭─────────────────────────────────────────────────────────────╮
 │  ✓ Backup restored successfully                            │

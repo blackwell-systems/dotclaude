@@ -1,6 +1,6 @@
-# Profile: Blackwell Systems
+# Profile: Proprietary Project
 
-<!-- Profile-specific additions for proprietary Blackwell Systems projects -->
+<!-- Profile-specific additions for proprietary projects -->
 
 **TODO: Add profile-specific content here**
 
@@ -8,7 +8,7 @@ This file will be merged with the base CLAUDE.md when this profile is active.
 
 ## Purpose
 
-Define standards, practices, and guidelines specific to proprietary Blackwell Systems business projects.
+Define standards, practices, and guidelines specific to proprietary business projects.
 
 ## Topics to Cover
 

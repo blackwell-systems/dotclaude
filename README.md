@@ -48,15 +48,15 @@ dotclaude help              # Show all commands
 
 ```bash
 # Working on OSS project
-dotclaude activate blackwell-systems-oss
+dotclaude activate oss-project
 # → Loads OSS licensing, public docs standards
 
 # Switch to proprietary work
-dotclaude activate blackwell-systems
+dotclaude activate proprietary-project
 # → Loads internal policies, private repo standards
 
 # Switch to employer work
-dotclaude activate employer-work
+dotclaude activate employer-project
 # → Loads corporate compliance, employer guidelines
 ```
 
@@ -71,16 +71,16 @@ dotclaude/
 │   └── agents/            # Shared agents
 │
 └── profiles/              # Context-specific additions
-    ├── blackwell-systems-oss/
-    ├── blackwell-systems/
-    └── employer-work/
+    ├── oss-project/
+    ├── proprietary-project/
+    └── employer-project/
 ```
 
 When you activate a profile, base + profile merge into `~/.claude/`.
 
 ## Documentation
 
-**📚 [View Documentation Site](https://blackwell-systems.github.io/dotclaude/)** (Recommended)
+**📚 [View Documentation Site](https://proprietary-project.github.io/dotclaude/)** (Recommended)
 
 Or browse markdown files directly:
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
@@ -117,13 +117,13 @@ python3 -m http.server 3000
 **Quick install (recommended):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/proprietary-project/dotclaude/main/install.sh | bash
 ```
 
 **Or clone first:**
 
 ```bash
-git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
+git clone https://github.com/proprietary-project/dotclaude.git ~/code/dotclaude
 cd ~/code/dotclaude
 
 # Basic installation

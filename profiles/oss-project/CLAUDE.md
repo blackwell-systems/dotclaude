@@ -1,6 +1,6 @@
-# Profile: Blackwell Systems OSS
+# Profile: OSS Project
 
-<!-- Profile-specific additions for open source Blackwell Systems projects -->
+<!-- Profile-specific additions for open source projects -->
 
 **TODO: Add profile-specific content here**
 
@@ -8,7 +8,7 @@ This file will be merged with the base CLAUDE.md when this profile is active.
 
 ## Purpose
 
-Define standards, practices, and guidelines specific to open source Blackwell Systems projects.
+Define standards, practices, and guidelines specific to open source projects.
 
 ## Topics to Cover
 

@@ -13,11 +13,11 @@ Technical overview of how dotclaude works internally.
 │  ┌──────────────────┐                  ┌────────────────────────┐   │
 │  │  base/           │                  │  profiles/             │   │
 │  │                  │                  │                        │   │
-│  │  • CLAUDE.md     │                  │  • blackwell-systems-  │   │
+│  │  • CLAUDE.md     │                  │  • proprietary-project-  │   │
 │  │  • settings.json │                  │    oss/CLAUDE.md       │   │
-│  │  • scripts/      │                  │  • blackwell-systems/  │   │
+│  │  • scripts/      │                  │  • proprietary-project/  │   │
 │  │  • agents/       │                  │    CLAUDE.md           │   │
-│  │                  │                  │  • employer-work/       │   │
+│  │                  │                  │  • employer-project/       │   │
 │  │  [Shared across  │                  │    CLAUDE.md           │   │
 │  │   ALL profiles]  │                  │                        │   │
 │  └──────────────────┘                  │  [Context-specific     │   │
@@ -66,7 +66,7 @@ Technical overview of how dotclaude works internally.
 │  └──────────────────────────────────────────────────────────────┘   │
 │                                                                       │
 │  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  .current-profile  ← "blackwell-systems-oss"                │   │
+│  │  .current-profile  ← "oss-project"                │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
@@ -540,11 +540,11 @@ dotclaude/                              # Repository (version controlled)
 │       └── best-in-class-gap-analysis/
 │           └── definition.json
 ├── profiles/                           # Context-specific profiles
-│   ├── blackwell-systems-oss/
+│   ├── oss-project/
 │   │   └── CLAUDE.md
-│   ├── blackwell-systems/
+│   ├── proprietary-project/
 │   │   └── CLAUDE.md
-│   └── employer-work/
+│   └── employer-project/
 │       └── CLAUDE.md
 └── docs/
     ├── USAGE.md                        # Complete user guide
