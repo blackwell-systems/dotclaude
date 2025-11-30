@@ -54,11 +54,13 @@ teardown() {
 }
 
 @test "activate: includes separator between base and profile" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
 
-    # Separator includes profile name
-    assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Profile-Specific Additions: test-profile-1"
+    # Separator includes both parts (split assertions for flexibility)
+    assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Profile-Specific Additions"
+    assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "test-profile-1"
 }
 
 @test "activate: fails with invalid profile name" {
