@@ -46,6 +46,7 @@ teardown() {
 }
 
 @test "activate: writes .current-profile marker" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
 
@@ -128,17 +129,20 @@ teardown() {
 # ============================================================================
 
 @test "activate --verbose: shows debug output" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1 --verbose
     [ "$status" -eq 0 ]
     [[ "$output" =~ "DEBUG" ]] || [[ "$output" =~ "Profile name: test-profile-1" ]]
 }
 
 @test "activate --debug: works as alias for --verbose" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1 --debug
     [ "$status" -eq 0 ]
 }
 
 @test "activate: DEBUG environment variable enables debug mode" {
+    skip_if_no_flock_macos
     DEBUG=1 run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
 }
@@ -148,6 +152,7 @@ teardown() {
 # ============================================================================
 
 @test "switching profiles: replaces previous profile content" {
+    skip_if_no_flock_macos
     # Activate first profile
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Test Profile 1"
@@ -163,6 +168,7 @@ teardown() {
 }
 
 @test "switching profiles: updates .current-profile marker" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     assert_file_contains "$TEST_CLAUDE_DIR/.current-profile" "test-profile-1"
 
@@ -171,6 +177,7 @@ teardown() {
 }
 
 @test "switching profiles: creates backup of previous profile" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     local backup_count_before=$(ls "$TEST_CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | wc -l)
 
@@ -185,6 +192,7 @@ teardown() {
 # ============================================================================
 
 @test "backup: preserves original content" {
+    skip_if_no_flock_macos
     echo "# Original content" > "$TEST_CLAUDE_DIR/CLAUDE.md"
     local original_checksum=$(md5sum "$TEST_CLAUDE_DIR/CLAUDE.md" | awk '{print $1}')
 
@@ -201,6 +209,7 @@ teardown() {
 }
 
 @test "backup: rotates old backups (keeps 5 most recent)" {
+    skip_if_no_flock_macos
     # Create 7 backups
     for i in {1..7}; do
         echo "# Content $i" > "$TEST_CLAUDE_DIR/CLAUDE.md"
@@ -220,6 +229,7 @@ teardown() {
 # ============================================================================
 
 @test "activate: applies profile settings.json if present" {
+    skip_if_no_flock_macos
     # Create profile with settings.json
     mkdir -p "$TEST_REPO_DIR/profiles/settings-test"
     echo "# Settings Test Profile" > "$TEST_REPO_DIR/profiles/settings-test/CLAUDE.md"
@@ -238,6 +248,7 @@ EOF
 }
 
 @test "activate: uses base settings.json if profile has none" {
+    skip_if_no_flock_macos
     # Ensure base has settings.json
     cat > "$TEST_REPO_DIR/base/settings.json" <<'EOF'
 {
@@ -279,6 +290,7 @@ EOF
 # ============================================================================
 
 @test "activate: handles profile with empty CLAUDE.md" {
+    skip_if_no_flock_macos
     mkdir -p "$TEST_REPO_DIR/profiles/empty-profile"
     touch "$TEST_REPO_DIR/profiles/empty-profile/CLAUDE.md"
 
@@ -290,6 +302,7 @@ EOF
 }
 
 @test "activate: handles profile with very long content" {
+    skip_if_no_flock_macos
     mkdir -p "$TEST_REPO_DIR/profiles/long-profile"
     for i in {1..1000}; do
         echo "Line $i" >> "$TEST_REPO_DIR/profiles/long-profile/CLAUDE.md"
@@ -304,6 +317,7 @@ EOF
 }
 
 @test "activate: handles special characters in profile content" {
+    skip_if_no_flock_macos
     mkdir -p "$TEST_REPO_DIR/profiles/special-chars"
     cat > "$TEST_REPO_DIR/profiles/special-chars/CLAUDE.md" <<'EOF'
 # Special Characters Test
