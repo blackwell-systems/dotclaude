@@ -4,47 +4,34 @@
   - [Overview](GETTING-STARTED.md)
   - [Quick Start](GETTING-STARTED.md#quick-start)
   - [Installation](GETTING-STARTED.md#installation)
+  - [How It Works](GETTING-STARTED.md#how-it-works-the-merge)
+
+- **Core Concepts**
+  - [Multi-Profile System](USAGE.md#multi-profile-system)
+  - [Auto-Detection](USAGE.md#auto-detection)
+  - [Multi-Provider Strategy](USAGE.md#multi-provider-strategy)
 
 - **Commands**
-  - [Commands Overview](COMMANDS.md)
+  - [Command Reference](COMMANDS.md)
   - [Profile Management](COMMANDS.md#profile-management-commands)
-    - [show](COMMANDS.md#dotclaude-show)
-    - [list](COMMANDS.md#dotclaude-list)
-    - [activate](COMMANDS.md#dotclaude-activate)
-    - [switch](COMMANDS.md#dotclaude-switch)
-    - [create](COMMANDS.md#dotclaude-create)
-    - [edit](COMMANDS.md#dotclaude-edit)
-    - [diff](COMMANDS.md#dotclaude-diff)
-    - [restore](COMMANDS.md#dotclaude-restore)
-  - [Git Workflow](COMMANDS.md#git-workflow-commands)
-    - [sync](COMMANDS.md#dotclaude-sync)
-    - [branches](COMMANDS.md#dotclaude-branches)
-  - [System](COMMANDS.md#system-commands)
-    - [version](COMMANDS.md#dotclaude-version)
-    - [help](COMMANDS.md#dotclaude-help)
+  - [Git Workflow Tools](COMMANDS.md#git-workflow-commands)
   - [Debug Mode](COMMANDS.md#debug-mode)
 
 - **User Guide**
-  - [Usage Overview](USAGE.md)
-  - [Multi-Profile System](USAGE.md#multi-profile-system)
-  - [Auto-Detection](USAGE.md#auto-detection)
-  - [Long-Lived Branches](USAGE.md#long-lived-feature-branch-management)
+  - [Complete Usage Guide](USAGE.md)
+  - [Long-Lived Feature Branches](USAGE.md#long-lived-feature-branch-management)
+  - [Shell Integration](USAGE.md#shell-integration)
+  - [Profile Management Workflows](USAGE.md#profile-management)
 
 - **Help**
   - [FAQ](FAQ.md)
   - [Troubleshooting](FAQ.md#troubleshooting)
 
-- **Features**
-  - [Long-Lived Branches](USAGE.md#long-lived-feature-branch-management)
-  - [.dotclaude File](DOTCLAUDE-FILE.md)
-  - [Multi-Provider](USAGE.md#multi-provider-strategy)
-  - [Shell Integration](USAGE.md#shell-integration)
-
-- **Technical**
+- **Advanced**
   - [Architecture](ARCHITECTURE.md)
+  - [.dotclaude File Format](DOTCLAUDE-FILE.md)
 
 - **Resources**
-  - [GitHub](https://github.com/blackwell-systems/dotclaude)
-  - [Issues](https://github.com/blackwell-systems/dotclaude/issues)
+  - [GitHub Repository](https://github.com/blackwell-systems/dotclaude)
+  - [Report Issues](https://github.com/blackwell-systems/dotclaude/issues)
   - [Brand Guidelines](BRAND.md)
-  - [Changelog](#)
