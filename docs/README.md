@@ -5,9 +5,9 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 ## Getting Started
 
 **New to dotclaude?** Start here:
-- [Main README](../) - Overview, concepts, and Quick Start guide
-- [Installation Guide](../#installation) - Setup and installation options
-- [Features Overview](../#features) - What dotclaude offers
+- [Main README](https://github.com/blackwell-systems/dotclaude#readme) - Overview, concepts, and Quick Start guide
+- [Installation Guide](https://github.com/blackwell-systems/dotclaude#installation) - Setup and installation options
+- [Features Overview](https://github.com/blackwell-systems/dotclaude#features) - What dotclaude offers
 
 ## User Documentation
 
@@ -23,13 +23,13 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 
 ## Examples
 
-- [Sample Profile](../examples/sample-profile/README.md) - Complete example profile with explanations
-- [Base Configuration](../base/CLAUDE.md) - Universal standards that apply to all profiles
+- [Sample Profile](https://github.com/blackwell-systems/dotclaude/blob/main/examples/sample-profile/README.md) - Complete example profile with explanations
+- [Base Configuration](https://github.com/blackwell-systems/dotclaude/blob/main/base/CLAUDE.md) - Universal standards that apply to all profiles
 
 ---
 
 **Looking for something specific?**
-- Quick Start → [Main README](../#quick-start)
+- Quick Start → [Main README](https://github.com/blackwell-systems/dotclaude#quick-start)
 - Command reference → [Usage Guide](USAGE.md#command-reference)
-- How profiles work → [Main README](../#how-it-works-the-merge)
+- How profiles work → [Main README](https://github.com/blackwell-systems/dotclaude#how-it-works-the-merge)
 - Troubleshooting → [Usage Guide](USAGE.md)

@@ -1,9 +1,9 @@
 <!-- _sidebar.md -->
 
 - **Getting Started**
-  - [Quick Start](../#quick-start)
-  - [Installation](../#installation)
-  - [Features](../#features)
+  - [Quick Start](https://github.com/blackwell-systems/dotclaude#quick-start)
+  - [Installation](https://github.com/blackwell-systems/dotclaude#installation)
+  - [Features](https://github.com/blackwell-systems/dotclaude#features)
 
 - **User Guide**
   - [Usage Overview](USAGE.md)
