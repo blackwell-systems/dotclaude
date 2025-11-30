@@ -5,7 +5,7 @@
 
 set -e
 
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="${DOTCLAUDE_REPO_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 CLAUDE_DIR="$HOME/.claude"
 BASE_DIR="$REPO_DIR/base"
 PROFILES_DIR="$REPO_DIR/profiles"

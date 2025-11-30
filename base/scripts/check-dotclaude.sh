@@ -14,7 +14,7 @@ if [ -z "$DOTCLAUDE_REPO_DIR" ] && [ ! -d "$HOME/code/dotclaude" ]; then
 fi
 
 REPO_DIR="${DOTCLAUDE_REPO_DIR:-$HOME/code/dotclaude}"
-CLAUDE_DIR="$HOME/.claude"
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 
 # Parse .dotclaude file
 DESIRED_PROFILE=""

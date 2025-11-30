@@ -6,7 +6,7 @@
 set -e
 
 VERSION="1.0.0"
-CLAUDE_DIR="$HOME/.claude"
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 REPO_DIR="${DOTCLAUDE_REPO_DIR:-$HOME/code/dotclaude}"
 BASE_DIR="$REPO_DIR/base"
 PROFILES_DIR="$REPO_DIR/profiles"

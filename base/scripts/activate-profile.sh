@@ -6,7 +6,7 @@
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CLAUDE_DIR="$HOME/.claude"
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 PROFILES_DIR="$REPO_DIR/profiles"
 BASE_DIR="$REPO_DIR/base"
 
@@ -25,7 +25,8 @@ NC='\033[0m'
 # Debug function
 debug() {
     if [ "$DEBUG" = "1" ]; then
-        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
         echo -e "${CYAN}[DEBUG $timestamp]${NC} $*" >&2
         echo "[$timestamp] $*" >> "$DEBUG_LOG" 2>/dev/null || true
     fi
@@ -132,7 +133,7 @@ if [ -f "$CLAUDE_DIR/CLAUDE.md" ] && [ "$CURRENT_PROFILE" != "$PROFILE_NAME" ]; 
     chmod 600 "$BACKUP" 2>/dev/null || true
 
     # Keep only 5 most recent backups
-    ls -t "$CLAUDE_DIR"/CLAUDE.md.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+    find "$CLAUDE_DIR" -maxdepth 1 -type f -name "CLAUDE.md.backup.*" -print0 | sort -zn | tail -zn +6 | xargs -0 rm -f 2>/dev/null || true
 elif [ "$CURRENT_PROFILE" = "$PROFILE_NAME" ]; then
     echo -e "${GREEN}Already on profile '$PROFILE_NAME', updating in place${NC}"
 fi
@@ -167,7 +168,7 @@ if [ -f "$PROFILE_DIR/settings.json" ]; then
         chmod 600 "$BACKUP" 2>/dev/null || true
 
         # Keep only 5 most recent backups
-        ls -t "$CLAUDE_DIR"/settings.json.backup.* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null || true
+        find "$CLAUDE_DIR" -maxdepth 1 -type f -name "settings.json.backup.*" -print0 | sort -zn | tail -zn +6 | xargs -0 rm -f 2>/dev/null || true
     fi
 
     # For now, just use profile settings (could merge with jq in future)
