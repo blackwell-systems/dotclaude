@@ -2,7 +2,7 @@
 
 # dotclaude
 
-> The definitive profile management system for Claude Code
+> The _definitive_ profile management system for Claude Code
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
