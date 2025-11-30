@@ -153,7 +153,8 @@ jobs:
         run: |
           find tests -name "*.bash" | while read -r file; do
             echo "Checking $file"
-            shellcheck -e SC1091 "$file" || exit 1
+            # Exclude SC1091 (sourced files), SC2154 (bats built-in variables like $output)
+            shellcheck -e SC1091,SC2154 "$file" || exit 1
           done
 
   test-install:
@@ -180,6 +181,8 @@ jobs:
       - name: Test profile creation
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          # Use workspace for profiles
+          cd ${{ github.workspace }}
           cp -r examples/sample-profile profiles/ci-test
           dotclaude create ci-test-2
           dotclaude list
