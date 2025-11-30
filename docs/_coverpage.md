@@ -5,7 +5,7 @@
 > The definitive profile management system for Claude Code
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/proprietary-project/dotclaude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/client-work/dotclaude/main/install.sh | bash
 ```
 
 - Layered profiles (base + context overlays)
@@ -18,4 +18,4 @@ curl -fsSL https://raw.githubusercontent.com/proprietary-project/dotclaude/main/
 - Multi-provider support (AWS Bedrock + Claude Max)
 
 [Get Started](README.md)
-[View on GitHub](https://github.com/proprietary-project/dotclaude)
+[View on GitHub](https://github.com/client-work/dotclaude)

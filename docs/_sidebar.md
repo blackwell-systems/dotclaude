@@ -37,6 +37,6 @@
   - [Idempotency Audit](IDEMPOTENCY-AUDIT.md)
 
 - **Resources**
-  - [GitHub](https://github.com/proprietary-project/dotclaude)
-  - [Issues](https://github.com/proprietary-project/dotclaude/issues)
+  - [GitHub](https://github.com/client-work/dotclaude)
+  - [Issues](https://github.com/client-work/dotclaude/issues)
   - [Changelog](#)

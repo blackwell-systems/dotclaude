@@ -13,7 +13,7 @@ Place a `.dotclaude` file in the root of your project directory:
 ```bash
 cd ~/code/my-project
 cat > .dotclaude << EOF
-profile: oss-project
+profile: my-project
 EOF
 ```
 
@@ -24,13 +24,13 @@ The `.dotclaude` file supports two formats:
 ### YAML-Style (Recommended)
 
 ```yaml
-profile: oss-project
+profile: my-project
 ```
 
 ### Shell-Style
 
 ```bash
-profile=oss-project
+profile=my-project
 ```
 
 Both formats are equivalent. Use whichever your team prefers.
@@ -49,18 +49,18 @@ When Claude Code starts a session, the SessionStart hook:
 ```
 === Claude Code Session Started ===
 Fri Nov 29 14:30:00 PST 2024
-Working directory: /home/user/code/my-oss-project
+Working directory: /home/user/code/my-my-project
 Git branch: main
 
 ╭─────────────────────────────────────────────────────────────╮
 │  🍃 Profile Mismatch Detected                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  This project uses:    oss-project
-  Currently active:     employer-project
+  This project uses:    my-project
+  Currently active:     work-project
 
   To activate the project profile:
-    dotclaude activate oss-project
+    dotclaude activate my-project
 ```
 
 ## Security
@@ -80,7 +80,7 @@ Commit `.dotclaude` to your project repository:
 
 ```bash
 # In your OSS project
-echo "profile: oss-project" > .dotclaude
+echo "profile: my-project" > .dotclaude
 git add .dotclaude
 git commit -m "Add dotclaude profile configuration"
 git push
@@ -94,12 +94,12 @@ Organize your projects with appropriate profiles:
 
 ```
 ~/code/
-├── my-oss-project/
-│   └── .dotclaude          # profile: oss-project
+├── my-my-project/
+│   └── .dotclaude          # profile: my-project
 ├── proprietary-business/
-│   └── .dotclaude          # profile: proprietary-project
-└── employer-project/
-    └── .dotclaude          # profile: employer-project
+│   └── .dotclaude          # profile: client-work
+└── work-project/
+    └── .dotclaude          # profile: work-project
 ```
 
 ### 3. Context Switching
@@ -107,12 +107,12 @@ Organize your projects with appropriate profiles:
 When jumping between projects, you'll automatically be reminded:
 
 ```bash
-cd ~/code/my-oss-project
-# Session starts, detects oss-project profile
+cd ~/code/my-my-project
+# Session starts, detects my-project profile
 # Reminds you to switch if needed
 
-cd ~/code/employer-project
-# Session starts, detects employer-project profile
+cd ~/code/work-project
+# Session starts, detects work-project profile
 # Reminds you to switch if needed
 ```
 
@@ -146,9 +146,9 @@ If your project has different environments, use subdirectories:
 
 ```
 my-project/
-├── .dotclaude              # profile: oss-project
+├── .dotclaude              # profile: my-project
 ├── internal/
-│   └── .dotclaude          # profile: proprietary-project
+│   └── .dotclaude          # profile: client-work
 └── docs/
     └── .dotclaude          # profile: documentation-profile
 ```
@@ -226,14 +226,14 @@ profile: my-profile
 
 ```yaml
 # OSS project - public standards
-profile: oss-project
+profile: my-project
 ```
 
 ### Shell-style with Comments
 
 ```bash
 # Employer work - corporate compliance
-profile=employer-project
+profile=work-project
 ```
 
 ## Future Enhancements
@@ -241,7 +241,7 @@ profile=employer-project
 Potential future additions to `.dotclaude` file:
 
 ```yaml
-profile: oss-project
+profile: my-project
 
 # Future: Auto-activation (opt-in)
 auto_activate: false

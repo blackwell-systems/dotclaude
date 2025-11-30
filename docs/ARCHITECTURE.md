@@ -13,11 +13,11 @@ Technical overview of how dotclaude works internally.
 │  ┌──────────────────┐                  ┌────────────────────────┐   │
 │  │  base/           │                  │  profiles/             │   │
 │  │                  │                  │                        │   │
-│  │  • CLAUDE.md     │                  │  • proprietary-project-  │   │
+│  │  • CLAUDE.md     │                  │  • client-work-  │   │
 │  │  • settings.json │                  │    oss/CLAUDE.md       │   │
-│  │  • scripts/      │                  │  • proprietary-project/  │   │
+│  │  • scripts/      │                  │  • client-work/  │   │
 │  │  • agents/       │                  │    CLAUDE.md           │   │
-│  │                  │                  │  • employer-project/       │   │
+│  │                  │                  │  • work-project/       │   │
 │  │  [Shared across  │                  │    CLAUDE.md           │   │
 │  │   ALL profiles]  │                  │                        │   │
 │  └──────────────────┘                  │  [Context-specific     │   │
@@ -66,7 +66,7 @@ Technical overview of how dotclaude works internally.
 │  └──────────────────────────────────────────────────────────────┘   │
 │                                                                       │
 │  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  .current-profile  ← "oss-project"                │   │
+│  │  .current-profile  ← "my-project"                │   │
 │  └──────────────────────────────────────────────────────────────┘   │
 │                                                                       │
 └─────────────────────────────────────────────────────────────────────┘
@@ -540,11 +540,11 @@ dotclaude/                              # Repository (version controlled)
 │       └── best-in-class-gap-analysis/
 │           └── definition.json
 ├── profiles/                           # Context-specific profiles
-│   ├── oss-project/
+│   ├── my-project/
 │   │   └── CLAUDE.md
-│   ├── proprietary-project/
+│   ├── client-work/
 │   │   └── CLAUDE.md
-│   └── employer-project/
+│   └── work-project/
 │       └── CLAUDE.md
 └── docs/
     ├── USAGE.md                        # Complete user guide

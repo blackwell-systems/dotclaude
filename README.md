@@ -32,7 +32,7 @@ Version-controlled profile system for managing `~/.claude/` configurations acros
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/dotclaude.git ~/code/dotclaude
+git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
 cd ~/code/dotclaude
 ./install.sh
 
@@ -47,17 +47,20 @@ dotclaude help              # Show all commands
 ## Example Workflow
 
 ```bash
-# Working on OSS project
-dotclaude activate oss-project
-# → Loads OSS licensing, public docs standards
+# Create your profiles based on the example
+cp -r examples/sample-profile profiles/my-oss-project
+cp -r examples/sample-profile profiles/client-work
 
-# Switch to proprietary work
-dotclaude activate proprietary-project
-# → Loads internal policies, private repo standards
+# Customize for each context
+vim profiles/my-oss-project/CLAUDE.md
+vim profiles/client-work/CLAUDE.md
 
-# Switch to employer work
-dotclaude activate employer-project
-# → Loads corporate compliance, employer guidelines
+# Switch between contexts
+dotclaude activate my-oss-project
+# → Loads your OSS-specific standards
+
+dotclaude activate client-work
+# → Loads client project standards
 ```
 
 ## Repository Structure
@@ -70,17 +73,18 @@ dotclaude/
 │   ├── scripts/           # Management tools
 │   └── agents/            # Shared agents
 │
-└── profiles/              # Context-specific additions
-    ├── oss-project/
-    ├── proprietary-project/
-    └── employer-project/
+├── examples/              # Example profile templates
+│   └── sample-profile/   # Copy this to create your own
+│
+└── profiles/              # Your custom profiles (create your own)
+    └── (empty - create profiles based on examples/)
 ```
 
 When you activate a profile, base + profile merge into `~/.claude/`.
 
 ## Documentation
 
-**📚 [View Documentation Site](https://proprietary-project.github.io/dotclaude/)** (Recommended)
+**📚 [View Documentation Site](https://blackwell-systems.github.io/dotclaude/)** (Recommended)
 
 Or browse markdown files directly:
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
@@ -117,13 +121,13 @@ python3 -m http.server 3000
 **Quick install (recommended):**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/proprietary-project/dotclaude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
 **Or clone first:**
 
 ```bash
-git clone https://github.com/proprietary-project/dotclaude.git ~/code/dotclaude
+git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
 cd ~/code/dotclaude
 
 # Basic installation

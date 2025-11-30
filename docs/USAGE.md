@@ -26,10 +26,10 @@ dotclaude supports multiple work profiles, allowing different configurations for
 - **Profiles** - Context-specific additions (coding standards, compliance, tech stacks)
 - **Activation** - Merge base + profile → `~/.claude/` when activated
 
-**Included Profiles:**
-- `oss-project` - Open source Blackwell Systems projects
-- `proprietary-project` - Proprietary Blackwell Systems business projects
-- `employer-project` - Acme Corp employer work
+**Getting Started:**
+- See `examples/sample-profile/` for a complete example profile
+- Copy and customize it to create your own profiles
+- The `profiles/` directory starts empty - you create your own based on the examples
 
 ### What Happens When You Activate a Profile
 
@@ -44,7 +44,7 @@ dotclaude supports multiple work profiles, allowing different configurations for
 # ... git workflow, security, tool usage ...
 
 # =========================================
-# Profile-Specific Additions: oss-project
+# Profile-Specific Additions: my-project
 # =========================================
 
 [Profile-specific content]
@@ -53,36 +53,38 @@ dotclaude supports multiple work profiles, allowing different configurations for
 
 ### Profile Use Cases
 
-**oss-project:**
+**Example Profiles You Might Create:**
+
+**For open source projects:**
 - Open source best practices
 - Public documentation emphasis
 - MIT/Apache licensing guidance
 - Community contribution guidelines
 
-**proprietary-project:**
+**For client/proprietary work:**
 - Proprietary code handling
 - Internal documentation standards
 - Business-specific tech stack
 - Private repo security
 
-**employer-project:**
+**For employer work:**
 - Corporate compliance policies
-- Employer coding standards
+- Company coding standards
 - Specific frameworks/tools
 - Security/audit requirements
 
 ### Creating Custom Profiles
 
-Add a new profile:
+Create your own profiles based on the example:
 
 ```bash
-# Option 1: Using dotclaude CLI
-dotclaude create my-new-profile
-dotclaude edit my-new-profile
-# Edit the CLAUDE.md file that opens
-dotclaude activate my-new-profile
+# Start from the example
+cp -r examples/sample-profile profiles/my-project
 
-# Option 2: Manual creation
+# Edit to customize
+dotclaude edit my-project
+
+# Or create from scratch
 mkdir -p profiles/my-new-profile
 
 cat > profiles/my-new-profile/CLAUDE.md << 'EOF'
@@ -147,20 +149,20 @@ dotclaude can automatically detect when you're working on a project that require
 Place a `.dotclaude` file in your project root to specify which profile should be used:
 
 ```bash
-cd ~/code/my-oss-project
-echo "profile: oss-project" > .dotclaude
+cd ~/code/my-my-project
+echo "profile: my-project" > .dotclaude
 ```
 
 **Supported formats:**
 
 ```yaml
 # YAML-style (recommended)
-profile: oss-project
+profile: my-project
 ```
 
 ```bash
 # Shell-style
-profile=oss-project
+profile=my-project
 ```
 
 ### How It Works
@@ -176,18 +178,18 @@ When Claude Code starts a session, it automatically:
 ```
 === Claude Code Session Started ===
 Fri Nov 29 14:30:00 PST 2024
-Working directory: /home/user/code/my-oss-project
+Working directory: /home/user/code/my-my-project
 Git branch: main
 
 ╭─────────────────────────────────────────────────────────────╮
 │  🍃 Profile Mismatch Detected                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  This project uses:    oss-project
-  Currently active:     employer-project
+  This project uses:    my-project
+  Currently active:     work-project
 
   To activate the project profile:
-    dotclaude activate oss-project
+    dotclaude activate my-project
 ```
 
 ### Use Cases
@@ -198,7 +200,7 @@ Commit `.dotclaude` to your repository:
 
 ```bash
 # In your OSS project
-echo "profile: oss-project" > .dotclaude
+echo "profile: my-project" > .dotclaude
 git add .dotclaude
 git commit -m "Add dotclaude profile configuration"
 ```
@@ -211,12 +213,12 @@ Use `.dotclaude` files across your projects:
 
 ```
 ~/code/
-├── my-oss-project/
-│   └── .dotclaude          # profile: oss-project
+├── my-my-project/
+│   └── .dotclaude          # profile: my-project
 ├── proprietary-business/
-│   └── .dotclaude          # profile: proprietary-project
-└── employer-project/
-    └── .dotclaude          # profile: employer-project
+│   └── .dotclaude          # profile: client-work
+└── work-project/
+    └── .dotclaude          # profile: work-project
 ```
 
 Never forget which profile to use for each project.
@@ -227,12 +229,12 @@ When jumping between projects with different contexts, auto-detection prevents m
 
 ```bash
 # Working on employer project
-cd ~/employer-project
-# Reminded to use: employer-project profile
+cd ~/work-project
+# Reminded to use: work-project profile
 
 # Switch to OSS project
-cd ~/my-oss-project
-# Reminded to use: oss-project profile
+cd ~/my-my-project
+# Reminded to use: my-project profile
 ```
 
 ### Security
@@ -285,7 +287,7 @@ dotclaude show
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Active Profile: oss-project
+  Active Profile: my-project
 
   Configuration:
     • CLAUDE.md: 245 lines
@@ -315,9 +317,9 @@ dotclaude list
 
   Available Profiles:
 
-    ● oss-project (active)
-    ○ proprietary-project
-    ○ employer-project
+    ● my-project (active)
+    ○ client-work
+    ○ work-project
 
   Total: 3 profiles
 
@@ -330,7 +332,7 @@ dotclaude list
 Activate a specific profile.
 
 ```bash
-dotclaude activate oss-project
+dotclaude activate my-project
 # Aliases: dotclaude use <profile-name>
 ```
 
@@ -340,14 +342,14 @@ dotclaude activate oss-project
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Activating profile: oss-project
+  Activating profile: my-project
 
   [1/3] Backed up existing CLAUDE.md
   [2/3] Merged base + profile configuration
   [3/3] Applied profile settings
 
 ╭─────────────────────────────────────────────────────────────╮
-│  ✓ Profile 'oss-project' activated               │
+│  ✓ Profile 'my-project' activated               │
 ╰─────────────────────────────────────────────────────────────╯
 
   Configuration deployed to: /home/user/.claude
@@ -366,8 +368,8 @@ dotclaude activate oss-project
 Preview changes before activating:
 
 ```bash
-dotclaude activate oss-project --dry-run
-# Or: dotclaude activate oss-project --preview
+dotclaude activate my-project --dry-run
+# Or: dotclaude activate my-project --preview
 ```
 
 **Output:**
@@ -376,12 +378,12 @@ dotclaude activate oss-project --dry-run
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  DRY-RUN MODE - Preview changes for: oss-project
+  DRY-RUN MODE - Preview changes for: my-project
 
   Changes that would be made:
 
     [BACKUP] Existing CLAUDE.md would be backed up
-    [MERGE] CLAUDE.md: base + oss-project
+    [MERGE] CLAUDE.md: base + my-project
             Base: 150 lines
             Profile: 45 lines
             Result: ~200 lines
@@ -389,7 +391,7 @@ dotclaude activate oss-project --dry-run
     [APPLY] settings.json: profile-specific
             [BACKUP] Existing settings.json would be backed up
 
-    [SET] Active profile: oss-project
+    [SET] Active profile: my-project
 
   Files that would be modified:
     • ~/.claude/CLAUDE.md
@@ -420,13 +422,13 @@ dotclaude switch
 
   Select a profile to activate:
 
-    [1] oss-project (active)
-    [2] proprietary-project
-    [3] employer-project
+    [1] my-project (active)
+    [2] client-work
+    [3] work-project
 
   Enter number (or 'q' to quit): 2
 
-  Activating profile: proprietary-project
+  Activating profile: client-work
   ...
 ```
 
@@ -469,7 +471,7 @@ Edit a profile's CLAUDE.md in $EDITOR.
 dotclaude edit
 
 # Edit specific profile
-dotclaude edit oss-project
+dotclaude edit my-project
 ```
 
 Opens the profile's `CLAUDE.md` in your configured editor (`$EDITOR` or `nano` by default).
@@ -479,10 +481,10 @@ Compare two profiles or compare current profile with another.
 
 ```bash
 # Compare two profiles
-dotclaude diff oss-project proprietary-project
+dotclaude diff my-project client-work
 
 # Compare current profile with another
-dotclaude diff employer-project
+dotclaude diff work-project
 ```
 
 **Output:**
@@ -491,15 +493,15 @@ dotclaude diff employer-project
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  Comparing profiles: oss-project vs proprietary-project
+  Comparing profiles: my-project vs client-work
 
   CLAUDE.md differences:
 
     Differences found:
 
       @@ -1,5 +1,5 @@
-      -# Profile: oss-project
-      +# Profile: proprietary-project
+      -# Profile: my-project
+      +# Profile: client-work
 
       -Open source best practices
       +Proprietary code handling
@@ -512,7 +514,7 @@ dotclaude diff employer-project
       ... (150 more lines)
 
     Tip: See full diff with:
-      diff -u profiles/oss-project/CLAUDE.md profiles/proprietary-project/CLAUDE.md
+      diff -u profiles/my-project/CLAUDE.md profiles/client-work/CLAUDE.md
 
   settings.json:
 
@@ -564,7 +566,7 @@ dotclaude restore
   [BACKUP] Current file backed up to:
     CLAUDE.md.backup.20241129-150322
   [RESTORE] Restored from: CLAUDE.md.backup.20241129-143022
-  [UPDATE] Active profile: oss-project
+  [UPDATE] Active profile: my-project
 
 ╭─────────────────────────────────────────────────────────────╮
 │  ✓ Backup restored successfully                            │

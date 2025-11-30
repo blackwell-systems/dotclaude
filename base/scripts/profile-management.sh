@@ -82,33 +82,12 @@ list-profiles() {
     echo "╰─────────────────────────────────────────────────────────────╯"
 }
 
-# Quick switch between common profiles
-switch-to-oss() {
-    activate-profile oss-project
-}
-
-switch-to-blackwell() {
-    activate-profile proprietary-project
-}
-
-switch-to-work() {
-    activate-profile employer-project
-}
-
 # Export functions
 export -f activate-profile 2>/dev/null || true
 export -f show-profile 2>/dev/null || true
 export -f list-profiles 2>/dev/null || true
-export -f switch-to-oss 2>/dev/null || true
-export -f switch-to-blackwell 2>/dev/null || true
-export -f switch-to-work 2>/dev/null || true
 
 echo "Claude Code profile management loaded:"
 echo "  activate-profile <name>  - Activate a profile"
 echo "  show-profile             - Show current active profile"
 echo "  list-profiles            - List all available profiles"
-echo ""
-echo "Quick switches:"
-echo "  switch-to-oss            - Activate oss-project"
-echo "  switch-to-blackwell      - Activate proprietary-project"
-echo "  switch-to-work           - Activate employer-project"

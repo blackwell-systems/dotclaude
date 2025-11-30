@@ -1,0 +1,24 @@
+{
+  "provider": "anthropic-claude-max",
+  "model": "sonnet",
+  "hooks": {
+    "sessionStart": "echo 'Profile: Sample Project' && echo 'Remember: Write tests for all new features!'",
+    "userPromptSubmit": "",
+    "preToolUse": "",
+    "postToolUse": ""
+  },
+  "workingDirectories": [
+    "/home/user/projects/my-app",
+    "/home/user/projects/my-app-api"
+  ],
+  "editor": "code",
+  "preferences": {
+    "autoApproveTools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "confirmBeforeGitPush": true,
+    "showToolApprovalDetails": true
+  }
+}
