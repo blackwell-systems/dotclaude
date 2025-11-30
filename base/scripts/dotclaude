@@ -135,7 +135,7 @@ cmd_show() {
         echo "  No profile currently active"
         echo ""
         footer_tip "Run 'dotclaude list' to see available profiles"
-        return 1
+        return 0
     fi
 
     local profile
@@ -557,8 +557,12 @@ Define standards, practices, and guidelines specific to this context.
 - Team collaboration practices
 EOF
 
-    # Safely replace placeholder with actual profile name
-    sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+    # Safely replace placeholder with actual profile name (cross-platform sed)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+    else
+        sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+    fi
 
     success_box "Profile '$profile_name' created"
 

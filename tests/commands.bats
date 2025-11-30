@@ -318,7 +318,7 @@ teardown() {
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" help
     [ "$status" -eq 0 ]
     [[ "$output" =~ "dotclaude" ]]
-    [[ "$output" =~ "Usage" ]] || [[ "$output" =~ "Commands" ]]
+    [[ "$output" =~ "USAGE" ]] || [[ "$output" =~ "COMMANDS" ]]
 }
 
 @test "help: works with alias -h" {
