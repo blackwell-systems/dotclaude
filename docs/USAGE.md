@@ -1300,8 +1300,6 @@ rm ~/.claude/.lock
 - Keep sensitive data in `.local.json` (gitignored)
 - Don't commit API keys or credentials
 
-**See also:** [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)
-
 ---
 
 ## Notes

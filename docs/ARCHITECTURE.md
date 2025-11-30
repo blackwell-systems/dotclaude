@@ -548,9 +548,7 @@ dotclaude/                              # Repository (version controlled)
 │       └── CLAUDE.md
 └── docs/
     ├── USAGE.md                        # Complete user guide
-    ├── ARCHITECTURE.md                 # This file
-    ├── IDEMPOTENCY-AUDIT.md           # Idempotency analysis
-    └── SECURITY-AUDIT.md              # Security hardening details
+    └── ARCHITECTURE.md                 # This file
 
 ~/.local/bin/                           # User binaries (in PATH)
 └── dotclaude                          # Main CLI (copy from base/scripts)

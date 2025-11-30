@@ -20,8 +20,6 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 
 - [Architecture](ARCHITECTURE.md) - System design, merge behavior, and internals
 - [.dotclaude File Format](DOTCLAUDE-FILE.md) - Auto-detection file specification
-- [Security Audit](SECURITY-AUDIT.md) - Security hardening and defensive programming
-- [Idempotency Audit](IDEMPOTENCY-AUDIT.md) - Idempotency analysis and guarantees
 
 ## Examples
 

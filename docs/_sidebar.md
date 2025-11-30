@@ -33,8 +33,6 @@
 
 - **Technical**
   - [Architecture](ARCHITECTURE.md)
-  - [Security Audit](SECURITY-AUDIT.md)
-  - [Idempotency Audit](IDEMPOTENCY-AUDIT.md)
 
 - **Resources**
   - [GitHub](https://github.com/blackwell-systems/dotclaude)

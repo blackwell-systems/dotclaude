@@ -141,8 +141,6 @@ Or browse markdown files directly:
 - **[docs/USAGE.md](docs/USAGE.md)** - Complete user guide and command reference
 - **[docs/DOTCLAUDE-FILE.md](docs/DOTCLAUDE-FILE.md)** - `.dotclaude` file format and auto-detection
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and technical design
-- **[docs/IDEMPOTENCY-AUDIT.md](docs/IDEMPOTENCY-AUDIT.md)** - Idempotency analysis
-- **[docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md)** - Security hardening details
 
 ### Local Documentation Site
 
@@ -252,8 +250,6 @@ dotclaude includes comprehensive defensive programming:
 - File locking (prevent concurrent execution)
 - Secure backup permissions (chmod 600)
 - Command injection prevention
-
-See [docs/SECURITY-AUDIT.md](docs/SECURITY-AUDIT.md) for details.
 
 ## FAQ
 
