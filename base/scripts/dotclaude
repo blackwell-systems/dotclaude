@@ -56,8 +56,8 @@ cleanup() {
 }
 trap cleanup EXIT ERR INT TERM
 
-# Validate repository structure on startup
-if ! validate_repo_dir "$REPO_DIR" 2>/dev/null; then
+# Validate repository structure on startup (skip if repo doesn't exist - may be post-install)
+if [ -d "$REPO_DIR" ] && ! validate_repo_dir "$REPO_DIR" 2>/dev/null; then
     echo -e "${RED}Error: Invalid dotclaude repository at: $REPO_DIR${NC}" >&2
     echo "  Set DOTCLAUDE_REPO_DIR environment variable to correct location" >&2
     exit 1

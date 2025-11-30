@@ -161,6 +161,13 @@ skip_if_no_command() {
     fi
 }
 
+# Skip test on macOS if flock not available (required for activation)
+skip_if_no_flock_macos() {
+    if [[ "$OSTYPE" == "darwin"* ]] && ! command -v flock &> /dev/null; then
+        skip "flock not available on macOS (activation requires file locking)"
+    fi
+}
+
 # Mock git for tests that need it
 setup_git_mock() {
     mkdir -p "$TEST_REPO_DIR/.git"

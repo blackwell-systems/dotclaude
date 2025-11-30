@@ -19,6 +19,11 @@ teardown() {
 # ============================================================================
 
 @test "activate: merges base + profile into ~/.claude/CLAUDE.md" {
+    # Skip on macOS if flock is not available
+    if [[ "$OSTYPE" == "darwin"* ]] && ! command -v flock &> /dev/null; then
+        skip "flock not available on macOS"
+    fi
+
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
 
@@ -28,6 +33,7 @@ teardown() {
 }
 
 @test "activate: creates backup before overwriting" {
+    skip_if_no_flock_macos
     # Create initial CLAUDE.md
     echo "# Existing config" > "$TEST_CLAUDE_DIR/CLAUDE.md"
 
@@ -51,7 +57,8 @@ teardown() {
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
 
-    assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Profile-Specific Additions"
+    # Separator includes profile name
+    assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Profile-Specific Additions: test-profile-1"
 }
 
 @test "activate: fails with invalid profile name" {

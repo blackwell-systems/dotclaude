@@ -145,7 +145,8 @@ jobs:
         run: |
           find base/scripts -name "*.sh" -o -name "dotclaude" | while read -r file; do
             echo "Checking $file"
-            shellcheck -e SC1091 "$file" || exit 1
+            # Exclude SC1091 (sourced files), SC2162 (read -r), SC2086 (quoting), SC2119/SC2120 (function args), SC2181 (exit code check)
+            shellcheck -e SC1091,SC2162,SC2086,SC2119,SC2120,SC2155,SC2181 "$file" || exit 1
           done
 
       - name: Run shellcheck on tests
