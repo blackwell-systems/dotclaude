@@ -181,9 +181,8 @@ jobs:
       - name: Test profile creation
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          # Use workspace for profiles
-          cd ${{ github.workspace }}
-          cp -r examples/sample-profile profiles/ci-test
+          # Create profile in workspace
+          cp -r ${{ github.workspace }}/examples/sample-profile ${{ github.workspace }}/profiles/ci-test
           dotclaude create ci-test-2
           dotclaude list
         env:

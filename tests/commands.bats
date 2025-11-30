@@ -19,6 +19,7 @@ teardown() {
 # ============================================================================
 
 @test "show: displays current profile when one is active" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
 
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" show
@@ -55,6 +56,7 @@ teardown() {
 }
 
 @test "list: indicates active profile" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
 
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" list
@@ -87,12 +89,14 @@ teardown() {
 # ============================================================================
 
 @test "activate: successfully activates valid profile" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     [ "$status" -eq 0 ]
     [[ "$output" =~ "activated" ]] || [[ "$output" =~ "test-profile-1" ]]
 }
 
 @test "activate: works with alias 'use'" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" use test-profile-1
     [ "$status" -eq 0 ]
 }
@@ -108,6 +112,7 @@ teardown() {
 }
 
 @test "activate: accepts --verbose flag" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1 --verbose
     [ "$status" -eq 0 ]
 }
@@ -194,6 +199,7 @@ teardown() {
 }
 
 @test "edit: edits current profile when no name specified" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
     export EDITOR="cat"
 
@@ -216,6 +222,7 @@ teardown() {
 }
 
 @test "diff: compares current vs specified profile" {
+    skip_if_no_flock_macos
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
 
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" diff test-profile-2
@@ -237,6 +244,7 @@ teardown() {
 # ============================================================================
 
 @test "restore: runs without error when backups exist" {
+    skip_if_no_flock_macos
     # Create a backup by activating
     bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
 
@@ -354,6 +362,7 @@ teardown() {
 # ============================================================================
 
 @test "exit code: 0 for successful operations" {
+    skip_if_no_flock_macos
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" list
     [ "$status" -eq 0 ]
 
