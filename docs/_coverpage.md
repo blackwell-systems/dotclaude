@@ -17,5 +17,5 @@ curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/in
 - Git workflow automation
 - Multi-provider support (AWS Bedrock + Claude Max)
 
-[Get Started](../)
+[Get Started](https://github.com/blackwell-systems/dotclaude#readme)
 [View on GitHub](https://github.com/blackwell-systems/dotclaude)
