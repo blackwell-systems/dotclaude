@@ -8,14 +8,14 @@
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
-- Layered profiles (base + context overlays)
-- Auto-detection with .dotclaude files
-- Preview mode (--dry-run)
-- Profile diff and comparison
-- Backup & restore functionality
-- Security hardened (input validation, file locking)
-- Git workflow automation
-- Multi-provider support (AWS Bedrock + Claude Max)
+- **One-command switching** between work contexts
+- **Layered configuration** - No duplication across profiles
+- **Auto-detection** - Profiles activate automatically per-project
+- **Git workflow tools** - Manage long-lived feature branches
+- **Multi-provider** - AWS Bedrock + Claude Max support
+- **Automatic backups** - Never lose your configuration
+- **Cross-platform** - Linux, macOS, and WSL2
+- **122 tests passing** - Production-ready reliability
 
 [Get Started](https://github.com/blackwell-systems/dotclaude#readme)
 [View on GitHub](https://github.com/blackwell-systems/dotclaude)
