@@ -15,7 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/in
 - **Multi-provider** - AWS Bedrock + Claude Max support
 - **Automatic backups** - Never lose your configuration
 - **Cross-platform** - Linux, macOS, and WSL2
-- **122 tests passing** - Production-ready reliability
+- **Version controlled** - Sync profiles across all your machines
 
 [Get Started](https://github.com/blackwell-systems/dotclaude#readme)
 [View on GitHub](https://github.com/blackwell-systems/dotclaude)
