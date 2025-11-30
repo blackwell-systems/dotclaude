@@ -14,6 +14,23 @@ Version-controlled profile system for managing `~/.claude/` configurations acros
 
 **The Solution:** Base configuration + profile overlays that merge on activation.
 
+### How It Works: The Merge
+
+```
+base/CLAUDE.md              profiles/my-project/CLAUDE.md
+(universal standards)   +   (project-specific additions)
+
+• Git workflow                • Tech stack (Node.js, React)
+• Security practices          • API design patterns
+• Tool preferences            • Team coding standards
+• Task management             • Deployment process
+                        ↓
+              ~/.claude/CLAUDE.md
+              (merged configuration)
+```
+
+When you activate a profile, **base + profile merge together**. Your profiles stay focused on what makes each project unique - no need to repeat universal practices in every profile.
+
 ## Features
 
 - **Layered profiles**: Base configuration + context-specific overlays
@@ -57,30 +74,37 @@ vim profiles/client-work/CLAUDE.md
 
 # Switch between contexts
 dotclaude activate my-oss-project
-# → Loads your OSS-specific standards
+# → Merges base + my-oss-project into ~/.claude/
 
 dotclaude activate client-work
-# → Loads client project standards
+# → Merges base + client-work into ~/.claude/
 ```
 
 ## Repository Structure
 
 ```
 dotclaude/
-├── base/                   # Shared configuration for all profiles
-│   ├── CLAUDE.md          # Base development standards
-│   ├── settings.json      # Base hooks & settings
-│   ├── scripts/           # Management tools
-│   └── agents/            # Shared agents
+├── base/                      # Universal standards (applies to ALL profiles)
+│   ├── CLAUDE.md             # Git, security, tools, task management
+│   ├── settings.json         # Base hooks & settings
+│   ├── scripts/              # Management tools
+│   └── agents/               # Shared agents
 │
-├── examples/              # Example profile templates
-│   └── sample-profile/   # Copy this to create your own
+├── examples/                  # Example profile templates
+│   └── sample-profile/       # Detailed example showing the overlay pattern
+│       ├── CLAUDE.md         # Project-specific additions (tech stack, etc.)
+│       ├── settings.json     # Optional profile settings
+│       └── README.md         # Explains merge concept with diagrams
 │
-└── profiles/              # Your custom profiles (create your own)
-    └── (empty - create profiles based on examples/)
+└── profiles/                  # Your custom profiles (you create these)
+    └── (empty - copy from examples/ to start)
 ```
 
-When you activate a profile, base + profile merge into `~/.claude/`.
+**When you activate a profile:**
+```
+~/.claude/CLAUDE.md = base/CLAUDE.md + profiles/my-project/CLAUDE.md
+                      (universal)      (project-specific)
+```
 
 ## Documentation
 

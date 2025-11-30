@@ -1,10 +1,29 @@
 # Profile: Sample Project
 
-This is an example profile showing how to customize Claude Code for a specific project or context.
+<!--
+═══════════════════════════════════════════════════════════════════
+IMPORTANT: This file is MERGED with base/CLAUDE.md when activated
+═══════════════════════════════════════════════════════════════════
+
+When you activate this profile, Claude Code sees:
+  1. base/CLAUDE.md (universal standards: git, security, tools)
+  2. THIS FILE (project-specific additions)
+
+The base already includes:
+  ✓ Git workflow and commit message standards
+  ✓ Security practices (no secrets, input validation)
+  ✓ Tool usage (Read instead of cat, Edit instead of sed)
+  ✓ Task management (TodoWrite, marking todos complete)
+  ✓ File operations (absolute paths, read before edit)
+
+This profile ADDS project-specific context on top of that base.
+-->
 
 ## Project Overview
 
 This profile demonstrates configuration for a web application project with specific tech stack and practices.
+
+**This is an overlay** - it adds project-specific details to the universal standards in base/CLAUDE.md.
 
 ## Tech Stack Preferences
 
@@ -216,5 +235,18 @@ src/
 
 ---
 
-**Note:** This file is merged with the base CLAUDE.md when this profile is active.
-Profile-specific instructions take precedence over base instructions.
+<!--
+═══════════════════════════════════════════════════════════════════
+MERGE BEHAVIOR
+═══════════════════════════════════════════════════════════════════
+
+When this profile is activated, the final ~/.claude/CLAUDE.md contains:
+
+  1. ALL of base/CLAUDE.md (universal standards)
+  2. THEN this file appended below it
+  3. A separator comment showing where profile starts
+
+If there are conflicts, profile instructions take precedence.
+
+The merged file is what Claude Code actually reads.
+-->

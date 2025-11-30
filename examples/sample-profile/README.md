@@ -2,22 +2,66 @@
 
 This directory contains a complete example profile showing how to customize Claude Code for a specific project or context.
 
+## ⚠️ How Profiles Work: The Merge Concept
+
+**Profiles are NOT standalone** - they are **overlays** that merge with your base configuration.
+
+```
+When you activate a profile:
+
+┌─────────────────────────┐
+│   base/CLAUDE.md        │  ← Universal standards for ALL projects
+│   • Git practices       │     (tool usage, security, git workflow)
+│   • Security rules      │
+│   • Tool preferences    │
+│   • Task management     │
+└─────────────────────────┘
+            +
+┌─────────────────────────┐
+│  profiles/my-project/   │  ← Project-specific additions
+│  CLAUDE.md              │     (tech stack, coding style, APIs)
+│   • Tech stack          │
+│   • Coding standards    │
+│   • API patterns        │
+│   • Team practices      │
+└─────────────────────────┘
+            ↓
+┌─────────────────────────┐
+│  ~/.claude/CLAUDE.md    │  ← What Claude Code actually reads
+│                         │     (base + profile merged together)
+│  [All base content]     │
+│  [Profile additions]    │
+└─────────────────────────┘
+```
+
+**This means:**
+- Base handles universal practices (git, security, tools) - write once, applies everywhere
+- Profiles add context-specific details (your tech stack, company policies, project standards)
+- You don't repeat "use Read instead of cat" in every profile - that's in base
+- Your profiles stay focused on what makes THIS project different
+
 ## What's Included
 
 ### CLAUDE.md
-The main instruction file that gets merged with your base CLAUDE.md when this profile is active.
+The main instruction file that gets **merged** with your base CLAUDE.md when this profile is active.
 
-**What to customize:**
+**What to customize (project-specific additions):**
 - **Project Overview**: Describe your project's purpose and context
-- **Tech Stack**: List your specific frameworks, libraries, and tools
-- **Coding Standards**: Define your team's style guide and conventions
-- **API Design**: Document your REST/GraphQL patterns
-- **Security Requirements**: Specify your auth, validation, and compliance needs
-- **Git Workflow**: Describe your branching strategy and commit conventions
+- **Tech Stack**: List your specific frameworks, libraries, and tools (Node.js vs Python, React vs Vue)
+- **Coding Standards**: Define your team's style guide and conventions (naming, formatting, patterns)
+- **API Design**: Document your REST/GraphQL patterns and response formats
+- **Security Requirements**: Specify your auth methods, validation rules, compliance needs (HIPAA, SOC2)
+- **Git Workflow**: Describe your branching strategy and commit conventions (if different from base)
 - **Testing Guidelines**: Set expectations for test coverage and practices
 - **Deployment**: Document your environments and deployment process
 
-**When Claude Code runs with this profile active**, it will have all these guidelines in context and follow them automatically.
+**What NOT to include (already in base):**
+- ❌ "Use Read instead of cat" - already in base
+- ❌ "Mark todos completed immediately" - already in base
+- ❌ "Never commit secrets" - already in base
+- ❌ "Write clear commit messages" - already in base
+
+**When Claude Code runs with this profile active**, it sees BOTH base + profile guidelines in context and follows them automatically.
 
 ### settings.json
 Profile-specific Claude Code settings that override your global settings.

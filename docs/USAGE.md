@@ -39,17 +39,67 @@ dotclaude supports multiple work profiles, allowing different configurations for
 4. **Backs up existing**: Previous config backed up with timestamp
 
 **Example merged CLAUDE.md:**
-```
-[Base configuration content]
-# ... git workflow, security, tool usage ...
+
+When you run `dotclaude activate my-project`, the final `~/.claude/CLAUDE.md` contains:
+
+```markdown
+# Global Claude Code Instructions
+
+These instructions apply to ALL projects unless overridden...
+
+## Development Standards
+
+### Code Quality
+- Write clean, maintainable code
+- Follow existing patterns...
+
+### File Operations
+- Always use absolute file paths
+- Read files before editing...
+
+### Security
+- Never commit sensitive data
+- Use environment variables...
+
+### Git Practices
+- Write clear, descriptive commit messages
+- Focus on "why" rather than "what"...
+
+### Tool Usage
+- Use Read instead of cat
+- Use Edit instead of sed...
+
+### Task Management
+- Use TodoWrite for complex tasks
+- Mark todos completed immediately...
+
+[... 100+ more lines from base/CLAUDE.md ...]
 
 # =========================================
 # Profile-Specific Additions: my-project
 # =========================================
 
-[Profile-specific content]
-# ... OSS licensing, public docs, community guidelines ...
+## Tech Stack Preferences
+
+### Backend
+- Language: Node.js (TypeScript preferred)
+- Framework: Express.js or Fastify
+- Database: PostgreSQL with Prisma ORM
+
+### Frontend
+- Framework: React with TypeScript
+- State Management: React Query + Context API
+- Styling: Tailwind CSS
+
+## API Design Principles
+- Use HTTP methods appropriately
+- Return appropriate status codes
+- Version APIs in the URL (/api/v1/users)
+
+[... project-specific content continues ...]
 ```
+
+**Key point:** Claude Code reads the ENTIRE merged file, so it knows both your universal practices (from base) AND your project-specific requirements (from profile).
 
 ### Profile Use Cases
 
