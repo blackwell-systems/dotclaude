@@ -2,70 +2,206 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>dotclaude - Profile Management for Claude Code</title>
+  <title>dotclaude - The definitive profile management system for Claude Code</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="The definitive profile management system for Claude Code. Manage configurations across different work contexts.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-
-  <!-- Theme: Docsify base + Blackwell Systems branding -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" />
-  <link rel="stylesheet" href="https://blackwell-systems.github.io/blackwell-docs-theme/docsify.css" />
-
-  <!-- Fix code block overflow on coverpage -->
+  <link rel="icon" type="image/png" href="assets/dotclaude_logo.png">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
-    section.cover pre {
-      overflow-x: auto !important;
-      white-space: pre !important;
-      word-wrap: normal !important;
+    :root {
+      --theme-color: #4a9eff;
+      --theme-color-dark: #2d7dd2;
+    }
+    .app-name-link img {
+      width: 2rem;
     }
 
+    /* Cover page styling */
+    section.cover {
+      background: linear-gradient(to bottom right, #0d0d0d 0%, #1a1a1a 50%, #0f0f0f 100%) !important;
+    }
+    section.cover .cover-main {
+      max-width: 700px;
+    }
     section.cover .cover-main > p:first-child img {
-      max-width: 120px !important;
-      margin-bottom: 1rem;
+      width: 250px !important;
+      max-width: 250px !important;
+    }
+    section.cover h1 {
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    section.cover blockquote {
+      font-size: 1rem;
+      color: #888;
+      border: none;
+      font-style: normal;
+      letter-spacing: 0.05em;
+    }
+    section.cover pre {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      text-align: left;
+      max-width: 500px;
+      margin: 1.5rem auto;
+    }
+    section.cover ul {
+      text-align: left;
+      display: inline-block;
+      list-style: none;
+      padding: 0;
+      margin: 2rem 0;
+    }
+    section.cover ul li {
+      color: #999;
+      font-size: 0.9rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+    }
+    section.cover ul li:last-child {
+      border-bottom: none;
+    }
+    section.cover ul li::before {
+      content: "→ ";
+      color: #444;
+      margin-right: 0.5rem;
+    }
+    /* Subdued buttons */
+    section.cover .cover-main > p:last-of-type a {
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: #ccc;
+      padding: 0.6rem 1.8rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      border-radius: 2px;
+    }
+    section.cover .cover-main > p:last-of-type a:hover {
+      border-color: rgba(255,255,255,0.4);
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+    section.cover .cover-main > p:last-of-type a:first-child {
+      border-color: rgba(255,255,255,0.3);
+      color: #fff;
+    }
+
+    /* Mobile responsive */
+    @media screen and (max-width: 768px) {
+      section.cover {
+        padding: 0 1rem;
+      }
+      section.cover .cover-main {
+        max-width: 100%;
+        padding: 0 0.5rem;
+      }
+      section.cover .cover-main > p:first-child img {
+        max-width: 100px !important;
+        width: 100px !important;
+      }
+      section.cover h1 {
+        font-size: 1.6rem;
+        letter-spacing: 0.05em;
+      }
+      section.cover blockquote {
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+      }
+      section.cover pre {
+        max-width: 100%;
+        font-size: 0.7rem;
+        padding: 0.8rem;
+        overflow-x: auto;
+        margin: 1rem auto;
+      }
+      section.cover ul {
+        margin: 1.5rem 0;
+        padding: 0 0.5rem;
+        max-width: 100%;
+      }
+      section.cover ul li {
+        font-size: 0.8rem;
+        padding: 0.35rem 0;
+      }
+      section.cover .cover-main > p:last-of-type {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      section.cover .cover-main > p:last-of-type a {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.75rem;
+        width: 80%;
+        text-align: center;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      section.cover h1 {
+        font-size: 1.3rem;
+      }
+      section.cover pre {
+        font-size: 0.6rem;
+      }
+      section.cover ul li {
+        font-size: 0.75rem;
+      }
     }
   </style>
 </head>
 <body>
   <div id="app">Loading...</div>
-
   <script>
     window.$docsify = {
-      name: '🌲 dotclaude',
-      repo: 'https://github.com/blackwell-systems/dotclaude',
-      logo: 'assets/dotclaude_logo.png',
+      name: '<img src="assets/dotclaude_logo.png" alt="Blackwell Systems">dotclaude',
+      nameLink: '/',
+      repo: 'blackwell-systems/dotclaude',
       loadSidebar: true,
+      subMaxLevel: 3,
+      auto2top: true,
       coverpage: true,
       onlyCover: false,
-      auto2top: true,
-      maxLevel: 3,
-      subMaxLevel: 3,
+      executeScript: true,
+      maxLevel: 4,
 
-      // Search plugin
+      // Search configuration
       search: {
         maxAge: 86400000, // 1 day
         paths: 'auto',
-        placeholder: 'Search documentation...',
-        noData: 'No results found',
-        depth: 3,
-        hideOtherSidebarContent: false
+        placeholder: 'Search...',
+        noData: 'No results!',
+        depth: 6,
+        hideOtherSidebarContent: false,
       },
 
-      // Pagination
-      pagination: {
-        previousText: '← Previous',
-        nextText: 'Next →',
-        crossChapter: true,
-        crossChapterText: true,
-      },
-
-      // Copy code plugin
+      // Copy code configuration
       copyCode: {
         buttonText: 'Copy',
         errorText: 'Error',
         successText: 'Copied!'
       },
 
-      // Tabs plugin
+      // Pagination
+      pagination: {
+        previousText: 'Previous',
+        nextText: 'Next',
+        crossChapter: true,
+        crossChapterText: true,
+      },
+
+      // Theme color
+      themeColor: '#4a9eff',
+
+      // Tabs
       tabs: {
         persist: true,
         sync: true,
@@ -74,64 +210,47 @@
         tabHeadings: true
       },
 
-      // Custom plugins
+      // Footer
       plugins: [
         function(hook, vm) {
-          // Footer
           hook.beforeEach(function(html) {
-            return html;
-          });
-
-          hook.afterEach(function(html, next) {
-            const footer = `
-              <hr/>
-              <footer style="text-align: center; color: #6b7280; padding: 20px 0; font-size: 0.9em;">
-                <p>
-                  <strong>dotclaude</strong> - The definitive profile management system for Claude Code
-                </p>
-                <p style="margin-top: 8px;">
-                  Made with 🍃 by <a href="https://github.com/blackwell-ai" target="_blank" style="color: #22c55e;">Blackwell Systems</a>
-                </p>
-                <p style="margin-top: 8px; font-size: 0.85em;">
-                  <em>Not affiliated with or endorsed by Anthropic or Claude</em>
-                </p>
-              </footer>
-            `;
-            next(html + footer);
+            return html + '\n\n----\n\n' +
+              '<div style="text-align: center; color: #666; font-size: 0.85em; padding: 1.5em 0;">' +
+              '<a href="https://github.com/blackwell-systems/dotclaude">GitHub</a> · ' +
+              '<a href="https://github.com/blackwell-systems/dotclaude/blob/main/LICENSE">MIT</a>' +
+              '</div>';
           });
         }
-      ],
-
-      // Emoji support
-      markdown: {
-        renderer: {
-          code: function(code, lang) {
-            if (lang === 'bash') {
-              return `<pre data-lang="bash"><code class="lang-bash">${code}</code></pre>`;
-            }
-            return `<pre><code class="lang-${lang}">${code}</code></pre>`;
-          }
-        }
-      }
-    };
+      ]
+    }
   </script>
 
   <!-- Docsify core -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
 
-  <!-- Plugins -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <!-- Search plugin -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+
+  <!-- Copy code plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+
+  <!-- Pagination plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+
+  <!-- Tabs plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+
+  <!-- Zoom image -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
 
   <!-- Syntax highlighting -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-shell-session.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
 
-  <!-- Emoji support -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/emoji.min.js"></script>
+  <!-- External link icon -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
 </body>
 </html>
