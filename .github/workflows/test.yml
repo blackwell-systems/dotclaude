@@ -193,7 +193,7 @@ jobs:
           dotclaude activate ci-test
           dotclaude show
           test -f ~/.claude/CLAUDE.md
-          grep -q "Base Configuration" ~/.claude/CLAUDE.md
+          grep -q "Global Claude Code Instructions" ~/.claude/CLAUDE.md
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
