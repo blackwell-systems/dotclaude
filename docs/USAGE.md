@@ -1260,10 +1260,10 @@ dotclaude activate my-profile
 For detailed troubleshooting, enable debug output to see exactly what dotclaude is doing:
 
 ```bash
-# Method 1: Use --verbose flag (recommended)
-dotclaude --verbose activate my-project
-dotclaude --verbose list
-dotclaude --verbose switch
+# Method 1: Use --verbose flag (recommended - add to end of command)
+dotclaude activate my-project --verbose
+dotclaude list --verbose
+dotclaude show --verbose
 
 # Method 2: Set DEBUG environment variable
 DEBUG=1 dotclaude activate my-project

@@ -107,6 +107,21 @@ error_box() {
 # ============================================================================
 
 cmd_show() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_show called"
     header
 
     if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
@@ -137,6 +152,22 @@ cmd_show() {
 }
 
 cmd_list() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_list called"
+    debug "PROFILES_DIR: $PROFILES_DIR"
     header
 
     if [ ! -d "$PROFILES_DIR" ]; then
@@ -177,28 +208,35 @@ cmd_activate() {
     local profile_name=""
     local dry_run=false
 
-    debug "Starting cmd_activate with arguments: $*"
-
     # Parse arguments
     while [ $# -gt 0 ]; do
         case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
             --dry-run|--preview)
                 dry_run=true
-                debug "Dry-run mode enabled"
                 shift
                 ;;
             -*)
                 error_box "Unknown flag: $1"
-                echo "  Usage: dotclaude activate <profile-name> [--dry-run]"
+                echo "  Usage: dotclaude activate <profile-name> [--dry-run] [--verbose]"
                 exit 1
                 ;;
             *)
                 profile_name="$1"
-                debug "Profile name: $profile_name"
                 shift
                 ;;
         esac
     done
+
+    debug "Starting cmd_activate"
+    debug "Profile name: $profile_name"
+    debug "Dry-run: $dry_run"
+    debug "REPO_DIR: $REPO_DIR"
+    debug "CLAUDE_DIR: $CLAUDE_DIR"
 
     if [ -z "$profile_name" ]; then
         error_box "Profile name required"
@@ -768,17 +806,15 @@ cmd_help() {
         echo "  ${BOLD}The definitive profile management system for Claude Code${NC}"
         echo ""
         echo "  ${BOLD}USAGE${NC}"
-        echo "    dotclaude [--verbose] <command> [options]"
-        echo ""
-        echo "  ${BOLD}GLOBAL OPTIONS${NC}"
-        echo "    ${GREEN}--verbose${NC}         Enable debug output (or set DEBUG=1)"
+        echo "    dotclaude <command> [options]"
         echo ""
         echo "  ${BOLD}CORE COMMANDS${NC}"
-        echo "    ${GREEN}show${NC}              Show current active profile"
-        echo "    ${GREEN}list${NC}              List all available profiles"
-        echo "    ${GREEN}activate${NC} <name>   Activate a profile (--dry-run to preview)"
-        echo "    ${GREEN}switch${NC}            Interactive profile switcher"
-        echo "    ${GREEN}diff${NC} <p1> [p2]    Compare profiles or current vs profile"
+        echo "    ${GREEN}show${NC} [--verbose]             Show current active profile"
+        echo "    ${GREEN}list${NC} [--verbose]             List all available profiles"
+        echo "    ${GREEN}activate${NC} <name> [--dry-run] [--verbose]"
+        echo "                              Activate a profile"
+        echo "    ${GREEN}switch${NC}                       Interactive profile switcher"
+        echo "    ${GREEN}diff${NC} <p1> [p2]              Compare profiles or current vs profile"
         echo ""
         echo "  ${BOLD}PROFILE MANAGEMENT${NC}"
         echo "    ${GREEN}create${NC} <name>     Create a new profile"
@@ -844,27 +880,8 @@ cmd_branches() {
 # ============================================================================
 
 main() {
-    # Parse global flags first
-    while [[ "$1" == --* ]]; do
-        case "$1" in
-            --verbose|--debug)
-                DEBUG=1
-                debug "Debug mode enabled"
-                shift
-                ;;
-            *)
-                break
-                ;;
-        esac
-    done
-
     local command="${1:-help}"
     shift || true
-
-    debug "Command: $command"
-    debug "Arguments: $*"
-    debug "REPO_DIR: $REPO_DIR"
-    debug "CLAUDE_DIR: $CLAUDE_DIR"
 
     case "$command" in
         show)
