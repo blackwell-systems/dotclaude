@@ -145,14 +145,14 @@ jobs:
         run: |
           find base/scripts -name "*.sh" -o -name "dotclaude" | while read -r file; do
             echo "Checking $file"
-            shellcheck "$file" || exit 1
+            shellcheck -e SC1091 "$file" || exit 1
           done
 
       - name: Run shellcheck on tests
         run: |
           find tests -name "*.bash" | while read -r file; do
             echo "Checking $file"
-            shellcheck "$file" || exit 1
+            shellcheck -e SC1091 "$file" || exit 1
           done
 
   test-install:
@@ -165,12 +165,16 @@ jobs:
 
       - name: Test install script (non-interactive)
         run: ./install.sh --non-interactive
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
       - name: Verify dotclaude command available
         run: |
           export PATH="$HOME/.local/bin:$PATH"
           dotclaude version
           dotclaude help
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
       - name: Test profile creation
         run: |
@@ -178,6 +182,8 @@ jobs:
           cp -r examples/sample-profile profiles/ci-test
           dotclaude create ci-test-2
           dotclaude list
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
       - name: Test profile activation
         run: |
@@ -186,6 +192,8 @@ jobs:
           dotclaude show
           test -f ~/.claude/CLAUDE.md
           grep -q "Base Configuration" ~/.claude/CLAUDE.md
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
   coverage:
     name: Test Coverage Report

@@ -123,6 +123,13 @@ acquire_lock() {
     local lockfile="$1"
     local timeout="${2:-5}"
 
+    # Create parent directory if it doesn't exist
+    local lockdir
+    lockdir="$(dirname "$lockfile")"
+    if [ ! -d "$lockdir" ]; then
+        mkdir -p "$lockdir" || return 1
+    fi
+
     exec 200>"$lockfile"
 
     if ! flock -w "$timeout" 200; then
