@@ -31,14 +31,15 @@ jobs:
   test:
     name: Test Suite
     runs-on: ${{ matrix.os }}
+    # Skip job if manual trigger and OS doesn't match selection
+    if: |
+      github.event_name != 'workflow_dispatch' ||
+      inputs.os == 'both' ||
+      inputs.os == matrix.os
     strategy:
       fail-fast: false
       matrix:
-        os: ${{
-          github.event_name == 'workflow_dispatch' && inputs.os == 'ubuntu-latest' && fromJSON('["ubuntu-latest"]') ||
-          github.event_name == 'workflow_dispatch' && inputs.os == 'macos-latest' && fromJSON('["macos-latest"]') ||
-          fromJSON('["ubuntu-latest", "macos-latest"]')
-        }}
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout code
