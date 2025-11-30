@@ -1255,6 +1255,42 @@ dotclaude activate my-profile
 
 ### Troubleshooting
 
+**Enable Debug Mode**
+
+For detailed troubleshooting, enable debug output to see exactly what dotclaude is doing:
+
+```bash
+# Method 1: Use --verbose flag (recommended)
+dotclaude --verbose activate my-project
+dotclaude --verbose list
+dotclaude --verbose switch
+
+# Method 2: Set DEBUG environment variable
+DEBUG=1 dotclaude activate my-project
+
+# Method 3: Enable for entire session
+export DEBUG=1
+dotclaude activate my-project
+dotclaude switch
+```
+
+**Debug output includes:**
+- Command parsing and arguments
+- File paths being used
+- Validation checks
+- Lock acquisition
+- Profile discovery
+- Merge operations
+- All file operations
+
+**Debug log file:**
+- Location: `~/.claude/.dotclaude-debug.log`
+- Persists across sessions
+- Useful for sharing when reporting issues
+- View with: `tail -f ~/.claude/.dotclaude-debug.log`
+
+---
+
 **"Profile not found"**
 ```bash
 # Check DOTCLAUDE_REPO_DIR is set correctly

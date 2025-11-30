@@ -10,12 +10,26 @@ CLAUDE_DIR="$HOME/.claude"
 PROFILES_DIR="$REPO_DIR/profiles"
 BASE_DIR="$REPO_DIR/base"
 
+# Debug mode (inherited from parent or set DEBUG=1)
+DEBUG="${DEBUG:-0}"
+DEBUG_LOG="$CLAUDE_DIR/.dotclaude-debug.log"
+
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
+
+# Debug function
+debug() {
+    if [ "$DEBUG" = "1" ]; then
+        local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        echo -e "${CYAN}[DEBUG $timestamp]${NC} $*" >&2
+        echo "[$timestamp] $*" >> "$DEBUG_LOG" 2>/dev/null || true
+    fi
+}
 
 # Load validation library
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -60,27 +74,39 @@ fi
 
 PROFILE_NAME=$1
 
+debug "Activating profile: $PROFILE_NAME"
+debug "REPO_DIR: $REPO_DIR"
+debug "PROFILES_DIR: $PROFILES_DIR"
+debug "BASE_DIR: $BASE_DIR"
+debug "CLAUDE_DIR: $CLAUDE_DIR"
+
 # Validate profile name (prevent path traversal and injection)
 if ! validate_profile_name "$PROFILE_NAME"; then
+    debug "Profile name validation failed"
     exit 1
 fi
 
 PROFILE_DIR="$PROFILES_DIR/$PROFILE_NAME"
+debug "PROFILE_DIR: $PROFILE_DIR"
 
 if [ ! -d "$PROFILE_DIR" ]; then
     echo -e "${RED}Error: Profile '$PROFILE_NAME' not found${NC}"
+    debug "Profile directory not found"
     echo ""
     usage
 fi
 
 # Acquire lock to prevent concurrent operations
 LOCKFILE="$CLAUDE_DIR/.activation.lock"
+debug "Acquiring lock: $LOCKFILE"
 exec 200>"$LOCKFILE"
 if ! flock -w 10 200; then
     echo -e "${RED}Error: Another activation in progress${NC}"
     echo "  Wait for the other operation to complete"
+    debug "Failed to acquire lock"
     exit 1
 fi
+debug "Lock acquired successfully"
 
 echo -e "${BLUE}=== Claude Code Profile Activation ===${NC}"
 echo -e "Profile: ${YELLOW}$PROFILE_NAME${NC}"

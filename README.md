@@ -274,6 +274,18 @@ A: `cat ~/.claude/CLAUDE.md` - this is the merged result after activation.
 **Q: Can I use different Claude models per profile?**
 A: Yes. Add `settings.json` to your profile with `"model": "opus"` or `"model": "haiku"`.
 
+**Q: How do I troubleshoot issues?**
+A: Enable debug mode to see detailed operation logs:
+```bash
+# Method 1: Use --verbose flag
+dotclaude --verbose activate my-project
+
+# Method 2: Set DEBUG environment variable
+DEBUG=1 dotclaude activate my-project
+
+# Debug logs are also written to ~/.claude/.dotclaude-debug.log
+```
+
 ## License
 
 MIT
