@@ -24,6 +24,9 @@ Show current active profile and configuration status.
 **Usage:**
 ```bash
 dotclaude show [--verbose]
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Output:**
@@ -61,8 +64,11 @@ List all available profiles.
 ```bash
 dotclaude list [--verbose]
 
-# Aliases
+# Command aliases
 dotclaude ls
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Output:**
@@ -99,8 +105,12 @@ Activate a specific profile, merging base + profile into `~/.claude/`.
 ```bash
 dotclaude activate <profile-name> [--dry-run] [--verbose]
 
-# Aliases
+# Command aliases
 dotclaude use <profile-name>
+
+# Flag aliases
+--dry-run  (or --preview)
+--verbose  (or --debug)
 ```
 
 **Examples:**
@@ -181,8 +191,11 @@ Interactive profile switcher with menu selection.
 ```bash
 dotclaude switch [--verbose]
 
-# Aliases
+# Command aliases
 dotclaude select
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Output:**
@@ -218,8 +231,11 @@ Create a new empty profile.
 ```bash
 dotclaude create <profile-name> [--verbose]
 
-# Aliases
+# Command aliases
 dotclaude new <profile-name>
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Example:**
@@ -269,6 +285,9 @@ Edit a profile's CLAUDE.md in your configured editor.
 **Usage:**
 ```bash
 dotclaude edit [profile-name] [--verbose]
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Examples:**
@@ -300,6 +319,9 @@ Compare two profiles or compare current profile with another.
 ```bash
 dotclaude diff <profile1> <profile2> [--verbose]
 dotclaude diff <profile> [--verbose]  # Compare current vs profile
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Examples:**
@@ -358,6 +380,9 @@ Restore from backup interactively.
 **Usage:**
 ```bash
 dotclaude restore [--verbose]
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **What it does:**
@@ -424,6 +449,9 @@ Run the interactive feature branch sync tool.
 **Usage:**
 ```bash
 dotclaude sync [--verbose]
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **What it does:**
@@ -450,8 +478,11 @@ Check status of all branches against main.
 ```bash
 dotclaude branches [--verbose]
 
-# Aliases
+# Command aliases
 dotclaude br
+
+# Flag aliases
+--verbose  (or --debug)
 ```
 
 **Output:**
@@ -523,22 +554,23 @@ Shows complete command reference with usage examples.
 
 ## Debug Mode
 
-All commands support the `--verbose` flag for detailed debug output.
+All commands support the `--verbose` (or `--debug`) flag for detailed debug output.
 
 ### Usage
 
-**Add --verbose to any command:**
+**Add --verbose (or --debug) to any command:**
 ```bash
 dotclaude show --verbose
-dotclaude list --verbose
+dotclaude list --debug          # --debug is an alias for --verbose
 dotclaude activate my-project --verbose
-dotclaude activate my-project --dry-run --verbose
+dotclaude activate my-project --dry-run --debug
+dotclaude activate my-project --preview --verbose  # --preview is alias for --dry-run
 dotclaude switch --verbose
-dotclaude create new-profile --verbose
+dotclaude create new-profile --debug
 dotclaude edit my-project --verbose
-dotclaude diff profile1 profile2 --verbose
+dotclaude diff profile1 profile2 --debug
 dotclaude restore --verbose
-dotclaude sync --verbose
+dotclaude sync --debug
 dotclaude branches --verbose
 ```
 
