@@ -399,6 +399,22 @@ cmd_activate() {
 }
 
 cmd_switch() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_switch called"
+    debug "Current profile check: $CLAUDE_DIR/.current-profile"
     header
 
     echo "  Select a profile to activate:"
@@ -407,6 +423,7 @@ cmd_switch() {
     local current=""
     if [ -f "$CLAUDE_DIR/.current-profile" ]; then
         current=$(cat "$CLAUDE_DIR/.current-profile")
+        debug "Current profile: $current"
     fi
 
     local -a profiles=()
@@ -445,30 +462,58 @@ cmd_switch() {
 }
 
 cmd_create() {
-    local profile_name="$1"
+    local profile_name=""
+
+    # Parse arguments and flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            -*)
+                error_box "Unknown flag: $1"
+                echo "  Usage: dotclaude create <profile-name> [--verbose]"
+                exit 1
+                ;;
+            *)
+                profile_name="$1"
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_create called"
+    debug "Profile name: $profile_name"
 
     if [ -z "$profile_name" ]; then
         error_box "Profile name required"
-        echo "  Usage: dotclaude create <profile-name>"
+        echo "  Usage: dotclaude create <profile-name> [--verbose]"
         echo ""
         exit 1
     fi
 
     # Validate profile name (prevent path traversal and injection)
     if ! validate_profile_name "$profile_name"; then
+        debug "Profile name validation failed"
         exit 1
     fi
 
     local profile_dir="$PROFILES_DIR/$profile_name"
+    debug "Profile directory: $profile_dir"
 
     if [ -d "$profile_dir" ]; then
         error_box "Profile '$profile_name' already exists"
+        debug "Profile already exists"
         exit 1
     fi
 
     header
     echo "  Creating new profile: ${BOLD}$profile_name${NC}"
     echo ""
+
+    debug "Creating directory: $profile_dir"
 
     mkdir -p "$profile_dir"
 
@@ -512,25 +557,52 @@ EOF
 }
 
 cmd_edit() {
-    local profile_name="$1"
+    local profile_name=""
+
+    # Parse arguments and flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            -*)
+                error_box "Unknown flag: $1"
+                echo "  Usage: dotclaude edit [profile-name] [--verbose]"
+                exit 1
+                ;;
+            *)
+                profile_name="$1"
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_edit called"
 
     if [ -z "$profile_name" ]; then
         # Edit current profile
         if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
             error_box "No active profile to edit"
-            echo "  Specify a profile: dotclaude edit <profile-name>"
+            echo "  Specify a profile: dotclaude edit <profile-name> [--verbose]"
             echo ""
             exit 1
         fi
         profile_name=$(cat "$CLAUDE_DIR/.current-profile")
+        debug "Editing current profile: $profile_name"
+    else
+        debug "Editing specified profile: $profile_name"
     fi
 
     # Validate profile name
     if ! validate_profile_name "$profile_name"; then
+        debug "Profile name validation failed"
         exit 1
     fi
 
     local profile_dir="$PROFILES_DIR/$profile_name"
+    debug "Profile directory: $profile_dir"
 
     if [ ! -d "$profile_dir" ]; then
         error_box "Profile '$profile_name' not found"
@@ -550,25 +622,55 @@ cmd_edit() {
 }
 
 cmd_diff() {
-    local profile1="$1"
-    local profile2="$2"
+    local profile1=""
+    local profile2=""
+
+    # Parse arguments and flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            -*)
+                error_box "Unknown flag: $1"
+                echo "  Usage: dotclaude diff <profile1> <profile2> [--verbose]"
+                echo "     Or: dotclaude diff <profile> [--verbose]  (compare current vs profile)"
+                exit 1
+                ;;
+            *)
+                if [ -z "$profile1" ]; then
+                    profile1="$1"
+                elif [ -z "$profile2" ]; then
+                    profile2="$1"
+                fi
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_diff called"
+    debug "Profile1: $profile1"
+    debug "Profile2: $profile2"
 
     # If only one argument, compare current vs specified profile
     if [ -z "$profile2" ]; then
         if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
             error_box "No active profile to compare"
-            echo "  Usage: dotclaude diff <profile1> <profile2>"
-            echo "     Or: dotclaude diff <profile>  (compare current vs profile)"
+            echo "  Usage: dotclaude diff <profile1> <profile2> [--verbose]"
+            echo "     Or: dotclaude diff <profile> [--verbose]  (compare current vs profile)"
             exit 1
         fi
         profile2="$profile1"
         profile1="$(cat "$CLAUDE_DIR/.current-profile")"
+        debug "Comparing current ($profile1) vs specified ($profile2)"
     fi
 
     if [ -z "$profile1" ] || [ -z "$profile2" ]; then
         error_box "Two profiles required"
-        echo "  Usage: dotclaude diff <profile1> <profile2>"
-        echo "     Or: dotclaude diff <profile>  (compare current vs profile)"
+        echo "  Usage: dotclaude diff <profile1> <profile2> [--verbose]"
+        echo "     Or: dotclaude diff <profile> [--verbose]  (compare current vs profile)"
         exit 1
     fi
 
@@ -664,6 +766,22 @@ cmd_diff() {
 }
 
 cmd_restore() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_restore called"
+    debug "Checking for backups in $CLAUDE_DIR"
     header
     echo "  ${BOLD}Backup Restoration${NC}"
     echo ""
@@ -813,21 +931,26 @@ cmd_help() {
         echo "    ${GREEN}list${NC} [--verbose]             List all available profiles"
         echo "    ${GREEN}activate${NC} <name> [--dry-run] [--verbose]"
         echo "                              Activate a profile"
-        echo "    ${GREEN}switch${NC}                       Interactive profile switcher"
-        echo "    ${GREEN}diff${NC} <p1> [p2]              Compare profiles or current vs profile"
+        echo "    ${GREEN}switch${NC} [--verbose]           Interactive profile switcher"
+        echo "    ${GREEN}diff${NC} <p1> [p2] [--verbose]   Compare profiles"
         echo ""
         echo "  ${BOLD}PROFILE MANAGEMENT${NC}"
-        echo "    ${GREEN}create${NC} <name>     Create a new profile"
-        echo "    ${GREEN}edit${NC} [name]       Edit profile (current if not specified)"
-        echo "    ${GREEN}restore${NC}           Restore from backup interactively"
+        echo "    ${GREEN}create${NC} <name> [--verbose]    Create a new profile"
+        echo "    ${GREEN}edit${NC} [name] [--verbose]      Edit profile (current if not specified)"
+        echo "    ${GREEN}restore${NC} [--verbose]          Restore from backup interactively"
         echo ""
         echo "  ${BOLD}GIT WORKFLOW${NC}"
-        echo "    ${GREEN}sync${NC}              Sync feature branch with main"
-        echo "    ${GREEN}branches${NC}          Check branch status"
+        echo "    ${GREEN}sync${NC} [--verbose]             Sync feature branch with main"
+        echo "    ${GREEN}branches${NC} [--verbose]         Check branch status"
         echo ""
         echo "  ${BOLD}SYSTEM${NC}"
-        echo "    ${GREEN}version${NC}           Show version"
-        echo "    ${GREEN}help${NC} [command]    Show help"
+        echo "    ${GREEN}version${NC}                      Show version"
+        echo "    ${GREEN}help${NC} [command]               Show help"
+        echo ""
+        echo "  ${BOLD}DEBUG${NC}"
+        echo "    Add ${GREEN}--verbose${NC} to any command for detailed debug output"
+        echo "    Or set ${GREEN}DEBUG=1${NC} environment variable"
+        echo "    Debug log: ${GREEN}~/.claude/.dotclaude-debug.log${NC}"
         echo ""
 
         footer_tip "Run 'dotclaude help <command>' for detailed help"
@@ -857,7 +980,25 @@ cmd_version() {
 }
 
 cmd_sync() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_sync called"
+    debug "Sync script: $BASE_DIR/scripts/sync-feature-branch.sh"
+
     if [ -f "$BASE_DIR/scripts/sync-feature-branch.sh" ]; then
+        export DEBUG  # Pass debug mode to child script
         bash "$BASE_DIR/scripts/sync-feature-branch.sh"
     else
         error_box "Git sync tool not found"
@@ -866,7 +1007,25 @@ cmd_sync() {
 }
 
 cmd_branches() {
+    # Parse flags
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --verbose|--debug)
+                DEBUG=1
+                debug "Debug mode enabled"
+                shift
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+
+    debug "cmd_branches called"
+    debug "Shell functions: $BASE_DIR/scripts/shell-functions.sh"
+
     if [ -f "$BASE_DIR/scripts/shell-functions.sh" ]; then
+        export DEBUG  # Pass debug mode to sourced functions
         source "$BASE_DIR/scripts/shell-functions.sh"
         check-branches
     else
