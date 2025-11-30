@@ -63,6 +63,33 @@ else
 
         return 0
     }
+
+    acquire_lock() {
+        local lockfile="$1"
+        local timeout="${2:-5}"
+
+        # Create parent directory if it doesn't exist
+        local lockdir
+        lockdir="$(dirname "$lockfile")"
+        if [ ! -d "$lockdir" ]; then
+            mkdir -p "$lockdir" || return 1
+        fi
+
+        exec 200>"$lockfile"
+
+        if ! flock -w "$timeout" 200 2>/dev/null; then
+            echo -e "${YELLOW}Warning: Another dotclaude operation in progress${NC}" >&2
+            echo "  Waiting for lock: $lockfile" >&2
+            echo "  Timeout: ${timeout}s" >&2
+            return 1
+        fi
+
+        return 0
+    }
+
+    release_lock() {
+        exec 200>&-  # Close file descriptor
+    }
 fi
 
 # Trap handler for cleanup
