@@ -28,18 +28,13 @@ on:
           - both
 
 jobs:
-  test:
-    name: Test Suite
-    runs-on: ${{ matrix.os }}
-    # Skip job if manual trigger and OS doesn't match selection
+  test-ubuntu:
+    name: Test Suite (Ubuntu)
+    runs-on: ubuntu-latest
     if: |
       github.event_name != 'workflow_dispatch' ||
       inputs.os == 'both' ||
-      inputs.os == matrix.os
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
+      inputs.os == 'ubuntu-latest'
 
     steps:
       - name: Checkout code
@@ -79,7 +74,58 @@ jobs:
         run: |
           echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- OS: ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: ubuntu-latest" >> $GITHUB_STEP_SUMMARY
+          echo "- Test Suite: ${{ github.event_name == 'workflow_dispatch' && inputs.test_suite || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  test-macos:
+    name: Test Suite (macOS)
+    runs-on: macos-latest
+    if: |
+      github.event_name != 'workflow_dispatch' ||
+      inputs.os == 'both' ||
+      inputs.os == 'macos-latest'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for bats-core)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install bats-core
+        run: npm install -g bats
+
+      - name: Verify bats installation
+        run: bats --version
+
+      - name: Run security tests
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'security' }}
+        run: bats tests/security.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Run integration tests
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'integration' }}
+        run: bats tests/integration.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Run command tests
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
+        run: bats tests/commands.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Test results summary
+        if: always()
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: macos-latest" >> $GITHUB_STEP_SUMMARY
           echo "- Test Suite: ${{ github.event_name == 'workflow_dispatch' && inputs.test_suite || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "- Trigger: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
@@ -144,7 +190,7 @@ jobs:
   coverage:
     name: Test Coverage Report
     runs-on: ubuntu-latest
-    needs: [test, lint, test-install]
+    needs: [test-ubuntu, test-macos, lint, test-install]
 
     steps:
       - name: Checkout code
