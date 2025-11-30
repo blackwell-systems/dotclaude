@@ -198,7 +198,8 @@ Debug log location: `~/.claude/.dotclaude-debug.log`
 
 ## Next Steps
 
-- **[Complete Usage Guide](USAGE.md)** - Detailed command reference and advanced features
+- **[Commands Reference](COMMANDS.md)** - Complete guide to all 10 commands
+- **[Complete Usage Guide](USAGE.md)** - Advanced workflows and features
 - **[FAQ](FAQ.md)** - Common questions and answers
 - **[Architecture](ARCHITECTURE.md)** - How dotclaude works under the hood
 - **[Sample Profile](https://github.com/blackwell-systems/dotclaude/blob/main/examples/sample-profile/README.md)** - Learn how to create profiles

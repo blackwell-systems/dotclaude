@@ -1,0 +1,157 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (for bats-core)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install bats-core
+        run: npm install -g bats
+
+      - name: Verify bats installation
+        run: bats --version
+
+      - name: Run security tests
+        run: bats tests/security.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Run integration tests
+        run: bats tests/integration.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Run command tests
+        run: bats tests/commands.bats
+        env:
+          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+
+      - name: Test results summary
+        if: always()
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- OS: ${{ matrix.os }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  lint:
+    name: Shell Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck on scripts
+        run: |
+          find base/scripts -name "*.sh" -o -name "dotclaude" | while read -r file; do
+            echo "Checking $file"
+            shellcheck "$file" || exit 1
+          done
+
+      - name: Run shellcheck on tests
+        run: |
+          find tests -name "*.bash" | while read -r file; do
+            echo "Checking $file"
+            shellcheck "$file" || exit 1
+          done
+
+  test-install:
+    name: Test Installation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test install script (non-interactive)
+        run: ./install.sh --non-interactive
+
+      - name: Verify dotclaude command available
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          dotclaude version
+          dotclaude help
+
+      - name: Test profile creation
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          cp -r examples/sample-profile profiles/ci-test
+          dotclaude create ci-test-2
+          dotclaude list
+
+      - name: Test profile activation
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          dotclaude activate ci-test
+          dotclaude show
+          test -f ~/.claude/CLAUDE.md
+          grep -q "Base Configuration" ~/.claude/CLAUDE.md
+
+  coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test, lint, test-install]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install bats-core
+        run: npm install -g bats
+
+      - name: Count total tests
+        id: count
+        run: |
+          SECURITY_COUNT=$(grep -c "^@test" tests/security.bats || echo 0)
+          INTEGRATION_COUNT=$(grep -c "^@test" tests/integration.bats || echo 0)
+          COMMANDS_COUNT=$(grep -c "^@test" tests/commands.bats || echo 0)
+          TOTAL=$((SECURITY_COUNT + INTEGRATION_COUNT + COMMANDS_COUNT))
+          echo "security=$SECURITY_COUNT" >> $GITHUB_OUTPUT
+          echo "integration=$INTEGRATION_COUNT" >> $GITHUB_OUTPUT
+          echo "commands=$COMMANDS_COUNT" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+
+      - name: Generate coverage report
+        run: |
+          echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Test Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Tests | ${{ steps.count.outputs.security }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ steps.count.outputs.integration }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Command Tests | ${{ steps.count.outputs.commands }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total** | **${{ steps.count.outputs.total }}** |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Files" >> $GITHUB_STEP_SUMMARY
+          echo "- \`tests/security.bats\` - Validation functions, path traversal, injection prevention" >> $GITHUB_STEP_SUMMARY
+          echo "- \`tests/integration.bats\` - Profile activation, merge, backup/restore" >> $GITHUB_STEP_SUMMARY
+          echo "- \`tests/commands.bats\` - All 12 commands, flags, exit codes" >> $GITHUB_STEP_SUMMARY
