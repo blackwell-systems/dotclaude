@@ -1,6 +1,9 @@
 # dotclaude Usage Guide
 
-Complete reference for using dotclaude, the definitive profile management system for Claude Code.
+Complete command reference and advanced usage patterns for dotclaude.
+
+> **New user?** Start with [README.md](../README.md) for concepts and quick start.
+> This guide covers detailed command usage, advanced features, and troubleshooting.
 
 ## Table of Contents
 
