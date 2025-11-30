@@ -1,4 +1,4 @@
-![logo](assets/dotclaude_logo.png ':size=120x120')
+![logo](assets/dotclaude_logo.png)
 
 # dotclaude
 
