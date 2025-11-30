@@ -47,12 +47,40 @@
       font-style: italic;
     }
     section.cover pre {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(174,174,161,0.3);
+      border-radius: 6px;
       text-align: left;
       max-width: 500px;
       margin: 1.5rem auto;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    section.cover pre:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(174,174,161,0.5);
+      box-shadow: 0 0 20px rgba(174,174,161,0.15);
+      transform: translateY(-1px);
+    }
+    section.cover pre::after {
+      content: "Click to copy";
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 0.7rem;
+      color: rgba(174,174,161,0.6);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    section.cover pre:hover::after {
+      opacity: 1;
+    }
+    section.cover pre.copied::after {
+      content: "Copied!";
+      color: #4a9eff;
+      opacity: 1;
     }
     section.cover ul {
       text-align: left;
@@ -256,5 +284,30 @@
 
   <!-- External link icon -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
+
+  <!-- Click-to-copy for install command -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for docsify to render the page
+      setTimeout(function() {
+        const coverPre = document.querySelector('section.cover pre');
+        if (coverPre) {
+          coverPre.addEventListener('click', function() {
+            const code = this.querySelector('code');
+            const text = code ? code.textContent : this.textContent;
+
+            navigator.clipboard.writeText(text.trim()).then(function() {
+              coverPre.classList.add('copied');
+              setTimeout(function() {
+                coverPre.classList.remove('copied');
+              }, 2000);
+            }).catch(function(err) {
+              console.error('Failed to copy text: ', err);
+            });
+          });
+        }
+      }, 500);
+    });
+  </script>
 </body>
 </html>
