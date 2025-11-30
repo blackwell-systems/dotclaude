@@ -13,8 +13,144 @@
       --theme-color: #4a9eff;
       --theme-color-dark: #2d7dd2;
     }
+
+    /* Dark mode overrides - matching coverpage aesthetic */
+    body {
+      background: #0d0d0d !important;
+      color: #AEAEA1 !important;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: #1a1a1a !important;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar ul li a {
+      color: #999 !important;
+    }
+    .sidebar ul li a:hover {
+      color: #AEAEA1 !important;
+    }
+    .sidebar ul li.active > a {
+      color: #4a9eff !important;
+      border-right: 2px solid #4a9eff;
+    }
+    .sidebar .search input {
+      background: rgba(255,255,255,0.05) !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      color: #AEAEA1 !important;
+    }
+    .sidebar .search input::placeholder {
+      color: #666 !important;
+    }
+
+    /* Main content */
+    .content {
+      padding-top: 30px;
+    }
+    .markdown-section {
+      color: #AEAEA1 !important;
+      max-width: 900px;
+    }
+    .markdown-section h1,
+    .markdown-section h2,
+    .markdown-section h3,
+    .markdown-section h4,
+    .markdown-section h5,
+    .markdown-section h6 {
+      color: #fff !important;
+    }
+    .markdown-section h1 {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0.5rem;
+    }
+    .markdown-section h2 {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 0.3rem;
+    }
+    .markdown-section a {
+      color: #4a9eff !important;
+    }
+    .markdown-section a:hover {
+      color: #6bb3ff !important;
+    }
+    .markdown-section strong {
+      color: #fff;
+    }
+    .markdown-section blockquote {
+      background: rgba(255,255,255,0.03);
+      border-left: 4px solid #4a9eff;
+      color: #999;
+    }
+    .markdown-section hr {
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    /* Code blocks */
+    .markdown-section pre,
+    .markdown-section code {
+      background: rgba(255,255,255,0.05) !important;
+      color: #AEAEA1 !important;
+    }
+    .markdown-section pre {
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .markdown-section pre > code {
+      background: transparent !important;
+      color: #ccc !important;
+    }
+    .markdown-section code {
+      color: #4a9eff !important;
+    }
+
+    /* Tables */
+    .markdown-section table {
+      border-color: rgba(255,255,255,0.1);
+    }
+    .markdown-section table thead {
+      background: rgba(255,255,255,0.05);
+    }
+    .markdown-section table th,
+    .markdown-section table td {
+      border-color: rgba(255,255,255,0.1);
+      color: #AEAEA1;
+    }
+    .markdown-section table tr:nth-child(even) {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Lists */
+    .markdown-section ul,
+    .markdown-section ol {
+      color: #AEAEA1;
+    }
+
+    /* Pagination */
+    .pagination-item a {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #AEAEA1 !important;
+    }
+    .pagination-item a:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* Copy code button */
+    .docsify-copy-code-button {
+      background: rgba(255,255,255,0.1) !important;
+      color: #AEAEA1 !important;
+    }
+    .docsify-copy-code-button:hover {
+      background: rgba(255,255,255,0.15) !important;
+    }
+
+    /* App name/logo */
     .app-name-link img {
       width: 2rem;
+    }
+    .app-name {
+      color: #fff !important;
     }
 
     /* Cover page styling */
