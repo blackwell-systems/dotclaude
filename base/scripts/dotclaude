@@ -451,7 +451,11 @@ cmd_activate() {
     echo "    • dotclaude show"
     echo "    • cat ~/.claude/CLAUDE.md"
 
-    footer_tip "Happy coding!"
+    echo ""
+    echo "╭─────────────────────────────────────────────────────────────╮"
+    echo "│  🍃 Happy coding!                                       │"
+    echo "╰─────────────────────────────────────────────────────────────╯"
+    echo ""
 }
 
 cmd_switch() {
