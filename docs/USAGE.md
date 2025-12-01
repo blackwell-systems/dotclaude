@@ -688,7 +688,7 @@ dotclaude version
 │  🌲 dotclaude                                               │
 ╰─────────────────────────────────────────────────────────────╯
 
-  dotclaude version 0.1.0
+  dotclaude version 0.2.0
 
   The definitive profile management system for Claude Code
 

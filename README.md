@@ -5,7 +5,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL2-blue)](https://github.com/blackwell-systems/dotclaude)
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![Version](https://img.shields.io/badge/Version-0.1.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
+[![Version](https://img.shields.io/badge/Version-0.2.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/Tests-122_passing-success)](https://github.com/blackwell-systems/dotclaude/tree/main/tests)
 

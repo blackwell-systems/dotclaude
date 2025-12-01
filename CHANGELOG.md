@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-30
+
 ### Added
 - Blackwell Systems™ branding with trademark badge
 - Centralized Blackwell dark theme from GitHub Pages
@@ -14,7 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Interactive click-to-copy for install command on coverpage
 - Styled hamburger menu with blue theme color
 - Horizontal dividers between BRAND.md sections
-- Better Zsh badge with official logo for related projects
+- CHANGELOG.md for tracking project changes
+- Changelog link in documentation footer
 
 ### Changed
 - Switched from local CSS to centralized blackwell-docs-theme
@@ -110,5 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Secure backup handling
 - Automatic configuration verification
 
-[Unreleased]: https://github.com/blackwell-systems/dotclaude/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/blackwell-systems/dotclaude/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/blackwell-systems/dotclaude/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/blackwell-systems/dotclaude/releases/tag/v0.1.0
