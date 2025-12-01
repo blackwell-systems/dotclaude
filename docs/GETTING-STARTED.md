@@ -118,6 +118,58 @@ dotclaude/
                       (universal)      (project-specific)
 ```
 
+## Try Before Installing (Docker)
+
+Don't trust random install scripts? Good instinct. Test dotclaude in an isolated container first - nothing touches your system.
+
+### Quick Docker Test
+
+```bash
+git clone https://github.com/blackwell-systems/dotclaude.git
+cd dotclaude
+docker build -t dotclaude-test .
+docker run -it --rm dotclaude-test
+```
+
+You're now in a container with dotclaude ready to use:
+
+```bash
+# Try the commands
+dotclaude help
+dotclaude create test-project
+dotclaude activate test-project
+dotclaude show
+dotclaude active
+
+# Check generated files
+cat ~/.claude/CLAUDE.md
+cat ~/.claude/profiles.json
+```
+
+Exit with `exit` or Ctrl+D. The container is destroyed - nothing persisted.
+
+### What the Container Includes
+
+- Alpine Linux (minimal ~15MB base)
+- Bash, jq, coreutils, util-linux
+- dotclaude CLI pre-installed
+- Base configuration ready
+- Empty profiles directory to experiment with
+
+### Mount Your Own Profiles
+
+Test with your actual profile files without installing:
+
+```bash
+docker run -it --rm \
+  -v $(pwd)/profiles:/dotclaude/profiles \
+  dotclaude-test
+```
+
+Changes to profiles persist on your host, but `~/.claude/` stays in the container.
+
+---
+
 ## Installation Options
 
 ### Platform Requirements

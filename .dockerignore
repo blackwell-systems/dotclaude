@@ -1,0 +1,8 @@
+.git
+docs
+examples
+tests
+*.md
+!base/**/*.md
+!profiles/**/*.md
+.github

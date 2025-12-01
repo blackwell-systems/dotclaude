@@ -52,6 +52,26 @@ Each profile merges your base configuration with project-specific additions - no
 
 > **Windows Users:** dotclaude requires a Unix environment. Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) to run dotclaude on Windows. Native Windows (CMD/PowerShell) is not supported.
 
+## Try Before Installing
+
+Don't trust random scripts from the internet? Smart. Test dotclaude in an isolated Docker container first:
+
+```bash
+git clone https://github.com/blackwell-systems/dotclaude.git
+cd dotclaude
+docker build -t dotclaude-test .
+docker run -it --rm dotclaude-test
+```
+
+Then explore safely:
+```bash
+dotclaude create my-project
+dotclaude activate my-project
+dotclaude show
+```
+
+Nothing touches your system. When you're ready, install for real.
+
 ## Quick Install
 
 ```bash
