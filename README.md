@@ -61,14 +61,16 @@ git clone https://github.com/blackwell-systems/dotclaude.git
 cd dotclaude
 docker build -t dotclaude-test .
 docker run -it --rm dotclaude-test
-```
 
-Then explore safely:
-```bash
+# Inside container - explore safely:
 dotclaude create my-project
 dotclaude activate my-project
 dotclaude show
+dotclaude active
+exit  # Nothing persists
 ```
+
+**→ [Full Test Drive Guide](docs/TESTDRIVE.md)** - Sample workflows, all commands explained, FAQ
 
 Nothing touches your system. When you're ready, install for real.
 
