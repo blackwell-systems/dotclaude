@@ -1,0 +1,14 @@
+# CODEOWNERS file for dotclaude
+#
+# This file defines the individuals or teams responsible for code in this repository.
+# When a pull request is opened, the defined code owners are automatically requested for review.
+#
+# Learn more: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+* @blackwell-systems
+
+# Critical files - require review from owner
+/base/scripts/dotclaude @blackwell-systems
+/install.sh @blackwell-systems
+/.github/ @blackwell-systems
