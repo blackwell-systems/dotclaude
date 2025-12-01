@@ -8,7 +8,7 @@ dotclaude provides commands organized into four categories:
 
 | Category | Commands | Purpose |
 |----------|----------|---------|
-| **Profile Management** | show, list, activate, switch, create, edit, diff, restore | Manage and switch between profiles |
+| **Profile Management** | show, active, list, activate, switch, create, edit, diff, restore | Manage and switch between profiles |
 | **Git Workflow** | sync, branches | Keep feature branches in sync |
 | **System** | version, help | Version info and help |
 | **Debug** | --verbose flag | Troubleshooting |
@@ -53,6 +53,58 @@ dotclaude show [--verbose]
 - Check which profile is currently active
 - Verify configuration status
 - See where files are deployed
+
+---
+
+### `dotclaude active`
+
+Print the active profile name (machine-readable, for scripting).
+
+**Usage:**
+```bash
+dotclaude active
+```
+
+**Output:**
+```
+my-project
+```
+
+Or if no profile is active:
+```
+none
+```
+
+**Exit Codes:**
+| Code | Meaning |
+|------|---------|
+| 0 | Profile is active |
+| 1 | No profile active (outputs "none") |
+
+**When to use:**
+- Shell scripts that need to check/use the active profile
+- Integration with other tools (e.g., dotfiles vault sync)
+- Conditional logic based on current profile
+- Capturing profile name in a variable
+
+**Examples:**
+```bash
+# Store in variable
+current=$(dotclaude active)
+
+# Conditional logic
+if [ "$(dotclaude active)" = "work" ]; then
+    echo "Work profile active"
+fi
+
+# Integration with other tools
+profile=$(dotclaude active)
+echo "Syncing profile: $profile"
+```
+
+**Note:** This differs from `dotclaude show`:
+- `show` provides human-readable formatted output with headers
+- `active` provides machine-readable single-line output for scripting
 
 ---
 

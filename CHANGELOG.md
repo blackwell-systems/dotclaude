@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `active` command - machine-readable profile name for scripting/integration
+- `sync_profiles_json()` - auto-generates `~/.claude/profiles.json` for dotfiles integration
+- Auto-sync of profiles.json on `activate` and `create` commands
+
 ## [0.2.0] - 2025-11-30
 
 ### Added

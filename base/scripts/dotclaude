@@ -152,6 +152,64 @@ error_box() {
 }
 
 # ============================================================================
+# Helper Functions
+# ============================================================================
+
+sync_profiles_json() {
+    local profiles_json="$CLAUDE_DIR/profiles.json"
+    local active="none"
+
+    debug "Syncing profiles.json"
+
+    # Get active profile
+    if [ -f "$CLAUDE_DIR/.current-profile" ]; then
+        active=$(cat "$CLAUDE_DIR/.current-profile")
+        debug "Active profile: $active"
+    fi
+
+    # Start JSON
+    {
+        echo "{"
+        echo "  \"active\": \"$active\","
+        echo "  \"profiles\": {"
+
+        # Scan profiles directory
+        local first=true
+        for profile_dir in "$PROFILES_DIR"/*; do
+            if [ -d "$profile_dir" ]; then
+                local name
+                name=$(basename "$profile_dir")
+                debug "Found profile: $name"
+
+                # Read backend from settings.json if exists
+                local backend="unknown"
+                if [ -f "$profile_dir/settings.json" ]; then
+                    backend=$(jq -r '.backend // "unknown"' "$profile_dir/settings.json" 2>/dev/null || echo "unknown")
+                fi
+
+                # Add comma if not first
+                if [ "$first" = false ]; then
+                    echo ","
+                fi
+                first=false
+
+                # Add profile entry
+                local created
+                created=$(date -r "$profile_dir" +%Y-%m-%d 2>/dev/null || echo "unknown")
+                echo -n "    \"$name\": {\"backend\": \"$backend\", \"created\": \"$created\"}"
+            fi
+        done
+
+        # Close JSON
+        echo ""
+        echo "  }"
+        echo "}"
+    } > "$profiles_json"
+
+    debug "profiles.json written to: $profiles_json"
+}
+
+# ============================================================================
 # Core Commands
 # ============================================================================
 
@@ -200,6 +258,16 @@ cmd_show() {
     echo "    • ~/.claude/"
 
     footer_tip "Run 'dotclaude switch' to change profiles"
+}
+
+cmd_active() {
+    # Machine-readable command: returns just the profile name
+    # For scripting/integration use (e.g., dotfiles vault sync)
+    if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
+        echo "none"
+        return 1
+    fi
+    cat "$CLAUDE_DIR/.current-profile"
 }
 
 cmd_list() {
@@ -443,6 +511,9 @@ cmd_activate() {
     # Mark as current
     echo "$profile_name" > "$CLAUDE_DIR/.current-profile"
 
+    # Sync profiles.json for dotfiles integration
+    sync_profiles_json
+
     success_box "Profile '$profile_name' activated"
 
     echo "  Configuration deployed to: $CLAUDE_DIR"
@@ -609,6 +680,9 @@ EOF
     else
         sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
     fi
+
+    # Sync profiles.json for dotfiles integration
+    sync_profiles_json
 
     success_box "Profile '$profile_name' created"
 
@@ -1003,6 +1077,7 @@ cmd_help() {
         echo ""
         echo "  ${BOLD}CORE COMMANDS${NC}"
         echo "    ${GREEN}show${NC} [--verbose]             Show current active profile"
+        echo "    ${GREEN}active${NC}                       Print active profile name (for scripting)"
         echo "    ${GREEN}list${NC} [--verbose]             List all available profiles"
         echo "    ${GREEN}activate${NC} <name> [--dry-run] [--verbose]"
         echo "                              Activate a profile"
@@ -1120,6 +1195,9 @@ main() {
     case "$command" in
         show)
             cmd_show "$@"
+            ;;
+        active)
+            cmd_active "$@"
             ;;
         list|ls)
             cmd_list "$@"
