@@ -8,6 +8,7 @@
 [![Version](https://img.shields.io/badge/Version-0.2.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/Tests-122_passing-success)](https://github.com/blackwell-systems/dotclaude/tree/main/tests)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-yellow?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/blackwellsystems)
 
 Welcome to the dotclaude documentation site! This is your navigation hub for all documentation.
 
