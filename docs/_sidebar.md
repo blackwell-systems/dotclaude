@@ -31,6 +31,9 @@
   - [Architecture](ARCHITECTURE.md)
   - [.dotclaude File Format](DOTCLAUDE-FILE.md)
 
+- **Integrations**
+  - [dotfiles Integration](DOTFILES-INTEGRATION.md)
+
 - **Resources**
   - [GitHub Repository](https://github.com/blackwell-systems/dotclaude)
   - [Report Issues](https://github.com/blackwell-systems/dotclaude/issues)

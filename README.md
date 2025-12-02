@@ -2,6 +2,7 @@
 
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 [![Claude Code](https://img.shields.io/badge/Built_for-Claude_Code-8A2BE2?logo=anthropic)](https://claude.ai/claude-code)
+[![dotfiles](https://img.shields.io/badge/Integrates-dotfiles-2c5282)](https://blackwell-systems.github.io/dotfiles/#/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL2-blue)](https://github.com/blackwell-systems/dotclaude)
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Version](https://img.shields.io/badge/Version-0.3.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
@@ -94,6 +95,7 @@ dotclaude activate my-project
 
 - **[Getting Started](https://blackwell-systems.github.io/dotclaude/#/GETTING-STARTED)** - Installation, concepts, and first steps
 - **[Commands Reference](https://blackwell-systems.github.io/dotclaude/#/COMMANDS)** - Complete command guide
+- **[dotfiles Integration](https://blackwell-systems.github.io/dotclaude/#/DOTFILES-INTEGRATION)** - Use with dotfiles for complete environment
 - **[FAQ](https://blackwell-systems.github.io/dotclaude/#/FAQ)** - Common questions answered
 - **[Usage Guide](https://blackwell-systems.github.io/dotclaude/#/USAGE)** - Advanced workflows and features
 - **[Architecture](https://blackwell-systems.github.io/dotclaude/#/ARCHITECTURE)** - How it works under the hood

@@ -2,8 +2,9 @@
 
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 [![Claude Code](https://img.shields.io/badge/Built_for-Claude_Code-8A2BE2?logo=anthropic)](https://claude.ai/claude-code)
+[![dotfiles](https://img.shields.io/badge/Integrates-dotfiles-2c5282)](https://blackwell-systems.github.io/dotfiles/#/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL2-blue)](https://github.com/blackwell-systems/dotclaude)
-[![Version](https://img.shields.io/badge/Version-0.2.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
+[![Version](https://img.shields.io/badge/Version-0.3.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
 
 [![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
@@ -31,6 +32,10 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 
 - [Architecture](ARCHITECTURE.md) - System design, merge behavior, and internals
 - [.dotclaude File Format](DOTCLAUDE-FILE.md) - Auto-detection file specification
+
+## Integrations
+
+- [dotfiles Integration](DOTFILES-INTEGRATION.md) - Complete environment with secrets management
 
 ## Examples
 
