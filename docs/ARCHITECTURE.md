@@ -4,456 +4,255 @@ Technical overview of how dotclaude works internally.
 
 ## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         dotclaude Repository                         │
-│                      (Version-Controlled Git Repo)                   │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  ┌──────────────────┐                  ┌────────────────────────┐   │
-│  │  base/           │                  │  profiles/             │   │
-│  │                  │                  │                        │   │
-│  │  • CLAUDE.md     │                  │  • client-work-  │   │
-│  │  • settings.json │                  │    oss/CLAUDE.md       │   │
-│  │  • scripts/      │                  │  • client-work/  │   │
-│  │  • agents/       │                  │    CLAUDE.md           │   │
-│  │                  │                  │  • work-project/       │   │
-│  │  [Shared across  │                  │    CLAUDE.md           │   │
-│  │   ALL profiles]  │                  │                        │   │
-│  └──────────────────┘                  │  [Context-specific     │   │
-│                                         │   additions]           │   │
-│                                         └────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              │ ./install.sh
-                              │ dotclaude activate <profile>
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         ~/.local/bin/                                │
-├─────────────────────────────────────────────────────────────────────┤
-│  dotclaude (CLI)  ← Main entry point                                │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              │ Commands (show, list, activate, etc.)
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         ~/.claude/                                   │
-│                    (Deployed Configuration)                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  CLAUDE.md  ← base/CLAUDE.md + profiles/X/CLAUDE.md         │   │
-│  │                [Merged on activation]                        │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  settings.json  ← base or profile-specific                  │   │
-│  │                   [Copied on activation]                     │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  scripts/                                                    │   │
-│  │    • dotclaude                                               │   │
-│  │    • activate-profile.sh                                     │   │
-│  │    • sync-feature-branch.sh                                  │   │
-│  │    • shell-functions.sh                                      │   │
-│  │    • lib/validation.sh                                       │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  agents/                                                     │   │
-│  │    • best-in-class-gap-analysis/                             │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                       │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │  .current-profile  ← "my-project"                │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                       │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              │ Claude Code reads on startup
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        Claude Code Session                           │
-├─────────────────────────────────────────────────────────────────────┤
-│  • Loads ~/.claude/CLAUDE.md                                        │
-│  • Applies ~/.claude/settings.json hooks                            │
-│  • Makes agents available                                           │
-│  • Executes hooks (SessionStart, PostToolUse, etc.)                 │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph repo["dotclaude Repository<br/>(Version-Controlled Git Repo)"]
+        subgraph base["base/"]
+            base_claude["CLAUDE.md"]
+            base_settings["settings.json"]
+            base_scripts["scripts/"]
+            base_agents["agents/"]
+            base_note["[Shared across ALL profiles]"]
+        end
+
+        subgraph profiles["profiles/"]
+            profile1["client-work-oss/CLAUDE.md"]
+            profile2["client-work/CLAUDE.md"]
+            profile3["work-project/CLAUDE.md"]
+            profile_note["[Context-specific additions]"]
+        end
+    end
+
+    repo -->|"./install.sh<br/>dotclaude activate &lt;profile&gt;"| cli
+
+    subgraph cli_bin["~/.local/bin/"]
+        cli["dotclaude (CLI)<br/>Main entry point"]
+    end
+
+    cli -->|"Commands (show, list, activate, etc.)"| claude_dir
+
+    subgraph claude_dir["~/.claude/<br/>(Deployed Configuration)"]
+        merged_claude["CLAUDE.md<br/>base/CLAUDE.md + profiles/X/CLAUDE.md<br/>[Merged on activation]"]
+        deployed_settings["settings.json<br/>base or profile-specific<br/>[Copied on activation]"]
+        deployed_scripts["scripts/<br/>• dotclaude<br/>• activate-profile.sh<br/>• sync-feature-branch.sh<br/>• shell-functions.sh<br/>• lib/validation.sh"]
+        deployed_agents["agents/<br/>• best-in-class-gap-analysis/"]
+        current_profile[".current-profile<br/>'my-project'"]
+    end
+
+    claude_dir -->|"Claude Code reads on startup"| session
+
+    subgraph session["Claude Code Session"]
+        session_claude["• Loads ~/.claude/CLAUDE.md"]
+        session_settings["• Applies ~/.claude/settings.json hooks"]
+        session_agents["• Makes agents available"]
+        session_hooks["• Executes hooks (SessionStart, PostToolUse, etc.)"]
+    end
+
+    style repo fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style cli_bin fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style session fill:#2d3748,stroke:#4a5568,color:#e2e8f0
 ```
 
 ## Profile Activation Flow
 
-```
-User runs: dotclaude activate my-profile
+```mermaid
+flowchart TD
+    start["User runs: dotclaude activate my-profile"]
 
-    ┌─────────────────────────────────────┐
-    │  1. Validate Profile Name           │
-    │     • Alphanumeric + hyphens only   │
-    │     • No path traversal (.., /)     │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  2. Acquire File Lock               │
-    │     • ~/.claude/.lock               │
-    │     • Timeout: 10 seconds           │
-    │     • Prevents concurrent execution │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  3. Check Current Profile           │
-    │     • Read ~/.claude/.current-profile│
-    │     • Skip backup if same profile   │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  4. Backup Existing Config          │
-    │     • CLAUDE.md → .backup.timestamp │
-    │     • settings.json → .backup...    │
-    │     • chmod 600 (secure)            │
-    │     • Keep only 5 recent backups    │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  5. Merge CLAUDE.md                 │
-    │     ┌───────────────────────────┐   │
-    │     │ base/CLAUDE.md            │   │
-    │     │   +                       │   │
-    │     │ profiles/my-profile/      │   │
-    │     │   CLAUDE.md               │   │
-    │     │   ↓                       │   │
-    │     │ ~/.claude/CLAUDE.md       │   │
-    │     └───────────────────────────┘   │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  6. Apply Settings                  │
-    │     • Use profile settings.json if  │
-    │       exists, else base             │
-    │     • Copy to ~/.claude/            │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  7. Mark Active Profile             │
-    │     • Write profile name to         │
-    │       ~/.claude/.current-profile    │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  8. Release Lock                    │
-    │     • Close file descriptor         │
-    │     • Allow next operation          │
-    └──────────────┬──────────────────────┘
-                   │
-                   ▼
-              ✓ Complete
+    step1["1. Validate Profile Name<br/>• Alphanumeric + hyphens only<br/>• No path traversal (.., /)"]
+    step2["2. Acquire File Lock<br/>• ~/.claude/.lock<br/>• Timeout: 10 seconds<br/>• Prevents concurrent execution"]
+    step3["3. Check Current Profile<br/>• Read ~/.claude/.current-profile<br/>• Skip backup if same profile"]
+    step4["4. Backup Existing Config<br/>• CLAUDE.md → .backup.timestamp<br/>• settings.json → .backup...<br/>• chmod 600 (secure)<br/>• Keep only 5 recent backups"]
+    step5["5. Merge CLAUDE.md<br/>base/CLAUDE.md<br/>+<br/>profiles/my-profile/CLAUDE.md<br/>↓<br/>~/.claude/CLAUDE.md"]
+    step6["6. Apply Settings<br/>• Use profile settings.json if exists, else base<br/>• Copy to ~/.claude/"]
+    step7["7. Mark Active Profile<br/>• Write profile name to<br/>~/.claude/.current-profile"]
+    step8["8. Release Lock<br/>• Close file descriptor<br/>• Allow next operation"]
+    complete["✓ Complete"]
+
+    start --> step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> complete
+
+    style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style step1 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step2 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step3 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step4 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step5 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step7 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style step8 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style complete fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
 ## CLI Command Flow
 
-```
-User runs: dotclaude <command> [args]
+```mermaid
+flowchart TD
+    start["User runs: dotclaude &lt;command&gt; [args]"]
 
-    ┌─────────────────────────────────────┐
-    │  dotclaude                          │
-    │  (bash script with shebang)         │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  Load Validation Library            │
-    │  • source lib/validation.sh         │
-    │  • Or use fallback inline           │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  Validate Repository Structure      │
-    │  • Check REPO_DIR exists            │
-    │  • Verify base/ and profiles/ dirs  │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  Set Trap Handler                   │
-    │  • cleanup() on EXIT/ERR/INT/TERM   │
-    │  • Release locks on exit            │
-    └──────────────┬──────────────────────┘
-                   │
-    ┌──────────────▼──────────────────────┐
-    │  Parse Command                      │
-    │  • show, list, activate, switch,    │
-    │    create, edit, sync, branches,    │
-    │    version, help                    │
-    └──────────────┬──────────────────────┘
-                   │
-         ┌─────────┴─────────┬─────────────────┐
-         │                   │                  │
-    ┌────▼────┐      ┌───────▼────────┐  ┌─────▼──────┐
-    │  Show   │      │   Activate     │  │   Sync     │
-    │ Profile │      │   Profile      │  │  Feature   │
-    └────┬────┘      └───────┬────────┘  │  Branch    │
-         │                   │            └─────┬──────┘
-         │                   │                  │
-         └───────────┬───────┴──────────────────┘
-                     │
-         ┌───────────▼──────────────┐
-         │  Execute Command         │
-         │  • Display UI (forest    │
-         │    theme)                │
-         │  • Perform operations    │
-         │  • Handle errors         │
-         └───────────┬──────────────┘
-                     │
-                     ▼
-               Return to Shell
+    entry["dotclaude<br/>(bash script with shebang)"]
+    load["Load Validation Library<br/>• source lib/validation.sh<br/>• Or use fallback inline"]
+    validate["Validate Repository Structure<br/>• Check REPO_DIR exists<br/>• Verify base/ and profiles/ dirs"]
+    trap["Set Trap Handler<br/>• cleanup() on EXIT/ERR/INT/TERM<br/>• Release locks on exit"]
+    parse["Parse Command<br/>• show, list, activate, switch,<br/>create, edit, sync, branches,<br/>version, help"]
+
+    show["Show<br/>Profile"]
+    activate["Activate<br/>Profile"]
+    sync["Sync<br/>Feature<br/>Branch"]
+
+    execute["Execute Command<br/>• Display UI (forest theme)<br/>• Perform operations<br/>• Handle errors"]
+    done["Return to Shell"]
+
+    start --> entry --> load --> validate --> trap --> parse
+    parse --> show
+    parse --> activate
+    parse --> sync
+    show --> execute
+    activate --> execute
+    sync --> execute
+    execute --> done
+
+    style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style entry fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style load fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style validate fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style trap fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style parse fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style show fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style activate fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style sync fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style execute fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style done fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
 ## Security Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                    Security Layers                                │
-└──────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    title["Security Layers"]
 
-Layer 1: Input Validation
-─────────────────────────
-┌──────────────────────────────┐
-│  validate_profile_name()     │
-│  • Regex: ^[a-zA-Z0-9_-]+$   │
-│  • No path traversal (.., /) │
-│  • No special chars          │
-└──────────────────────────────┘
+    subgraph layer1["Layer 1: Input Validation"]
+        l1_func["validate_profile_name()"]
+        l1_rules["• Regex: ^[a-zA-Z0-9_-]+$<br/>• No path traversal (.., /)<br/>• No special chars"]
+    end
 
-Layer 2: Path Safety
-────────────────────
-┌──────────────────────────────┐
-│  validate_directory()        │
-│  • Check not symlink         │
-│  • Verify real directory     │
-│  • Prevent symlink attacks   │
-└──────────────────────────────┘
+    subgraph layer2["Layer 2: Path Safety"]
+        l2_func["validate_directory()"]
+        l2_rules["• Check not symlink<br/>• Verify real directory<br/>• Prevent symlink attacks"]
+    end
 
-Layer 3: Command Safety
-───────────────────────
-┌──────────────────────────────┐
-│  Single-quoted heredocs      │
-│  • Prevent variable expansion│
-│  • Use sed for replacement   │
-│  • No command injection      │
-└──────────────────────────────┘
+    subgraph layer3["Layer 3: Command Safety"]
+        l3_func["Single-quoted heredocs"]
+        l3_rules["• Prevent variable expansion<br/>• Use sed for replacement<br/>• No command injection"]
+    end
 
-Layer 4: File Locking
-─────────────────────
-┌──────────────────────────────┐
-│  acquire_lock()              │
-│  • flock with timeout        │
-│  • Prevent race conditions   │
-│  • Concurrent execution safe │
-└──────────────────────────────┘
+    subgraph layer4["Layer 4: File Locking"]
+        l4_func["acquire_lock()"]
+        l4_rules["• flock with timeout<br/>• Prevent race conditions<br/>• Concurrent execution safe"]
+    end
 
-Layer 5: Secure Permissions
-───────────────────────────
-┌──────────────────────────────┐
-│  Backup files: chmod 600     │
-│  • Only owner can read       │
-│  • Protect sensitive data    │
-│  • CLAUDE.md may have secrets│
-└──────────────────────────────┘
+    subgraph layer5["Layer 5: Secure Permissions"]
+        l5_func["Backup files: chmod 600"]
+        l5_rules["• Only owner can read<br/>• Protect sensitive data<br/>• CLAUDE.md may have secrets"]
+    end
 
-Layer 6: Safe Removal
-─────────────────────
-┌──────────────────────────────┐
-│  safe_remove_directory()     │
-│  • Validate not symlink      │
-│  • Check canonical path      │
-│  • Must be in safe zones     │
-└──────────────────────────────┘
+    subgraph layer6["Layer 6: Safe Removal"]
+        l6_func["safe_remove_directory()"]
+        l6_rules["• Validate not symlink<br/>• Check canonical path<br/>• Must be in safe zones"]
+    end
+
+    title --> layer1 --> layer2 --> layer3 --> layer4 --> layer5 --> layer6
+
+    style title fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style layer1 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style layer2 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style layer3 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style layer4 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style layer5 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style layer6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
 ```
 
 ## Hook Execution Flow
 
-```
-Claude Code Session Starts
-    │
-    ┌─────────▼────────────────────────────────┐
-    │  Claude Code reads ~/.claude/settings.json│
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Parse hooks configuration               │
-    │  {                                       │
-    │    "hooks": {                            │
-    │      "SessionStart": [...],              │
-    │      "PostToolUse": [...]                │
-    │    }                                     │
-    │  }                                       │
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Event: SessionStart                     │
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Match event hooks                       │
-    │  • matcher: "*" (all directories)        │
-    │  • or matcher: "/path/to/project"        │
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Execute hook command                    │
-    │  • type: "command"                       │
-    │  • command: "bash script..."             │
-    │  • Runs in bash subshell                 │
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Display output to user                  │
-    │  • stdout shown in Claude UI             │
-    │  • stderr shown as error                 │
-    └─────────┬────────────────────────────────┘
-              │
-    ┌─────────▼────────────────────────────────┐
-    │  Continue normal operation               │
-    └──────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    participant User
+    participant Claude as Claude Code
+    participant Settings as ~/.claude/settings.json
+    participant Hook as Hook Command
 
-Example Hook: SessionStart Git Branch Check
-────────────────────────────────────────────
-1. Check if in git repo
-2. Get current branch name
-3. Compare with main/master
-4. Calculate commits behind
-5. If behind > 0: Display warning
-6. Suggest: sync-feature-branch
+    User->>Claude: Start Claude Code Session
+    Claude->>Settings: Read settings.json
+    Settings-->>Claude: Return hooks configuration<br/>{<br/>  "hooks": {<br/>    "SessionStart": [...],<br/>    "PostToolUse": [...]<br/>  }<br/>}
+
+    Claude->>Claude: Parse hooks configuration
+    Claude->>Claude: Event: SessionStart
+    Claude->>Claude: Match event hooks<br/>• matcher: "*" (all directories)<br/>• or matcher: "/path/to/project"
+
+    Claude->>Hook: Execute hook command<br/>• type: "command"<br/>• command: "bash script..."<br/>• Runs in bash subshell
+    Hook-->>Claude: Return output
+
+    Claude->>User: Display output<br/>• stdout shown in Claude UI<br/>• stderr shown as error
+    Claude->>Claude: Continue normal operation
+
+    Note over Claude,Hook: Example Hook: SessionStart Git Branch Check<br/>1. Check if in git repo<br/>2. Get current branch name<br/>3. Compare with main/master<br/>4. Calculate commits behind<br/>5. If behind > 0: Display warning<br/>6. Suggest: sync-feature-branch
 ```
 
 ## Data Flow: Profile Merge
 
-```
-Merging CLAUDE.md
-─────────────────
+```mermaid
+flowchart TB
+    subgraph inputs["Input Files"]
+        base["base/CLAUDE.md<br/>────────────────<br/># Global Instructions<br/>- Development Standards<br/>- Code Quality<br/>- File Operations<br/>- Security<br/>- Git Practices<br/>- Tool Usage<br/>- Project Context<br/>- Communication<br/>..."]
 
-Input Files:
-┌─────────────────────────────────┐
-│  base/CLAUDE.md                 │
-│  ────────────────               │
-│  # Global Instructions          │
-│  - Development Standards        │
-│  - Code Quality                 │
-│  - File Operations              │
-│  - Security                     │
-│  - Git Practices                │
-│  - Tool Usage                   │
-│  - Project Context              │
-│  - Communication                │
-│  ...                            │
-└─────────────────────────────────┘
-            +
-┌─────────────────────────────────┐
-│  profiles/my-profile/CLAUDE.md  │
-│  ────────────────────────────   │
-│  # Profile: My Profile          │
-│  - Context-specific standards   │
-│  - Tech stack preferences       │
-│  - Licensing (for OSS)          │
-│  - Compliance (for work)        │
-│  - Team practices               │
-│  ...                            │
-└─────────────────────────────────┘
+        profile["profiles/my-profile/CLAUDE.md<br/>────────────────────────────<br/># Profile: My Profile<br/>- Context-specific standards<br/>- Tech stack preferences<br/>- Licensing (for OSS)<br/>- Compliance (for work)<br/>- Team practices<br/>..."]
+    end
 
-Merge Process:
-┌─────────────────────────────────┐
-│  {                              │
-│    cat "base/CLAUDE.md"         │
-│    echo ""                      │
-│    echo "# ==============="     │
-│    echo "# Profile: X"          │
-│    echo "# ==============="     │
-│    echo ""                      │
-│    cat "profiles/X/CLAUDE.md"   │
-│  } > ~/.claude/CLAUDE.md        │
-└─────────────────────────────────┘
+    merge["Merge Process<br/>────────────<br/>{<br/>  cat 'base/CLAUDE.md'<br/>  echo ''<br/>  echo '# ==============='<br/>  echo '# Profile: X'<br/>  echo '# ==============='<br/>  echo ''<br/>  cat 'profiles/X/CLAUDE.md'<br/>} > ~/.claude/CLAUDE.md"]
 
-Output File:
-┌─────────────────────────────────┐
-│  ~/.claude/CLAUDE.md            │
-│  ────────────────               │
-│  [Base content]                 │
-│  # Global Instructions          │
-│  ...                            │
-│                                 │
-│  # ===============              │
-│  # Profile: My Profile          │
-│  # ===============              │
-│                                 │
-│  [Profile content]              │
-│  # Profile-specific additions   │
-│  ...                            │
-└─────────────────────────────────┘
+    output["Output File<br/>────────────<br/>~/.claude/CLAUDE.md<br/><br/>[Base content]<br/># Global Instructions<br/>...<br/><br/># ===============<br/># Profile: My Profile<br/># ===============<br/><br/>[Profile content]<br/># Profile-specific additions<br/>..."]
+
+    base --> merge
+    profile --> merge
+    merge --> output
+
+    style inputs fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style profile fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style merge fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style output fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
 ## Installation Architecture
 
-```
-./install.sh
-    │
-    ┌─────────▼───────────────────────────┐
-    │  Parse Flags                        │
-    │  • --force                          │
-    │  • --non-interactive                │
-    │  • --help                           │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Check TTY (Interactive?)           │
-    │  • if [ ! -t 0 ]; then              │
-    │      NON_INTERACTIVE=true           │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Create Directories                 │
-    │  • ~/.claude/agents/                │
-    │  • ~/.claude/scripts/               │
-    │  • ~/.local/bin/                    │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Install dotclaude CLI              │
-    │  • Copy to ~/.local/bin/dotclaude   │
-    │  • chmod +x                         │
-    │  • Check if ~/.local/bin in PATH    │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Install Scripts                    │
-    │  • Copy base/scripts/* to           │
-    │    ~/.claude/scripts/               │
-    │  • chmod +x *.sh                    │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Install Agents                     │
-    │  • For each base/agents/*           │
-    │  • Check if already exists          │
-    │  • Validate not symlink             │
-    │  • Prompt or auto-overwrite         │
-    │  • Copy to ~/.claude/agents/        │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Select Profile (if interactive)    │
-    │  • List available profiles          │
-    │  • Prompt user for selection        │
-    │  • Or skip if non-interactive       │
-    └─────────┬───────────────────────────┘
-              │
-    ┌─────────▼───────────────────────────┐
-    │  Activate Selected Profile          │
-    │  • bash activate-profile.sh <name>  │
-    │  • Merges CLAUDE.md                 │
-    │  • Applies settings.json            │
-    └─────────┬───────────────────────────┘
-              │
-              ▼
-        ✓ Complete
+```mermaid
+flowchart TD
+    start["./install.sh"]
+
+    flags["Parse Flags<br/>• --force<br/>• --non-interactive<br/>• --help"]
+    tty["Check TTY (Interactive?)<br/>• if [ ! -t 0 ]; then<br/>    NON_INTERACTIVE=true"]
+    dirs["Create Directories<br/>• ~/.claude/agents/<br/>• ~/.claude/scripts/<br/>• ~/.local/bin/"]
+    cli["Install dotclaude CLI<br/>• Copy to ~/.local/bin/dotclaude<br/>• chmod +x<br/>• Check if ~/.local/bin in PATH"]
+    scripts["Install Scripts<br/>• Copy base/scripts/* to<br/>  ~/.claude/scripts/<br/>• chmod +x *.sh"]
+    agents["Install Agents<br/>• For each base/agents/*<br/>• Check if already exists<br/>• Validate not symlink<br/>• Prompt or auto-overwrite<br/>• Copy to ~/.claude/agents/"]
+    select["Select Profile (if interactive)<br/>• List available profiles<br/>• Prompt user for selection<br/>• Or skip if non-interactive"]
+    activate["Activate Selected Profile<br/>• bash activate-profile.sh &lt;name&gt;<br/>• Merges CLAUDE.md<br/>• Applies settings.json"]
+    complete["✓ Complete"]
+
+    start --> flags --> tty --> dirs --> cli --> scripts --> agents --> select --> activate --> complete
+
+    style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style flags fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style tty fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style dirs fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style cli fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style scripts fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style agents fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style select fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style activate fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style complete fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
 ## Component Responsibilities
@@ -575,80 +374,64 @@ dotclaude/                              # Repository (version controlled)
 
 ## Concurrency Model
 
-```
-Concurrent Execution Prevention
-────────────────────────────────
+```mermaid
+sequenceDiagram
+    participant P1 as Process 1:<br/>dotclaude activate profile-a
+    participant Lock as ~/.claude/.lock
+    participant P2 as Process 2:<br/>dotclaude activate profile-b
 
-Process 1: dotclaude activate profile-a
-    │
-    ├─> acquire_lock("~/.claude/.lock", timeout=10)
-    │       exec 200>"~/.claude/.lock"
-    │       flock -w 10 200
-    │       └─> ✓ Lock acquired
-    │
-    ├─> Perform activation...
-    │
-    └─> release_lock()
-            exec 200>&-  (close FD)
+    Note over P1,P2: Concurrent Execution Prevention
 
-Process 2: dotclaude activate profile-b
-    │
-    ├─> acquire_lock("~/.claude/.lock", timeout=10)
-    │       exec 200>"~/.claude/.lock"
-    │       flock -w 10 200
-    │       └─> ⏳ Waiting for lock...
-    │           (blocked until Process 1 releases)
-    │
-    └─> After 10s timeout:
-            └─> ✗ Error: Another operation in progress
+    P1->>Lock: acquire_lock(timeout=10)<br/>exec 200>"~/.claude/.lock"<br/>flock -w 10 200
+    Lock-->>P1: ✓ Lock acquired
 
-Key Points:
-• Uses flock for advisory file locking
-• Timeout prevents indefinite blocking
-• Trap handler ensures lock release on exit/error
-• Lock file: ~/.claude/.lock
-• Lock scope: All dotclaude operations that modify files
+    P2->>Lock: acquire_lock(timeout=10)<br/>exec 200>"~/.claude/.lock"<br/>flock -w 10 200
+    Note over P2,Lock: ⏳ Waiting for lock...<br/>(blocked until Process 1 releases)
+
+    P1->>P1: Perform activation...
+    P1->>Lock: release_lock()<br/>exec 200>&- (close FD)
+    Lock-->>P1: Lock released
+
+    Lock-->>P2: ✗ After 10s timeout:<br/>Error: Another operation in progress
+
+    Note over P1,P2: Key Points:<br/>• Uses flock for advisory file locking<br/>• Timeout prevents indefinite blocking<br/>• Trap handler ensures lock release on exit/error<br/>• Lock file: ~/.claude/.lock<br/>• Lock scope: All dotclaude operations that modify files
 ```
 
 ## Provider-Agnostic Design
 
-```
-Multi-Provider Support Architecture
-────────────────────────────────────
+```mermaid
+graph TB
+    global["Global Config (~/.claude/)<br/>────────────────────────────────<br/>• No hardcoded model IDs<br/>• Provider-neutral hooks<br/>• Universal agents (no model in definition)"]
 
-┌──────────────────────────────────────────────────┐
-│  Global Config (~/.claude/)                      │
-│  ────────────────────────────────────           │
-│  • No hardcoded model IDs                        │
-│  • Provider-neutral hooks                        │
-│  • Universal agents (no model in definition)    │
-└──────────────────┬───────────────────────────────┘
-                   │
-         ┌─────────┴─────────┐
-         │                   │
-         ▼                   ▼
-┌─────────────────┐  ┌──────────────────┐
-│  AWS Bedrock    │  │  Claude Max      │
-│  Project        │  │  Project         │
-├─────────────────┤  ├──────────────────┤
-│  .claude/       │  │  .claude/        │
-│  settings.json  │  │  settings.json   │
-│  {              │  │  {               │
-│    "model":     │  │    "model":      │
-│    "us.anthro  │  │    "claude-son   │
-│     pic.claude │  │     net-4.5-..."│
-│     -sonnet-..." │  │  }               │
-│  }              │  │                  │
-└─────────────────┘  └──────────────────┘
+    subgraph bedrock["AWS Bedrock Project"]
+        bedrock_dir[".claude/"]
+        bedrock_settings["settings.json<br/>{<br/>  'model':<br/>  'us.anthropic.claude-sonnet-...'<br/>}"]
+    end
 
-Settings Precedence:
-1. Enterprise policies (if applicable)
-2. CLI arguments
-3. Project .claude/settings.local.json (gitignored)
-4. Project .claude/settings.json (team-shared)
-5. Global ~/.claude/settings.json (from dotclaude)
+    subgraph claude_max["Claude Max Project"]
+        max_dir[".claude/"]
+        max_settings["settings.json<br/>{<br/>  'model':<br/>  'claude-sonnet-4.5-...'<br/>}"]
+    end
 
-Result: Same global standards, project-specific providers
+    precedence["Settings Precedence:<br/>1. Enterprise policies (if applicable)<br/>2. CLI arguments<br/>3. Project .claude/settings.local.json (gitignored)<br/>4. Project .claude/settings.json (team-shared)<br/>5. Global ~/.claude/settings.json (from dotclaude)"]
+
+    result["Result: Same global standards, project-specific providers"]
+
+    global --> bedrock
+    global --> claude_max
+    bedrock --> precedence
+    claude_max --> precedence
+    precedence --> result
+
+    style global fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style bedrock fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style bedrock_dir fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style bedrock_settings fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style claude_max fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style max_dir fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style max_settings fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style precedence fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style result fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
 ---
