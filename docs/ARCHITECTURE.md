@@ -5,54 +5,40 @@ Technical overview of how dotclaude works internally.
 ## System Architecture
 
 ```mermaid
-graph TB
-    subgraph repo["dotclaude Repository<br/>(Version-Controlled Git Repo)"]
-        subgraph base["base/"]
-            base_claude["CLAUDE.md"]
-            base_settings["settings.json"]
-            base_scripts["scripts/"]
-            base_agents["agents/"]
-            base_note["[Shared across ALL profiles]"]
-        end
+flowchart TB
+    repo["<b>dotclaude Repository</b><br/>(Version-Controlled Git Repo)"]
+    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>• agents/<br/>[Shared across ALL profiles]"]
+    profiles["profiles/<br/>• client-work-oss/CLAUDE.md<br/>• client-work/CLAUDE.md<br/>• work-project/CLAUDE.md<br/>[Context-specific additions]"]
 
-        subgraph profiles["profiles/"]
-            profile1["client-work-oss/CLAUDE.md"]
-            profile2["client-work/CLAUDE.md"]
-            profile3["work-project/CLAUDE.md"]
-            profile_note["[Context-specific additions]"]
-        end
-    end
+    cli["<b>~/.local/bin/dotclaude</b><br/>Main CLI entry point"]
 
-    repo -->|"./install.sh<br/>dotclaude activate &lt;profile&gt;"| cli
+    claude_dir["<b>~/.claude/</b><br/>(Deployed Configuration)"]
+    merged_claude["CLAUDE.md<br/>(base + profile merged)"]
+    deployed_settings["settings.json<br/>(base or profile-specific)"]
+    deployed_scripts["scripts/<br/>• activate-profile.sh<br/>• sync-feature-branch.sh"]
+    current_profile[".current-profile"]
 
-    subgraph cli_bin["~/.local/bin/"]
-        cli["dotclaude (CLI)<br/>Main entry point"]
-    end
+    session["<b>Claude Code Session</b><br/>• Loads CLAUDE.md<br/>• Applies settings.json hooks<br/>• Makes agents available<br/>• Executes hooks"]
 
-    cli -->|"Commands (show, list, activate, etc.)"| claude_dir
-
-    subgraph claude_dir["~/.claude/<br/>(Deployed Configuration)"]
-        merged_claude["CLAUDE.md<br/>base/CLAUDE.md + profiles/X/CLAUDE.md<br/>[Merged on activation]"]
-        deployed_settings["settings.json<br/>base or profile-specific<br/>[Copied on activation]"]
-        deployed_scripts["scripts/<br/>• dotclaude<br/>• activate-profile.sh<br/>• sync-feature-branch.sh<br/>• shell-functions.sh<br/>• lib/validation.sh"]
-        deployed_agents["agents/<br/>• best-in-class-gap-analysis/"]
-        current_profile[".current-profile<br/>'my-project'"]
-    end
-
-    claude_dir -->|"Claude Code reads on startup"| session
-
-    subgraph session["Claude Code Session"]
-        session_claude["• Loads ~/.claude/CLAUDE.md"]
-        session_settings["• Applies ~/.claude/settings.json hooks"]
-        session_agents["• Makes agents available"]
-        session_hooks["• Executes hooks (SessionStart, PostToolUse, etc.)"]
-    end
+    repo --> base
+    repo --> profiles
+    repo -->|"./install.sh<br/>dotclaude activate"| cli
+    cli -->|"Commands"| claude_dir
+    claude_dir --> merged_claude
+    claude_dir --> deployed_settings
+    claude_dir --> deployed_scripts
+    claude_dir --> current_profile
+    claude_dir -->|"Claude Code<br/>reads on startup"| session
 
     style repo fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style cli_bin fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style cli fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style merged_claude fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style deployed_settings fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style deployed_scripts fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style current_profile fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style session fill:#2d3748,stroke:#4a5568,color:#e2e8f0
 ```
 
@@ -433,62 +419,6 @@ graph TB
     style precedence fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style result fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
-
----
-
-## Technical Decisions
-
-### Why Bash?
-
-**Pros:**
-- Universal availability on Unix systems
-- Simple process execution and file manipulation
-- Native git integration
-- No external dependencies
-
-**Cons:**
-- String handling can be error-prone
-- Requires defensive programming
-- Less readable than Python/Ruby
-
-**Solution:**
-- Use `#!/bin/bash` shebang for all scripts
-- Comprehensive validation library
-- POSIX-compatible where possible for zsh compatibility
-
-### Why File Locking?
-
-Prevents race conditions when:
-- Multiple terminals run `dotclaude activate` simultaneously
-- CI/CD and user activate different profiles concurrently
-- Multiple processes read/write same files
-
-### Why Merge Instead of Symlink?
-
-**Merged files (current approach):**
-- ✓ Self-contained `~/.claude/` directory
-- ✓ Works if repository moves/deleted
-- ✓ Simple for Claude Code to read
-- ✓ Easy backup/restore
-
-**Symlinks (alternative):**
-- ✗ Breaks if repository moves
-- ✗ Security concerns (symlink attacks)
-- ✗ Harder to reason about state
-- ✗ Not friendly for backups
-
-### Why Keep Backups?
-
-**Benefits:**
-- Safety net for accidental overwrites
-- Rollback to previous profile
-- Recover from mistakes
-- Debug configuration issues
-
-**Limits:**
-- Only 5 most recent (prevent disk fill)
-- chmod 600 (secure permissions)
-- Skip when re-activating same profile (idempotency)
 
 ---
 
