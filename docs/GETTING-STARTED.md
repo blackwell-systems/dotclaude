@@ -4,7 +4,7 @@ Complete guide to installing and using dotclaude for the first time.
 
 ## What is dotclaude?
 
-**dotclaude** manages your Claude Code configuration as layered, version-controlled profiles - similar to dotfiles but specifically for `~/.claude/`.
+**dotclaude** manages your Claude Code configuration as layered, version-controlled profiles - similar to [dotfiles](https://blackwell-systems.github.io/dotfiles/#/) but specifically for `~/.claude/`.
 
 **The Problem:** You work in multiple contexts (OSS projects, client work, employer projects) that need different tech stacks, coding standards, and compliance requirements. Manually editing `~/.claude/CLAUDE.md` for each context is tedious and error-prone.
 
