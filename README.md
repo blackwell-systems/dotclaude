@@ -103,9 +103,9 @@ dotclaude show                 # Verify it's active
 - **[Getting Started](https://blackwell-systems.github.io/dotclaude/#/GETTING-STARTED)** - Installation, concepts, and first steps
 - **[Commands Reference](https://blackwell-systems.github.io/dotclaude/#/COMMANDS)** - Complete command guide
 - **[dotfiles Integration](https://blackwell-systems.github.io/dotclaude/#/DOTFILES-INTEGRATION)** - Use with dotfiles for complete environment
-- **[FAQ](https://blackwell-systems.github.io/dotclaude/#/FAQ)** - Common questions answered
 - **[Usage Guide](https://blackwell-systems.github.io/dotclaude/#/USAGE)** - Advanced workflows and features
 - **[Architecture](https://blackwell-systems.github.io/dotclaude/#/ARCHITECTURE)** - How it works under the hood
+- **[FAQ](https://blackwell-systems.github.io/dotclaude/#/FAQ)** - Common questions answered
 
 ## Trademarks
 
