@@ -1,8 +1,8 @@
 .git
 docs
-examples
 tests
 *.md
 !base/**/*.md
 !profiles/**/*.md
+!examples/**/*.md
 .github

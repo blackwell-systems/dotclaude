@@ -647,10 +647,25 @@ cmd_create() {
 
     debug "Creating directory: $profile_dir"
 
-    mkdir -p "$profile_dir"
+    # Check if sample-profile exists to use as template
+    local sample_profile="$REPO_DIR/examples/sample-profile"
+    if [ -d "$sample_profile" ] && [ -f "$sample_profile/CLAUDE.md" ]; then
+        debug "Using sample-profile as template"
+        mkdir -p "$profile_dir"
+        cp -r "$sample_profile"/* "$profile_dir/"
 
-    # Use single quotes to prevent variable expansion in heredoc
-    cat > "$profile_dir/CLAUDE.md" <<'EOF'
+        # Update profile name in the copied CLAUDE.md
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/Sample Project/$profile_name/g" "$profile_dir/CLAUDE.md"
+        else
+            sed -i "s/Sample Project/$profile_name/g" "$profile_dir/CLAUDE.md"
+        fi
+    else
+        # Fallback: Create basic template
+        debug "sample-profile not found, using inline template"
+        mkdir -p "$profile_dir"
+
+        cat > "$profile_dir/CLAUDE.md" <<'EOF'
 # Profile: PROFILE_NAME_PLACEHOLDER
 
 <!-- Profile-specific additions for PROFILE_NAME_PLACEHOLDER -->
@@ -674,11 +689,12 @@ Define standards, practices, and guidelines specific to this context.
 - Team collaboration practices
 EOF
 
-    # Safely replace placeholder with actual profile name (cross-platform sed)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
-    else
-        sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+        # Safely replace placeholder with actual profile name
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+        else
+            sed -i "s/PROFILE_NAME_PLACEHOLDER/$profile_name/g" "$profile_dir/CLAUDE.md"
+        fi
     fi
 
     # Sync profiles.json for dotfiles integration
