@@ -58,16 +58,20 @@ Each profile merges your base configuration with project-specific additions - no
 Don't trust random scripts from the internet? Smart. Test dotclaude in an isolated Docker container first:
 
 ```bash
+# Quick test (uses pre-built lite image)
+docker run -it --rm ghcr.io/blackwell-systems/dotclaude-lite
+
+# Or build locally
 git clone https://github.com/blackwell-systems/dotclaude.git
 cd dotclaude
-docker build -t dotclaude-test .
-docker run -it --rm dotclaude-test
+docker build -f Dockerfile.lite -t dotclaude-lite .
+docker run -it --rm dotclaude-lite
 
 # Inside container - explore safely:
 dotclaude create my-project
+dotclaude edit my-project
 dotclaude activate my-project
 dotclaude show
-dotclaude active
 exit  # Nothing persists
 ```
 

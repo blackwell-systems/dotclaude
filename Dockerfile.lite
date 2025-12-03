@@ -1,0 +1,58 @@
+# Dockerfile.lite - Lightweight test container for dotclaude
+# Build: docker build -f Dockerfile.lite -t dotclaude-lite .
+# Run:   docker run -it --rm dotclaude-lite
+
+FROM alpine:3.19
+
+# Install minimal dependencies
+RUN apk add --no-cache \
+    bash \
+    git \
+    jq \
+    coreutils \
+    util-linux
+
+# Set up environment
+ENV HOME=/root
+ENV DOTCLAUDE_REPO_DIR=/root/code/dotclaude
+ENV CLAUDE_DIR=/root/.claude
+
+# Create directories
+RUN mkdir -p /root/code /root/.claude /root/.local/bin
+
+# Copy dotclaude repository
+WORKDIR /root/code/dotclaude
+COPY . /root/code/dotclaude/
+
+# Install dotclaude (run the installer)
+RUN cp base/scripts/dotclaude /root/.local/bin/dotclaude && \
+    chmod +x /root/.local/bin/dotclaude && \
+    cp -r base/scripts /root/.claude/scripts && \
+    chmod +x /root/.claude/scripts/*.sh
+
+# Add to PATH
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Create welcome message
+RUN echo '╭─────────────────────────────────────────────────────────────╮' > /etc/motd && \
+    echo '│                    dotclaude Test Environment                │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  This is a safe sandbox to explore dotclaude commands.      │' >> /etc/motd && \
+    echo '│  Nothing persists when you exit the container.              │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Try these commands:                                         │' >> /etc/motd && \
+    echo '│    dotclaude create my-project    # Create a profile        │' >> /etc/motd && \
+    echo '│    dotclaude list                 # List all profiles       │' >> /etc/motd && \
+    echo '│    dotclaude show                 # Show active profile     │' >> /etc/motd && \
+    echo '│    dotclaude help                 # See all commands        │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Type '\''exit'\'' to leave. Container will auto-delete.          │' >> /etc/motd && \
+    echo '╰─────────────────────────────────────────────────────────────╯' >> /etc/motd && \
+    echo '' >> /etc/motd
+
+# Display welcome on shell start
+RUN echo 'cat /etc/motd' >> /root/.bashrc
+
+WORKDIR /root
+
+CMD ["bash"]
