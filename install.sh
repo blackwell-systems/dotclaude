@@ -279,9 +279,56 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}╭─────────────────────────────────────────────────────────────╮${NC}"
-echo -e "${GREEN}│  ✓ Installation Complete                                    │${NC}"
-echo -e "${GREEN}╰─────────────────────────────────────────────────────────────╯${NC}"
+echo -e "${BLUE}=== Validating Installation ===${NC}"
+echo ""
+
+# Validation checks
+VALIDATION_PASS=true
+
+# Check 1: dotclaude CLI in PATH
+if command -v dotclaude >/dev/null 2>&1; then
+    echo -e "${GREEN}✓${NC} dotclaude CLI installed and in PATH"
+else
+    echo -e "${RED}✗${NC} dotclaude CLI not found in PATH"
+    echo "  Add ~/.local/bin to your PATH"
+    VALIDATION_PASS=false
+fi
+
+# Check 2: Base files copied
+if [ -d "$CLAUDE_DIR/scripts" ] && [ -f "$CLAUDE_DIR/scripts/activate-profile.sh" ]; then
+    echo -e "${GREEN}✓${NC} Management scripts installed"
+else
+    echo -e "${RED}✗${NC} Management scripts missing"
+    VALIDATION_PASS=false
+fi
+
+# Check 3: Repository accessible
+if [ -d "$REPO_DIR/base" ] && [ -f "$REPO_DIR/base/CLAUDE.md" ]; then
+    echo -e "${GREEN}✓${NC} Repository accessible at: $REPO_DIR"
+else
+    echo -e "${YELLOW}⚠${NC}  Repository not found at: $REPO_DIR"
+    echo "  Set DOTCLAUDE_REPO_DIR to correct location"
+fi
+
+# Check 4: Examples available
+if [ -d "$REPO_DIR/examples/sample-profile" ]; then
+    echo -e "${GREEN}✓${NC} Sample profile available for templates"
+else
+    echo -e "${YELLOW}⚠${NC}  Sample profile not found (optional)"
+fi
+
+echo ""
+
+if [ "$VALIDATION_PASS" = "true" ]; then
+    echo -e "${GREEN}╭─────────────────────────────────────────────────────────────╮${NC}"
+    echo -e "${GREEN}│  ✓ Installation Complete - All Checks Passed               │${NC}"
+    echo -e "${GREEN}╰─────────────────────────────────────────────────────────────╯${NC}"
+else
+    echo -e "${YELLOW}╭─────────────────────────────────────────────────────────────╮${NC}"
+    echo -e "${YELLOW}│  ⚠  Installation Complete - Some Checks Failed             │${NC}"
+    echo -e "${YELLOW}╰─────────────────────────────────────────────────────────────╯${NC}"
+fi
+
 echo ""
 echo -e "${BLUE}=== Next Steps ===${NC}"
 echo ""

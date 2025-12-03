@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2025-12-02
+
+### Added
+- **curl | bash Install Support** - One-line install now works seamlessly
+  - Auto-detects if running from repo or via curl
+  - Clones to ~/code/dotclaude if needed
+  - Re-execs from cloned location automatically
+  - Fully backward compatible with manual git clone
+- **Automatic Shell Configuration** - DOTCLAUDE_REPO_DIR added to shell RC automatically
+  - Detects bash or zsh and updates appropriate RC file
+  - Idempotent (checks if already present)
+  - No manual configuration required
+- **Install Validation Checks** - Post-install health validation
+  - Verifies dotclaude CLI in PATH
+  - Confirms management scripts installed
+  - Checks repository accessibility
+  - Validates sample profile availability
+- **Profile Template Scaffolding** - `dotclaude create` now uses comprehensive template
+  - Copies from examples/sample-profile automatically
+  - Provides 200+ lines of examples and best practices
+  - Fallback to basic template if sample-profile missing
+  - Customizes profile name in template
+- **Dockerfile.lite** - Lightweight Alpine container for safe testing
+  - Pre-installs dotclaude CLI
+  - Shows welcome message with command suggestions
+  - Auto-deletes on exit (--rm flag)
+  - 30-second trust verification before real install
+- **ONBOARDING-AUDIT.md** - Comprehensive new user experience analysis
+  - Documents all onboarding issues found
+  - Testing notes and recommendations
+  - Tracks resolution status
+
+### Changed
+- **Improved Post-Install Messaging** - Clear numbered "Next Steps" guide
+  - Shows `dotclaude create` workflow (not manual cp -r)
+  - Links to documentation
+  - Removed confusing "optional" DOTCLAUDE_REPO_DIR messaging
+- **Unified Install Instructions** - Consistent across all documentation
+  - README uses curl | bash as primary method
+  - GETTING-STARTED updated to match
+  - All examples show `dotclaude create` instead of `cp -r examples/`
+- **Updated Docker Test Instructions** - Added Dockerfile.lite option to README
+
+### Fixed
+- Install script now works when piped from curl (was broken)
+- Profile creation now provides comprehensive starting template
+
 ## [0.3.0] - 2025-12-01
 
 ### Added

@@ -22,7 +22,9 @@ RUN mkdir -p /root/code /root/.claude /root/.local/bin
 
 # Copy dotclaude repository
 WORKDIR /root/code/dotclaude
-COPY . /root/code/dotclaude/
+COPY base/ /root/code/dotclaude/base/
+COPY profiles/ /root/code/dotclaude/profiles/
+COPY examples/ /root/code/dotclaude/examples/
 
 # Install dotclaude (run the installer)
 RUN cp base/scripts/dotclaude /root/.local/bin/dotclaude && \
