@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # dotclaude - The definitive profile management system for Claude Code
-# Version: 0.5.0
+# Version: 0.5.1
 
 set -e
 
-VERSION="0.5.0"
+VERSION="0.5.1"
 CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 REPO_DIR="${DOTCLAUDE_REPO_DIR:-$HOME/code/dotclaude}"
 BASE_DIR="$REPO_DIR/base"

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2025-12-02
+
+### Fixed
+- ANSI color codes now render properly in help/version output
+  - Added `-e` flag to all echo statements using color variables
+  - Set `TERM=xterm-256color` in Dockerfile.lite
+  - Commands like `dotclaude help` now display with proper colors and formatting
+
 ## [0.5.0] - 2025-12-02
 
 ### Changed
