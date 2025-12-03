@@ -16,6 +16,7 @@ RUN apk add --no-cache \
 ENV HOME=/root
 ENV DOTCLAUDE_REPO_DIR=/root/code/dotclaude
 ENV CLAUDE_DIR=/root/.claude
+ENV TERM=xterm-256color
 
 # Create directories
 RUN mkdir -p /root/code /root/.claude /root/.local/bin
