@@ -7,13 +7,13 @@
 ## Quick Start
 
 ```bash
-# Clone and build
+# Clone and build lightweight test container
 git clone https://github.com/blackwell-systems/dotclaude.git
 cd dotclaude
-docker build -t dotclaude-test .
+docker build -f Dockerfile.lite -t dotclaude-lite .
 
 # Run interactive container
-docker run -it --rm dotclaude-test
+docker run -it --rm dotclaude-lite
 
 # You're now in a safe container - nothing touches your host
 ```
@@ -40,12 +40,13 @@ Shows all available profiles (starts with the examples from `/dotclaude/profiles
 dotclaude create test-project
 ```
 
-This creates a new profile with:
-- `~/.claude/CLAUDE.md` - Session context
-- `~/.claude/settings.json` - Backend configuration
-- `profiles.json` - Auto-generated manifest
+This creates a new profile using a comprehensive 250+ line template with:
+- Tech stack preferences (backend, frontend, testing)
+- Coding standards (TypeScript, API design, error handling)
+- Project workflows and best practices
+- All customizable for your project
 
-**What this shows:** Profile creation workflow and file structure.
+**What this shows:** Profile creation with scaffolding, not empty templates.
 
 ---
 
@@ -201,8 +202,8 @@ Mount your actual profiles for testing:
 ```bash
 # From host - mount your profiles directory
 docker run -it --rm \
-  -v ~/code/dotclaude/profiles:/dotclaude/profiles \
-  dotclaude-test
+  -v ~/code/dotclaude/profiles:/root/code/dotclaude/profiles \
+  dotclaude-lite
 
 # Inside container
 dotclaude list
@@ -230,13 +231,13 @@ Some features require Claude Code itself:
 
 ## Container Specs
 
-**Base:** Alpine Linux 3.19 (~15MB)
+**Base:** Alpine Linux 3.19 (~29MB)
 
 **Includes:**
-- bash, jq
+- bash, git, jq
 - coreutils, util-linux
 - dotclaude CLI (pre-installed)
-- Sample profiles from repo
+- Base configuration and examples directory with comprehensive template
 
 **Does NOT include:**
 - Claude CLI (`claude` command)
@@ -251,8 +252,8 @@ Some features require Claude Code itself:
 ### Ready to Install?
 
 ```bash
-# One-line install
-curl -fsSL https://dotclaude.dev/install | bash
+# One-line install (clones automatically)
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 
 # Or manual
 git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
@@ -301,7 +302,7 @@ Install Docker:
 
 ```bash
 # Clean rebuild
-docker build --no-cache -t dotclaude-test .
+docker build --no-cache -f Dockerfile.lite -t dotclaude-lite .
 ```
 
 ### Container won't start
@@ -311,7 +312,7 @@ docker build --no-cache -t dotclaude-test .
 docker ps
 
 # Try with explicit shell
-docker run -it --rm dotclaude-test bash
+docker run -it --rm dotclaude-lite bash
 ```
 
 ### dotclaude command not found
@@ -322,7 +323,7 @@ which dotclaude
 dotclaude --version
 
 # If missing, rebuild container
-docker build -t dotclaude-test .
+docker build -f Dockerfile.lite -t dotclaude-lite .
 ```
 
 ### Commands don't work

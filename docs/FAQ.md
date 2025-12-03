@@ -195,19 +195,19 @@ tail -f ~/.claude/.dotclaude-debug.log
 
 ### How do I create a new profile?
 
-**Option 1: Copy from example (recommended)**
+**Use the create command (recommended):**
 ```bash
-cp -r examples/sample-profile profiles/my-new-project
+dotclaude create my-new-project
+# → Creates profile with comprehensive 250+ line template
+# → Includes tech stack, coding standards, best practices
+
 dotclaude edit my-new-project
+# → Customize for your project
+
 dotclaude activate my-new-project
 ```
 
-**Option 2: Use create command**
-```bash
-dotclaude create my-new-project
-# Opens empty template
-dotclaude activate my-new-project
-```
+The `create` command automatically copies from `examples/sample-profile` and customizes it with your profile name.
 
 ---
 
@@ -477,8 +477,8 @@ dotclaude activate my-project
 
 **Fix:**
 ```bash
-# Copy example to start
-cp -r examples/sample-profile profiles/my-first-profile
+# Create a profile (uses comprehensive template automatically)
+dotclaude create my-first-profile
 
 # Verify
 dotclaude list

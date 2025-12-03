@@ -1143,14 +1143,17 @@ Available in all projects without per-project configuration.
 
 ### Adding to Shell
 
-Add sourced functions to your shell for convenience:
+**Note:** The installer automatically adds `DOTCLAUDE_REPO_DIR` to your shell RC file. You only need manual configuration if:
+- You moved the repo after installation
+- You're using a shell other than bash/zsh
+
+**Optional:** Add sourced convenience functions to your shell:
 
 **For bash (`~/.bashrc`):**
 ```bash
-export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"
-export PATH="$HOME/.local/bin:$PATH"
+# DOTCLAUDE_REPO_DIR already added by installer
 
-# Optional: Source convenience functions
+# Optional: Source convenience functions for git workflows
 if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
     source "$HOME/.claude/scripts/shell-functions.sh"
 fi
@@ -1158,10 +1161,9 @@ fi
 
 **For zsh (`~/.zshrc`):**
 ```bash
-export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"
-export PATH="$HOME/.local/bin:$PATH"
+# DOTCLAUDE_REPO_DIR already added by installer
 
-# Optional: Source convenience functions
+# Optional: Source convenience functions for git workflows
 if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
     source "$HOME/.claude/scripts/shell-functions.sh"
 fi
@@ -1195,14 +1197,16 @@ fi
 **`DOTCLAUDE_REPO_DIR`**
 - Location of your dotclaude repository
 - Default: `$HOME/code/dotclaude`
+- **Automatically set** by installer in your shell RC file
 - Used by CLI to find profiles and base configuration
+- Only change if you moved the repo after installation
 
 **`EDITOR`**
 - Your preferred text editor
 - Default: `nano`
 - Used by `dotclaude edit` command
 
-**Example:**
+**Example (only if you moved the repo):**
 ```bash
 export DOTCLAUDE_REPO_DIR="$HOME/repos/dotclaude"
 export EDITOR="vim"

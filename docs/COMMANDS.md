@@ -758,8 +758,9 @@ dotclaude activate previous-profile
 
 **DOTCLAUDE_REPO_DIR**
 - Override default repository location
+- **Automatically set** by installer in shell RC file
 - Default: `$HOME/code/dotclaude`
-- Usage: `export DOTCLAUDE_REPO_DIR="/path/to/dotclaude"`
+- Only change if you moved the repo: `export DOTCLAUDE_REPO_DIR="/new/path"`
 
 **DEBUG**
 - Enable debug output

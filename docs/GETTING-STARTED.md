@@ -43,9 +43,10 @@ base/CLAUDE.md              profiles/my-project/CLAUDE.md
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 # → Clones repo, installs dotclaude CLI, copies base to ~/.claude/
 
-# 2. Create your first profile (uses template automatically)
+# 2. Create your first profile (uses comprehensive 250+ line template)
 dotclaude create my-project
-# → Creates profiles/my-project/ from template
+# → Creates profiles/my-project/ from examples/sample-profile
+# → Includes tech stack, coding standards, workflows, best practices
 
 # 3. Edit it to add your project context
 dotclaude edit my-project
@@ -129,8 +130,8 @@ Don't trust random install scripts? Good instinct. Test dotclaude in an isolated
 ```bash
 git clone https://github.com/blackwell-systems/dotclaude.git
 cd dotclaude
-docker build -t dotclaude-test .
-docker run -it --rm dotclaude-test
+docker build -f Dockerfile.lite -t dotclaude-lite .
+docker run -it --rm dotclaude-lite
 ```
 
 You're now in a container with dotclaude ready to use:
@@ -152,11 +153,11 @@ Exit with `exit` or Ctrl+D. The container is destroyed - nothing persisted.
 
 ### What the Container Includes
 
-- Alpine Linux (minimal ~15MB base)
-- Bash, jq, coreutils, util-linux
+- Alpine Linux (minimal ~29MB base)
+- Bash, git, jq, coreutils, util-linux
 - dotclaude CLI pre-installed
 - Base configuration ready
-- Empty profiles directory to experiment with
+- Examples directory with comprehensive 250+ line template
 
 ### Mount Your Own Profiles
 
@@ -164,8 +165,8 @@ Test with your actual profile files without installing:
 
 ```bash
 docker run -it --rm \
-  -v $(pwd)/profiles:/dotclaude/profiles \
-  dotclaude-test
+  -v $(pwd)/profiles:/root/code/dotclaude/profiles \
+  dotclaude-lite
 ```
 
 Changes to profiles persist on your host, but `~/.claude/` stays in the container.
@@ -202,17 +203,16 @@ cd ~/code/dotclaude
 
 # Non-interactive mode (for automation)
 ./install.sh --non-interactive
-
-# Add to shell (optional)
-echo 'export DOTCLAUDE_REPO_DIR="$HOME/code/dotclaude"' >> ~/.zshrc
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ```
 
 ### What the Installer Does
 
-1. Installs `dotclaude` CLI to `~/.local/bin/`
-2. Copies base scripts and agents to `~/.claude/`
-3. Prompts to select and activate a profile
+1. Auto-clones repository to `~/code/dotclaude` (if using curl | bash)
+2. Installs `dotclaude` CLI to `~/.local/bin/`
+3. Copies base scripts and agents to `~/.claude/`
+4. **Automatically** adds `DOTCLAUDE_REPO_DIR` to your shell RC file (bash/zsh)
+5. Runs validation checks (CLI in PATH, scripts installed, repo accessible)
+6. Prompts to select and activate a profile
 
 ## Core Commands Reference
 
