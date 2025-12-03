@@ -35,6 +35,11 @@ EOF
 }
 EOF
 
+    # Copy actual examples/sample-profile for template tests
+    if [ -d "$BATS_TEST_DIRNAME/../examples/sample-profile" ]; then
+        cp -r "$BATS_TEST_DIRNAME/../examples/sample-profile" "$TEST_REPO_DIR/examples/"
+    fi
+
     # Copy actual scripts to test environment
     if [ -d "$BATS_TEST_DIRNAME/../base/scripts" ]; then
         cp -r "$BATS_TEST_DIRNAME/../base/scripts" "$TEST_REPO_DIR/base/"
