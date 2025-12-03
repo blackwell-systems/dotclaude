@@ -77,16 +77,19 @@ Nothing touches your system. When you're ready, install for real.
 
 ## Quick Install
 
+One-line install (clones to `~/code/dotclaude` automatically):
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 ```
 
-Then create your first profile:
+Then follow the guided setup:
 
 ```bash
-cp -r examples/sample-profile profiles/my-project
-dotclaude edit my-project
-dotclaude activate my-project
+dotclaude create my-project    # Create your first profile
+dotclaude edit my-project      # Add your project context
+dotclaude activate my-project  # Activate it
+dotclaude show                 # Verify it's active
 ```
 
 ## Documentation

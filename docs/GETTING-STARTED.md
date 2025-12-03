@@ -39,27 +39,29 @@ base/CLAUDE.md              profiles/my-project/CLAUDE.md
 ### Step-by-Step First-Time Setup
 
 ```bash
-# 1. Install
-git clone https://github.com/blackwell-systems/dotclaude.git ~/code/dotclaude
-cd ~/code/dotclaude
-./install.sh
-# → Installs dotclaude CLI, copies base to ~/.claude/
+# 1. Install (one-line, clones to ~/code/dotclaude automatically)
+curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
+# → Clones repo, installs dotclaude CLI, copies base to ~/.claude/
 
-# 2. Create your first profile from the example
-cp -r examples/sample-profile profiles/my-project
+# 2. Create your first profile (uses template automatically)
+dotclaude create my-project
+# → Creates profiles/my-project/ from template
+
+# 3. Edit it to add your project context
 dotclaude edit my-project
+# → Opens CLAUDE.md in $EDITOR
 # → Customize tech stack, coding standards, etc.
 
-# 3. Activate it
+# 4. Activate it
 dotclaude activate my-project
 # → Merges base + my-project → ~/.claude/CLAUDE.md
 
-# 4. Verify
+# 5. Verify
 dotclaude show              # See what's active
 cat ~/.claude/CLAUDE.md     # View merged config
 
-# 5. Create more profiles as needed
-cp -r examples/sample-profile profiles/client-work
+# 6. Create more profiles as needed
+dotclaude create client-work
 dotclaude edit client-work
 dotclaude activate client-work
 ```
@@ -76,13 +78,13 @@ dotclaude help              # Full command reference
 ## Example Workflow: Multiple Contexts
 
 ```bash
-# Create your profiles based on the example
-cp -r examples/sample-profile profiles/my-oss-project
-cp -r examples/sample-profile profiles/client-work
+# Create profiles for different contexts
+dotclaude create my-oss-project
+dotclaude create client-work
 
 # Customize for each context
-vim profiles/my-oss-project/CLAUDE.md
-vim profiles/client-work/CLAUDE.md
+dotclaude edit my-oss-project
+dotclaude edit client-work
 
 # Switch between contexts
 dotclaude activate my-oss-project
