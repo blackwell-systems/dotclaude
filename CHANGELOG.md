@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2025-12-02
+
+### Changed
+- **BREAKING (Install Only):** Profile creation now mandatory during installation
+  - Interactive install prompts for profile name (validated, cannot be empty)
+  - Non-interactive install shows instructions for manual profile creation
+  - Ensures every user has a working profile after installation
+  - **Note:** Existing installations and profiles are unaffected - only impacts new installs
+
+- **Removed fallback template** from `dotclaude create` command
+  - Now fails loudly with helpful error if `examples/sample-profile` is missing
+  - Provides clear diagnostics and reinstall instructions
+  - Prevents silent failures with incomplete templates
+  - Ensures all profiles start with comprehensive 250+ line template
+
+### Improved
+- Installation "Next Steps" now context-aware
+  - Shows different messages if profile was created vs skipped (non-interactive)
+  - Guides users to customize (not create) if profile already exists
+  - Clearer post-install experience
+
+**Upgrade Note:** Existing users on v0.4.0 can upgrade seamlessly. These changes only affect new installations. Your existing profiles continue to work without modification.
+
 ## [0.4.0] - 2025-12-02
 
 ### Added

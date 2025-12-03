@@ -212,38 +212,44 @@ echo ""
 echo -e "${GREEN}=== Base Installation Complete ===${NC}"
 echo ""
 
-# Ask which profile to activate
-echo -e "${BLUE}=== Profile Selection ===${NC}"
+# Create first profile (mandatory)
+echo -e "${BLUE}=== Create Your First Profile ===${NC}"
 echo ""
-echo "Available profiles:"
-for profile_dir in "$PROFILES_DIR"/*; do
-    if [ -d "$profile_dir" ]; then
-        echo "  - $(basename "$profile_dir")"
-    fi
-done
 if [ "$NON_INTERACTIVE" = "false" ]; then
-    echo ""
-    read -p "Which profile would you like to activate? (or 'skip' to skip): " PROFILE_NAME
+    echo "Let's create your first profile. This will include:"
+    echo "  • Tech stack preferences (backend, frontend, testing)"
+    echo "  • Coding standards (TypeScript, API design, error handling)"
+    echo "  • Project workflows and best practices"
     echo ""
 
-    if [[ "$PROFILE_NAME" != "skip" && -n "$PROFILE_NAME" ]]; then
-        if [ -d "$PROFILES_DIR/$PROFILE_NAME" ]; then
-            echo "Activating profile: $PROFILE_NAME"
-            bash "$CLAUDE_DIR/scripts/activate-profile.sh" "$PROFILE_NAME"
-        else
-            echo -e "${YELLOW}Profile '$PROFILE_NAME' not found. Skipping profile activation.${NC}"
-            echo "You can activate a profile later with:"
-            echo "  dotclaude activate <profile-name>"
+    while true; do
+        read -p "Profile name (e.g., my-project, work, personal): " PROFILE_NAME
+
+        if [ -z "$PROFILE_NAME" ]; then
+            echo -e "${YELLOW}Profile name cannot be empty${NC}"
+            continue
         fi
-    else
-        echo "Skipped profile activation"
-        echo "To activate a profile later:"
-        echo "  dotclaude activate <profile-name>"
-    fi
+
+        # Validate profile name
+        if [[ ! "$PROFILE_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo -e "${YELLOW}Profile name must contain only letters, numbers, hyphens, and underscores${NC}"
+            continue
+        fi
+
+        break
+    done
+
+    echo ""
+    echo "Creating profile: $PROFILE_NAME"
+    "$HOME/.local/bin/dotclaude" create "$PROFILE_NAME"
+
+    echo ""
+    echo "Activating profile: $PROFILE_NAME"
+    "$HOME/.local/bin/dotclaude" activate "$PROFILE_NAME"
 else
     echo ""
-    echo "Skipping profile activation (non-interactive mode)"
-    echo "To activate a profile later:"
+    echo "Non-interactive mode: Create your first profile with:"
+    echo "  dotclaude create <profile-name>"
     echo "  dotclaude activate <profile-name>"
 fi
 
@@ -332,22 +338,37 @@ fi
 echo ""
 echo -e "${BLUE}=== Next Steps ===${NC}"
 echo ""
-echo "  1. Create your first profile:"
-echo -e "     ${GREEN}dotclaude create my-project${NC}"
-echo ""
-echo "  2. Edit it to add your project context:"
-echo -e "     ${GREEN}dotclaude edit my-project${NC}"
-echo ""
-echo "  3. Activate it:"
-echo -e "     ${GREEN}dotclaude activate my-project${NC}"
-echo ""
-echo "  4. Verify it's active:"
-echo -e "     ${GREEN}dotclaude show${NC}"
-echo ""
-echo "Other useful commands:"
-echo -e "  ${GREEN}dotclaude list${NC}        List all profiles"
-echo -e "  ${GREEN}dotclaude switch${NC}      Interactive switcher"
-echo -e "  ${GREEN}dotclaude help${NC}        Show all commands"
+if [ "$NON_INTERACTIVE" = "false" ] && [ -n "$PROFILE_NAME" ]; then
+    echo "  Your profile '$PROFILE_NAME' is ready! Here's what to do next:"
+    echo ""
+    echo "  1. Customize your profile for your project:"
+    echo -e "     ${GREEN}dotclaude edit $PROFILE_NAME${NC}"
+    echo ""
+    echo "  2. Verify it's active:"
+    echo -e "     ${GREEN}dotclaude show${NC}"
+    echo ""
+    echo "  3. Create more profiles as needed:"
+    echo -e "     ${GREEN}dotclaude create work-project${NC}"
+    echo ""
+    echo "Other useful commands:"
+    echo -e "  ${GREEN}dotclaude list${NC}        List all profiles"
+    echo -e "  ${GREEN}dotclaude switch${NC}      Interactive switcher"
+    echo -e "  ${GREEN}dotclaude help${NC}        Show all commands"
+else
+    echo "  1. Create your first profile:"
+    echo -e "     ${GREEN}dotclaude create my-project${NC}"
+    echo ""
+    echo "  2. Activate it:"
+    echo -e "     ${GREEN}dotclaude activate my-project${NC}"
+    echo ""
+    echo "  3. Customize it for your project:"
+    echo -e "     ${GREEN}dotclaude edit my-project${NC}"
+    echo ""
+    echo "Other useful commands:"
+    echo -e "  ${GREEN}dotclaude list${NC}        List all profiles"
+    echo -e "  ${GREEN}dotclaude switch${NC}      Interactive switcher"
+    echo -e "  ${GREEN}dotclaude help${NC}        Show all commands"
+fi
 echo ""
 echo "╭─────────────────────────────────────────────────────────────╮"
 echo "│  📖 Documentation: https://blackwell-systems.github.io/dotclaude  │"
