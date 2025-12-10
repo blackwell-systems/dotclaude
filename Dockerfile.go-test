@@ -31,6 +31,10 @@ COPY . /root/code/dotclaude/
 # Build the Go binary
 RUN make build
 
+# Configure git (required for profile creation)
+RUN git config --global user.name "dotclaude Test" && \
+    git config --global user.email "test@dotclaude.local"
+
 # Install dotclaude wrapper
 RUN cp base/scripts/dotclaude /root/.local/bin/dotclaude && \
     chmod +x /root/.local/bin/dotclaude && \

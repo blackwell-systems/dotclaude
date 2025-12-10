@@ -4,13 +4,19 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# Determine repo directory (respect env var or calculate from script location)
+if [ -n "$DOTCLAUDE_REPO_DIR" ]; then
+    REPO_DIR="$DOTCLAUDE_REPO_DIR"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+fi
+
 GO_BINARY="$REPO_DIR/bin/dotclaude-go"
-SHELL_BINARY="$SCRIPT_DIR/dotclaude-shell"
+SHELL_BINARY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotclaude-shell"
 
 # Allow manual override: DOTCLAUDE_BACKEND=go|shell|auto
-BACKEND="${DOTCLAUDE_BACKEND:-auto}"
+BACKEND="${DOTCLAUDE_BACKEND:-go}"
 
 case "$BACKEND" in
     go)
