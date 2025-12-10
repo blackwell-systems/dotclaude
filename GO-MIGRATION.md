@@ -9,6 +9,30 @@
 
 Gradual migration from shell-based implementation to Go CLI while maintaining full backward compatibility. Both implementations coexist during development.
 
+## 🎯 Current Status & Next Steps
+
+**Migration Phase:** ✅ Implementation Complete → ⏭️ Validation (Phase 6)
+
+**What's Done:**
+- ✅ All 10 commands implemented in Go
+- ✅ Full functional parity with shell version
+- ✅ Container testing environment ready
+- ✅ Documentation updated
+- ✅ 7 hours total implementation time
+
+**Immediate Next Steps (Phase 6):**
+1. Test in container: `./scripts/test-in-container.sh`
+2. Run side-by-side comparison tests
+3. Change wrapper default: `auto` → `go`
+4. Merge to main and tag v1.0.0-beta.1
+5. Use for 1-2 weeks (validation period)
+
+**Final Goal (Phase 7):**
+After validation period, remove wrapper entirely and use Go binary directly (Option 2).
+- Archive shell version
+- Direct binary execution
+- Tag v1.0.0 stable
+
 ## Architecture
 
 ### Strangler Fig Pattern
@@ -257,14 +281,67 @@ make install  # Install to ~/bin
 **Duration:** 4-6 hours estimated
 **Commits:** TBD
 
-### Phase 6: Finalization 🔲 TODO
-- Run full parity tests
-- Update documentation
-- Switch default to Go
-- Tag v1.0.0
+### Phase 6: Validation & Soft Launch 🔲 NEXT
+- Run full parity tests in container
+- Test all commands with shell comparison
+- Switch wrapper default from `auto` → `go` (Option 1)
+- Use in production for 1-2 weeks
+- Monitor for any issues
 
-**Duration:** 2-4 hours estimated
-**Commits:** TBD
+**Duration:** 1-2 hours + validation period
+**Commits:** 1-2
+
+### Phase 7: Go-Only Transition 🔲 FUTURE (Option 2)
+Once confident after validation period, remove wrapper entirely:
+
+**Prerequisites:**
+- ✅ All 10 commands implemented
+- ✅ Full parity tests passing
+- ⏳ 1-2 weeks of production use without issues
+- ⏳ No regressions discovered
+
+**Transition Steps:**
+
+1. **Archive Shell Version**
+   ```bash
+   mkdir -p archive/
+   git mv base/scripts/dotclaude-shell archive/
+   git mv base/scripts/shell-functions.sh archive/
+   git mv base/scripts/sync-feature-branch.sh archive/
+   ```
+
+2. **Replace Wrapper with Direct Binary**
+   ```bash
+   rm base/scripts/dotclaude
+   ln -s ../../bin/dotclaude-go base/scripts/dotclaude
+   # OR for better portability:
+   cp bin/dotclaude-go base/scripts/dotclaude
+   ```
+
+3. **Update Installation Process**
+   - Modify `install.sh` to build Go binary during install
+   - Add Go as installation prerequisite
+   - Update PATH to point to Go binary directly
+
+4. **Update Documentation**
+   - README: Promote Go as primary implementation
+   - Add build requirements (Go 1.23+)
+   - Update installation instructions
+   - Note shell version archived for reference
+
+5. **Version Bump**
+   - Tag as v1.0.0 (first stable Go release)
+   - Update CHANGELOG with "Go-only" marker
+   - Update version constant in root.go
+
+**Duration:** 2-3 hours
+**Commits:** 3-5
+
+**Benefits of Waiting:**
+- Real-world validation in Option 1 mode
+- Discover edge cases before full commitment
+- Users can still rollback if needed
+- Builds confidence in stability
 
 ## Timeline
 
@@ -310,23 +387,52 @@ git checkout main
 
 ## Success Criteria
 
-Migration is complete when:
-- ✅ All 13 commands implemented in Go
-- ✅ All tests passing (Go + shell parity)
-- ✅ Full workflow test passes
-- ✅ No regressions vs shell version
-- ✅ Windows support validated
-- ✅ Documentation updated
+### Phase 6: Soft Launch (Option 1 - Default to Go) ⏭️ NEXT
+Migration ready for soft launch when:
+- ✅ All 10 commands implemented in Go
+- ⏳ Container tests passing
+- ⏳ Full workflow test passes
+- ⏳ Side-by-side comparison with shell version
+
+**Actions:**
+- Change wrapper default: `DOTCLAUDE_BACKEND=auto` → `go`
+- Merge `go-migration` → `main`
+- Tag v1.0.0-beta.1
+- Use for 1-2 weeks, monitor for issues
+
+### Phase 7: Go-Only (Option 2 - Direct Binary) 🎯 GOAL
+Ready to remove wrapper when:
+- ✅ Soft launch complete (1-2 weeks)
+- ✅ No regressions discovered
+- ✅ User confidence established
+- ✅ All edge cases tested
+
+**Actions:**
+- Archive shell version
+- Remove wrapper script
+- Direct binary as main entry point
+- Update install process for Go
+- Tag v1.0.0 (stable)
+
+## Implementation Path
+
+```
+Current State:     wrapper (auto) → [go-binary | shell-fallback]
+Phase 6 (Option 1): wrapper (go)   → [go-binary | shell-emergency]
+Phase 7 (Option 2): go-binary (direct, no wrapper)
+```
 
 ## Notes
 
-- Shell version preserved as `dotclaude-shell` for reference
-- Wrapper allows testing both implementations side-by-side
+- Shell version preserved as `dotclaude-shell` for reference and emergencies
+- Wrapper allows safe validation before full commitment
 - No users affected during migration (greenfield development)
-- Can abort migration at any time by reverting to main branch
+- Two-phase approach minimizes risk
 
 ---
 
 **Last Updated:** 2025-12-10
-**Current Version:** 1.0.0-alpha.1 (Go)
+**Current Version:** 1.0.0-alpha.5 (Go)
 **Shell Version:** 0.5.1 (preserved)
+**Current Mode:** Option 1 path (soft launch next)
+**Goal:** Option 2 (Go-only direct binary)
