@@ -84,6 +84,7 @@ func init() {
 		newDeleteCmd(),
 		newEditCmd(),
 		newActivateCmd(),
+		newRestoreCmd(),
 	)
 }
 

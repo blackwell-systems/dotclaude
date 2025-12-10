@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.3] - 2025-12-10
+
+### Added
+- **restore command** - Interactive backup restoration
+  - Lists all available backups sorted by modification time
+  - Groups backups by type (CLAUDE.md vs settings.json)
+  - Interactive selection with cancel option ('q')
+  - Confirms overwrite before restoring
+  - Creates backup of current file before restoring
+  - Updates .current-profile marker when restoring CLAUDE.md
+  - Handles missing backups with helpful message
+
+- **Backup types in profile package**
+  - `Backup` struct with Path, Filename, Timestamp, Size, Type
+  - `ListBackups()` - Find and sort all backup files
+  - `parseBackup()` - Extract backup metadata
+  - `Restore()` - Restore with current file backup
+  - `updateProfileFromCLAUDE()` - Auto-detect profile from content
+
+### Changed
+- **Migration plan clarification**: "backup" command removed from plan
+  - Backups are automatic (created by activate command)
+  - Only restore command needed for user interaction
+  - Updated from 13 → 12 total commands
+
+### Progress
+- **8/12 commands complete (67%)**
+- **restore** now functional with interactive UI
+- Only 4 commands remaining (deactivate, sync, check-branches, feature-branch)
+
+**Migration Timeline:** 6 hours completed, 7-11 hours estimated remaining (~1 weekend)
+
+**Branch:** `go-migration`
+
 ## [1.0.0-alpha.2] - 2025-12-10
 
 ### Added

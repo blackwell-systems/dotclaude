@@ -1,8 +1,8 @@
 # Go Migration Plan
 
-**Status:** In Progress (54% complete)
+**Status:** In Progress (67% complete)
 **Strategy:** Strangler Fig Pattern
-**Timeline:** 2-3 weekends estimated
+**Timeline:** 1-2 weekends estimated
 **Branch:** `go-migration`
 
 ## Overview
@@ -46,18 +46,20 @@ dotclaude/
 │   │   ├── delete.go       # ✅
 │   │   ├── edit.go         # ✅
 │   │   ├── activate.go     # ✅
-│   │   └── ... (6 more)
+│   │   ├── restore.go      # ✅
+│   │   └── ... (4 more)
 │   └── profile/            # Profile management
 │       ├── profile.go      # ✅ Core types and Manager
 │       ├── create.go       # ✅ Profile creation
 │       ├── delete.go       # ✅ Profile deletion
-│       └── activate.go     # ✅ Profile activation
+│       ├── activate.go     # ✅ Profile activation
+│       └── restore.go      # ✅ Backup restoration
 └── go.mod
 ```
 
 ## Progress
 
-### ✅ Completed Commands (7/13 - 54%)
+### ✅ Completed Commands (8/12 - 67%)
 
 | Command | Status | Lines | Commit |
 |---------|--------|-------|--------|
@@ -67,20 +69,21 @@ dotclaude/
 | **create** | ✅ Complete | ~180 | 2d32d5c |
 | **delete** | ✅ Complete | ~80 | e17314c |
 | **edit** | ✅ Complete | ~70 | e17314c |
-| **activate** | ✅ Complete | ~220 | TBD |
+| **activate** | ✅ Complete | ~220 | 1c2afb3 |
+| **restore** | ✅ Complete | ~170 | TBD |
 
-### 🔲 Remaining Commands (6/13 - 46%)
+### 🔲 Remaining Commands (4/12 - 33%)
 
 | Command | Priority | Complexity | Estimate |
 |---------|----------|------------|----------|
 | **deactivate** | HIGH | Medium | 2-3 hours |
-| **backup** | MEDIUM | Simple | 1-2 hours |
-| **restore** | MEDIUM | Simple | 1-2 hours |
 | **sync** | LOW | Medium | 2-3 hours |
 | **check-branches** | LOW | Simple | 1 hour |
 | **feature-branch** | LOW | Medium | 2-3 hours |
 
-**Total Remaining:** ~9-14 hours
+**Total Remaining:** ~7-11 hours
+
+**Note:** The "backup" command was removed from the plan as backups are created automatically by the `activate` command. The shell version never implemented a separate backup command.
 
 ## Implementation Details
 
@@ -103,6 +106,9 @@ dotclaude/
 - ✅ applySettings() - Copy settings.json (profile or base fallback)
 - ✅ backupFile() - Create timestamped backups (keeps 5 most recent)
 - ✅ cleanupBackups() - Remove old backups beyond limit
+- ✅ ListBackups() - Find and sort all backup files
+- ✅ Restore() - Restore from backup with current file backup
+- ✅ updateProfileFromCLAUDE() - Extract profile name from restored CLAUDE.md
 
 **CLI Commands (`internal/cli/`):**
 - ✅ root.go - Cobra foundation, global flags, config
@@ -113,19 +119,16 @@ dotclaude/
 - ✅ delete.go - Delete profile with confirmation
 - ✅ edit.go - Open CLAUDE.md or settings.json in $EDITOR
 - ✅ activate.go - Activate profile (merge base + profile)
+- ✅ restore.go - Interactive backup restoration
 
 ### Still Needed
 
 **Profile Management:**
 - 🔲 Deactivate() - Restore backup, clean state
-- 🔲 Backup() - Copy .claude to backup location
-- 🔲 Restore() - Restore .claude from backup
 - 🔲 Git operations - sync, branch checking, feature branch
 
 **CLI Commands:**
 - 🔲 deactivate.go
-- 🔲 backup.go
-- 🔲 restore.go
 - 🔲 sync.go
 - 🔲 check-branches.go
 - 🔲 feature-branch.go
@@ -184,6 +187,17 @@ dotclaude/
 ✓ Keeps only 5 most recent backups
 ✓ Updates .current-profile state file
 ✓ Creates Claude directory if missing
+```
+
+**restore command:**
+```bash
+✓ Lists all backups sorted by modification time
+✓ Groups backups by type (CLAUDE.md vs settings.json)
+✓ Interactive selection with cancel option (q)
+✓ Confirms overwrite before restoring
+✓ Creates backup of current file before restoring
+✓ Updates .current-profile marker when restoring CLAUDE.md
+✓ Handles missing backups gracefully
 ```
 
 ### Parity Testing
@@ -268,16 +282,16 @@ make install  # Install to ~/bin
 | Date | Hours | Work Completed |
 |------|-------|----------------|
 | 2025-12-10 AM | 3h | Foundation + 6 commands (version, list, show, create, delete, edit) |
-| 2025-12-10 PM | 2h | activate command + container testing environment |
+| 2025-12-10 PM | 3h | activate + restore commands + container testing + docs cleanup |
 
 ### Estimated Remaining
 
 | Phase | Hours | Status |
 |-------|-------|--------|
-| Complex Commands | 2-3h | In Progress (activate done) |
+| Complex Commands | 2-3h | In Progress (activate ✅, restore ✅, deactivate pending) |
 | Git Workflow | 4-6h | Pending |
 | Finalization | 2-4h | Pending |
-| **Total Remaining** | **8-13h** | **1-2 weekends** |
+| **Total Remaining** | **7-11h** | **1 weekend** |
 
 ## Rollback Strategy
 
