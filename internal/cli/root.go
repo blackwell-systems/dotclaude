@@ -80,6 +80,7 @@ func init() {
 		newVersionCmd(),
 		newListCmd(),
 		newShowCmd(),
+		newCreateCmd(),
 	)
 }
 
