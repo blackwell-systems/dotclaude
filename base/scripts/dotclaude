@@ -29,15 +29,18 @@ case "$BACKEND" in
     auto)
         # Smart routing: Try Go first, fall back to shell if not implemented
         if [ -x "$GO_BINARY" ]; then
-            "$GO_BINARY" "$@" 2>&1
+            # Capture output and exit code
+            output=$("$GO_BINARY" "$@" 2>&1)
             exit_code=$?
 
-            # Exit code 127 means "command not implemented" in Go
-            # Fall back to shell for unimplemented commands
-            if [ $exit_code -eq 127 ]; then
+            # Check if command is unknown (not yet implemented in Go)
+            if echo "$output" | grep -q "unknown command"; then
+                # Fall back to shell for unimplemented commands
                 exec "$SHELL_BINARY" "$@"
             fi
 
+            # Output the result and exit with same code
+            echo "$output"
             exit $exit_code
         else
             # Go binary not built yet, use shell

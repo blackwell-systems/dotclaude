@@ -76,7 +76,11 @@ func init() {
 	ProfilesDir = RepoDir + "/profiles"
 
 	// Add subcommands
-	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(
+		newVersionCmd(),
+		newListCmd(),
+		newShowCmd(),
+	)
 }
 
 func initConfig() {
