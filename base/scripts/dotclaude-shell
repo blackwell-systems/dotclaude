@@ -262,7 +262,7 @@ cmd_show() {
 
 cmd_active() {
     # Machine-readable command: returns just the profile name
-    # For scripting/integration use (e.g., dotfiles vault sync)
+    # For scripting/integration use (e.g., blackdot vault sync)
     if [ ! -f "$CLAUDE_DIR/.current-profile" ]; then
         echo "none"
         return 1
@@ -511,7 +511,7 @@ cmd_activate() {
     # Mark as current
     echo "$profile_name" > "$CLAUDE_DIR/.current-profile"
 
-    # Sync profiles.json for dotfiles integration
+    # Sync profiles.json for blackdot integration
     sync_profiles_json
 
     success_box "Profile '$profile_name' activated"
@@ -678,7 +678,7 @@ cmd_create() {
         sed -i "s/Sample Project/$profile_name/g" "$profile_dir/CLAUDE.md"
     fi
 
-    # Sync profiles.json for dotfiles integration
+    # Sync profiles.json for blackdot integration
     sync_profiles_json
 
     success_box "Profile '$profile_name' created"

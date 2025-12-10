@@ -2,7 +2,7 @@
 
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 [![Claude Code](https://img.shields.io/badge/Built_for-Claude_Code-8A2BE2?logo=anthropic)](https://claude.ai/claude-code)
-[![dotfiles](https://img.shields.io/badge/Integrates-dotfiles-2c5282)](https://blackwell-systems.github.io/dotfiles/#/)
+[![blackdot](https://img.shields.io/badge/Integrates-blackdot-2c5282)](https://blackwell-systems.github.io/blackdot/#/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL2-blue)](https://github.com/blackwell-systems/dotclaude)
 [![Version](https://img.shields.io/badge/Version-0.3.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
 
@@ -35,7 +35,7 @@ Welcome to the dotclaude documentation site! This is your navigation hub for all
 
 ## Integrations
 
-- [dotfiles Integration](DOTFILES-INTEGRATION.md) - Complete environment with secrets management
+- [blackdot Integration](BLACKDOT-INTEGRATION.md) - Complete environment with secrets management
 
 ## Examples
 

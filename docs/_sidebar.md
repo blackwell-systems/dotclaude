@@ -32,7 +32,7 @@
   - [.dotclaude File Format](DOTCLAUDE-FILE.md)
 
 - **Integrations**
-  - [dotfiles Integration](DOTFILES-INTEGRATION.md)
+  - [blackdot Integration](BLACKDOT-INTEGRATION.md)
 
 - **Resources**
   - [GitHub Repository](https://github.com/blackwell-systems/dotclaude)

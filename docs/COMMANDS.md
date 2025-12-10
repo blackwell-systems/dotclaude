@@ -83,7 +83,7 @@ none
 
 **When to use:**
 - Shell scripts that need to check/use the active profile
-- Integration with other tools (e.g., dotfiles vault sync)
+- Integration with other tools (e.g., blackdot vault sync)
 - Conditional logic based on current profile
 - Capturing profile name in a variable
 

@@ -186,7 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `active` command - machine-readable profile name for scripting/integration
-- `sync_profiles_json()` - auto-generates `~/.claude/profiles.json` for dotfiles integration
+- `sync_profiles_json()` - auto-generates `~/.claude/profiles.json` for blackdot integration
 - Auto-sync of profiles.json on `activate` and `create` commands
 - Dockerfile for isolated testing without installation
 

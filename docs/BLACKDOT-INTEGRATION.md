@@ -1,11 +1,11 @@
-# dotfiles Integration Guide
+# blackdot Integration Guide
 
 ## Overview
 
-**dotclaude** and **[dotfiles](https://blackwell-systems.github.io/dotfiles/#/)** are complementary systems designed to work together seamlessly:
+**dotclaude** and **[dotfiles](https://blackwell-systems.github.io/blackdot/#/)** are complementary systems designed to work together seamlessly:
 
 - **dotclaude**: Manages Claude Code profiles (CLAUDE.md, agents, settings)
-- **dotfiles**: Manages secrets (SSH, AWS, Git), shell configuration, and cross-platform setup
+- **blackdot**: Manages secrets (SSH, AWS, Git), shell configuration, and cross-platform setup
 
 Together, they provide a complete development environment that follows you across all your machines.
 
@@ -18,7 +18,7 @@ flowchart TB
         switching["Profile Switching<br/>dotclaude activate"]
     end
 
-    subgraph dotfiles["dotfiles System"]
+    subgraph blackdot["blackdot System"]
         secrets["Secrets Management<br/>• SSH keys<br/>• AWS credentials<br/>• Git config"]
         shell["Shell & Environment<br/>• Zsh + p10k<br/>• /workspace paths"]
     end
@@ -96,7 +96,7 @@ dotclaude init
 dotclaude create my-profile
 ```
 
-### Install dotfiles
+### Install blackdot
 
 ```bash
 # Interactive install (recommended)
@@ -110,10 +110,10 @@ curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotfiles/main/ins
 
 ### Automatic Integration
 
-dotfiles detects dotclaude automatically:
+blackdot detects dotclaude automatically:
 
 ```bash
-# During dotfiles bootstrap
+# During blackdot bootstrap
 Detected: dotclaude is installed
 Skipping ~/.claude setup (managed by dotclaude)
 Creating /workspace symlink for portable paths
@@ -133,8 +133,8 @@ No manual configuration needed - they coordinate automatically.
 dotclaude create client-acme
 # Edit profiles/client-acme/CLAUDE.md with client-specific standards
 
-# Store client secrets in dotfiles vault
-cd ~/workspace/dotfiles
+# Store client secrets in blackdot vault
+cd ~/workspace/blackdot
 ./vault/create-vault-item.sh
 # Name: client-acme-ssh-key
 # Type: secure-note
@@ -146,7 +146,7 @@ cd ~/workspace/dotfiles
 
 # Switch to client context
 dotclaude activate client-acme
-dotfiles vault restore "client-acme-*"
+blackdot vault restore "client-acme-*"
 
 # Now: Claude uses client-acme profile, SSH uses client key, AWS uses client creds
 cd /workspace/client-acme/project && claude
@@ -157,7 +157,7 @@ cd /workspace/client-acme/project && claude
 **Scenario**: Set up development environment on new laptop
 
 ```bash
-# Step 1: Install dotfiles (handles shell, secrets, /workspace)
+# Step 1: Install blackdot (handles shell, secrets, /workspace)
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotfiles/main/install.sh -o install.sh && bash install.sh --interactive
 
 # Step 2: Install dotclaude
@@ -171,7 +171,7 @@ git clone git@github.com:yourname/dotclaude-profiles.git
 dotclaude config set profile_dir ~/workspace/dotclaude-profiles
 
 # Step 5: Restore secrets from vault
-dotfiles vault restore
+blackdot vault restore
 
 # Step 6: Activate your preferred profile
 dotclaude activate my-main-profile
@@ -212,13 +212,13 @@ cd /workspace/work/platform && claude
 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_new
 
 # Push to vault
-dotfiles vault sync ssh
+blackdot vault sync ssh
 
 # On machine 2: Pull updated keys
-dotfiles vault restore ssh
+blackdot vault restore ssh
 
 # On machine 3: Pull updated keys
-dotfiles vault restore ssh
+blackdot vault restore ssh
 
 # All machines now have the new key
 # dotclaude profiles automatically use it
@@ -285,7 +285,7 @@ work-ssh-key             # Used when dotclaude profile is "work-*"
 
 # Restore secrets matching profile pattern:
 dotclaude activate client-acme
-dotfiles vault restore "client-acme-*"
+blackdot vault restore "client-acme-*"
 ```
 
 ### Profile in CLAUDE.md
@@ -347,7 +347,7 @@ export DOTFILES_VAULT_BACKEND="bitwarden"
 **Solution**: Manually restore appropriate secrets:
 ```bash
 dotclaude activate new-profile      # Changes Claude context only
-dotfiles vault restore new-*        # Restore matching secrets
+blackdot vault restore new-*        # Restore matching secrets
 ```
 
 ### Issue: Profile References Missing Secrets
@@ -358,10 +358,10 @@ dotfiles vault restore new-*        # Restore matching secrets
 
 **Solution**: Add secrets to vault:
 ```bash
-dotfiles vault create               # Interactive creation
+blackdot vault create               # Interactive creation
 # Or manually create vault item in Bitwarden/1Password/pass
 
-dotfiles vault restore              # Pull to local machine
+blackdot vault restore              # Pull to local machine
 ```
 
 ### Issue: /workspace Paths Don't Work
@@ -370,7 +370,7 @@ dotfiles vault restore              # Pull to local machine
 
 **Solution**: Run dotfiles bootstrap:
 ```bash
-cd ~/workspace/dotfiles
+cd ~/workspace/blackdot
 ./bootstrap/bootstrap-dotfiles.sh
 # Creates /workspace -> ~/workspace symlink
 ```
@@ -400,14 +400,14 @@ cd /workspace/project && claude
 Already using dotclaude? Add dotfiles:
 
 ```bash
-# Install dotfiles
+# Install blackdot
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotfiles/main/install.sh -o install.sh && bash install.sh --interactive
 
 # dotfiles will detect dotclaude automatically
 # Your ~/.claude/ profiles stay intact
 
 # Add secret management
-dotfiles vault sync --all           # Push current secrets to vault
+blackdot vault sync --all           # Push current secrets to vault
 
 # Now enjoy automated secret sync across machines
 ```
@@ -418,14 +418,14 @@ Stop manually copying SSH keys:
 
 ```bash
 # One-time: Push your secrets to vault
-cd ~/workspace/dotfiles
+cd ~/workspace/blackdot
 ./vault/create-vault-item.sh        # Add each secret
 
 # On other machines: Restore from vault
-dotfiles vault restore
+blackdot vault restore
 
 # Future updates: Just sync
-dotfiles vault sync ssh              # After rotating SSH key
+blackdot vault sync ssh              # After rotating SSH key
 ```
 
 ## Best Practices
@@ -453,20 +453,20 @@ dotfiles vault sync ssh              # After rotating SSH key
    cd ~/workspace/dotclaude-profiles && git push
 
    # dotfiles repository (optional, for custom scripts)
-   cd ~/workspace/dotfiles && git push
+   cd ~/workspace/blackdot && git push
    ```
 
 5. **Document custom workflows**: Add notes to profile READMEs
    ```bash
    # In ~/workspace/dotclaude-profiles/profiles/client-acme/README.md
-   # Prerequisites: Run `dotfiles vault restore client-acme-*` first
+   # Prerequisites: Run `blackdot vault restore client-acme-*` first
    ```
 
 ## Security Considerations
 
 ### Secrets Storage
 
-- **dotfiles vault**: Encrypted in Bitwarden/1Password/pass
+- **blackdot vault**: Encrypted in Bitwarden/1Password/pass
 - **dotclaude profiles**: Version controlled, NO secrets
 - **Never**: Store secrets in CLAUDE.md or .dotclaude files
 
@@ -514,14 +514,14 @@ dotfiles template render            # Generate machine-specific configs
 
 ## Further Reading
 
-- **[dotfiles Documentation](https://blackwell-systems.github.io/dotfiles/#/)** - Complete dotfiles guide
-- **[dotfiles Integration Guide](https://blackwell-systems.github.io/dotfiles/#/DOTCLAUDE-INTEGRATION)** - Integration from dotfiles perspective
-- **[dotfiles Vault System](https://blackwell-systems.github.io/dotfiles/#/vault-README)** - Multi-vault details
+- **[dotfiles Documentation](https://blackwell-systems.github.io/blackdot/#/)** - Complete dotfiles guide
+- **[blackdot Integration Guide](https://blackwell-systems.github.io/blackdot/#/DOTCLAUDE-INTEGRATION)** - Integration from dotfiles perspective
+- **[dotfiles Vault System](https://blackwell-systems.github.io/blackdot/#/vault-README)** - Multi-vault details
 - **[dotclaude Usage Guide](USAGE.md)** - Complete dotclaude features
 
 ## Support
 
 Issues with integration:
 - **dotclaude**: https://github.com/blackwell-systems/dotclaude/issues
-- **dotfiles**: https://github.com/blackwell-systems/dotfiles/issues
+- **blackdot**: https://github.com/blackwell-systems/dotfiles/issues
 - **Integration**: Open issue in either repo, tag with `integration`
