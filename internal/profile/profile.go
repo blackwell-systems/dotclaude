@@ -32,7 +32,7 @@ func NewManager(repoDir, claudeDir string) *Manager {
 		RepoDir:     repoDir,
 		ProfilesDir: filepath.Join(repoDir, "profiles"),
 		ClaudeDir:   claudeDir,
-		StateFile:   filepath.Join(claudeDir, ".dotclaude-active"),
+		StateFile:   filepath.Join(claudeDir, ".current-profile"),
 	}
 }
 

@@ -1,8 +1,8 @@
 # Go Migration Plan
 
-**Status:** In Progress (46% complete)
+**Status:** In Progress (54% complete)
 **Strategy:** Strangler Fig Pattern
-**Timeline:** 4 weeks estimated
+**Timeline:** 2-3 weekends estimated
 **Branch:** `go-migration`
 
 ## Overview
@@ -45,17 +45,19 @@ dotclaude/
 │   │   ├── create.go       # ✅
 │   │   ├── delete.go       # ✅
 │   │   ├── edit.go         # ✅
-│   │   └── ... (7 more)
+│   │   ├── activate.go     # ✅
+│   │   └── ... (6 more)
 │   └── profile/            # Profile management
 │       ├── profile.go      # ✅ Core types and Manager
 │       ├── create.go       # ✅ Profile creation
-│       └── delete.go       # ✅ Profile deletion
+│       ├── delete.go       # ✅ Profile deletion
+│       └── activate.go     # ✅ Profile activation
 └── go.mod
 ```
 
 ## Progress
 
-### ✅ Completed Commands (6/13 - 46%)
+### ✅ Completed Commands (7/13 - 54%)
 
 | Command | Status | Lines | Commit |
 |---------|--------|-------|--------|
@@ -65,12 +67,12 @@ dotclaude/
 | **create** | ✅ Complete | ~180 | 2d32d5c |
 | **delete** | ✅ Complete | ~80 | e17314c |
 | **edit** | ✅ Complete | ~70 | e17314c |
+| **activate** | ✅ Complete | ~220 | TBD |
 
-### 🔲 Remaining Commands (7/13 - 54%)
+### 🔲 Remaining Commands (6/13 - 46%)
 
 | Command | Priority | Complexity | Estimate |
 |---------|----------|------------|----------|
-| **activate** | HIGH | Complex | 4-6 hours |
 | **deactivate** | HIGH | Medium | 2-3 hours |
 | **backup** | MEDIUM | Simple | 1-2 hours |
 | **restore** | MEDIUM | Simple | 1-2 hours |
@@ -78,7 +80,7 @@ dotclaude/
 | **check-branches** | LOW | Simple | 1 hour |
 | **feature-branch** | LOW | Medium | 2-3 hours |
 
-**Total Remaining:** ~13-20 hours
+**Total Remaining:** ~9-14 hours
 
 ## Implementation Details
 
@@ -86,16 +88,21 @@ dotclaude/
 
 **Profile Management (`internal/profile/`):**
 - ✅ Profile struct with metadata (Name, Path, IsActive, LastModified)
-- ✅ Manager with RepoDir, ProfilesDir, ClaudeDir, StateFile
+- ✅ Manager with RepoDir, ProfilesDir, ClaudeDir, StateFile (uses .current-profile)
 - ✅ ListProfiles() - Read and sort profiles
-- ✅ GetActiveProfile() - Read .dotclaude-active state
+- ✅ GetActiveProfile() - Read .current-profile state
 - ✅ GetActiveProfileName() - Return active name
 - ✅ ProfileExists() - Check existence
 - ✅ ValidateProfileName() - Validate format (alphanumeric + - _)
 - ✅ Create() - Copy template, init git
 - ✅ Delete() - Remove profile, safety checks
+- ✅ Activate() - Merge base + profile, manage backups
 - ✅ copyDir(), copyFile() - Recursive copying with permissions
 - ✅ initGitRepo() - Initialize git with initial commit
+- ✅ mergeCLAUDEmd() - Merge base + profile with separator
+- ✅ applySettings() - Copy settings.json (profile or base fallback)
+- ✅ backupFile() - Create timestamped backups (keeps 5 most recent)
+- ✅ cleanupBackups() - Remove old backups beyond limit
 
 **CLI Commands (`internal/cli/`):**
 - ✅ root.go - Cobra foundation, global flags, config
@@ -105,19 +112,17 @@ dotclaude/
 - ✅ create.go - Create new profile from template
 - ✅ delete.go - Delete profile with confirmation
 - ✅ edit.go - Open CLAUDE.md or settings.json in $EDITOR
+- ✅ activate.go - Activate profile (merge base + profile)
 
 ### Still Needed
 
 **Profile Management:**
-- 🔲 Activate() - Merge base + profile, symlink to .claude
 - 🔲 Deactivate() - Restore backup, clean state
 - 🔲 Backup() - Copy .claude to backup location
 - 🔲 Restore() - Restore .claude from backup
-- 🔲 Merge() - Combine base/CLAUDE.md + profile/CLAUDE.md
 - 🔲 Git operations - sync, branch checking, feature branch
 
 **CLI Commands:**
-- 🔲 activate.go - Most complex command
 - 🔲 deactivate.go
 - 🔲 backup.go
 - 🔲 restore.go
@@ -169,6 +174,18 @@ dotclaude/
 ✓ Checks Claude directory existence
 ```
 
+**activate command:**
+```bash
+✓ Merges base + profile CLAUDE.md with separator
+✓ Applies settings.json (profile or base fallback)
+✓ Creates timestamped backups on profile switch
+✓ Detects re-activation (update in place)
+✓ Prevents deleting active profile (delete command)
+✓ Keeps only 5 most recent backups
+✓ Updates .current-profile state file
+✓ Creates Claude directory if missing
+```
+
 ### Parity Testing
 
 Comparison with shell version:
@@ -218,13 +235,13 @@ make install  # Install to ~/bin
 **Duration:** 1 hour
 **Commits:** 1
 
-### Phase 4: Complex Commands 🔲 IN PROGRESS
-- Implement activate (most critical)
-- Add profile merging logic
-- Implement deactivate
-- Test full workflow
+### Phase 4: Complex Commands 🟡 IN PROGRESS
+- ✅ Implement activate (most critical)
+- ✅ Add profile merging logic
+- 🔲 Implement deactivate
+- 🔲 Test full workflow
 
-**Duration:** 4-6 hours estimated
+**Duration:** 2 hours (activate complete)
 **Commits:** TBD
 
 ### Phase 5: Git Workflow Commands 🔲 TODO
@@ -250,16 +267,17 @@ make install  # Install to ~/bin
 
 | Date | Hours | Work Completed |
 |------|-------|----------------|
-| 2025-12-10 | 3h | Foundation + 6 commands |
+| 2025-12-10 AM | 3h | Foundation + 6 commands (version, list, show, create, delete, edit) |
+| 2025-12-10 PM | 2h | activate command + container testing environment |
 
 ### Estimated Remaining
 
 | Phase | Hours | Status |
 |-------|-------|--------|
-| Complex Commands | 4-6h | Next |
+| Complex Commands | 2-3h | In Progress (activate done) |
 | Git Workflow | 4-6h | Pending |
 | Finalization | 2-4h | Pending |
-| **Total Remaining** | **10-16h** | **2-3 weekends** |
+| **Total Remaining** | **8-13h** | **1-2 weekends** |
 
 ## Rollback Strategy
 

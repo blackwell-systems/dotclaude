@@ -1,0 +1,99 @@
+# Dockerfile.go-test - Container for testing Go migration
+# Build: docker build -f Dockerfile.go-test -t dotclaude-go-test .
+# Run:   docker run -it --rm dotclaude-go-test
+
+FROM golang:1.23-alpine
+
+# Install additional dependencies
+RUN apk add --no-cache \
+    bash \
+    git \
+    jq \
+    coreutils \
+    util-linux \
+    make \
+    vim
+
+# Set up environment
+ENV HOME=/root
+ENV DOTCLAUDE_REPO_DIR=/root/code/dotclaude
+ENV CLAUDE_DIR=/root/.claude
+ENV TERM=xterm-256color
+ENV DOTCLAUDE_BACKEND=go
+
+# Create directories
+RUN mkdir -p /root/code /root/.claude /root/.local/bin
+
+# Copy entire dotclaude repository
+WORKDIR /root/code/dotclaude
+COPY . /root/code/dotclaude/
+
+# Build the Go binary
+RUN make build
+
+# Install dotclaude wrapper
+RUN cp base/scripts/dotclaude /root/.local/bin/dotclaude && \
+    chmod +x /root/.local/bin/dotclaude && \
+    cp base/scripts/dotclaude-shell /root/.local/bin/dotclaude-shell && \
+    chmod +x /root/.local/bin/dotclaude-shell
+
+# Add to PATH
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Create welcome message
+RUN echo '╭─────────────────────────────────────────────────────────────╮' > /etc/motd && \
+    echo '│              dotclaude Go Migration Test Environment        │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Testing Go implementation with strangler fig pattern.      │' >> /etc/motd && \
+    echo '│  Backend: DOTCLAUDE_BACKEND=go (forced)                     │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Go binary: /root/code/dotclaude/bin/dotclaude-go           │' >> /etc/motd && \
+    echo '│  Shell fallback: /root/.local/bin/dotclaude-shell           │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Test commands:                                              │' >> /etc/motd && \
+    echo '│    dotclaude version              # Test version            │' >> /etc/motd && \
+    echo '│    dotclaude create test-profile  # Test create             │' >> /etc/motd && \
+    echo '│    dotclaude list                 # Test list               │' >> /etc/motd && \
+    echo '│    dotclaude activate test-profile # Test activate (NEW!)   │' >> /etc/motd && \
+    echo '│    dotclaude show                 # Test show               │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Backend control:                                            │' >> /etc/motd && \
+    echo '│    export DOTCLAUDE_BACKEND=shell # Switch to shell         │' >> /etc/motd && \
+    echo '│    export DOTCLAUDE_BACKEND=go    # Switch to Go            │' >> /etc/motd && \
+    echo '│    export DOTCLAUDE_BACKEND=auto  # Smart routing           │' >> /etc/motd && \
+    echo '│                                                              │' >> /etc/motd && \
+    echo '│  Type '\''exit'\'' to leave. Container will auto-delete.          │' >> /etc/motd && \
+    echo '╰─────────────────────────────────────────────────────────────╯' >> /etc/motd && \
+    echo '' >> /etc/motd
+
+# Display welcome on shell start
+RUN echo 'cat /etc/motd' >> /root/.bashrc
+
+# Create a helper script for testing activate
+RUN echo '#!/bin/bash' > /root/test-activate.sh && \
+    echo 'set -e' >> /root/test-activate.sh && \
+    echo 'echo "=== Testing Activate Command ==="' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "1. Creating test profile..."' >> /root/test-activate.sh && \
+    echo 'dotclaude create test-profile' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "2. Listing profiles..."' >> /root/test-activate.sh && \
+    echo 'dotclaude list' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "3. Activating profile..."' >> /root/test-activate.sh && \
+    echo 'dotclaude activate test-profile' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "4. Checking active profile..."' >> /root/test-activate.sh && \
+    echo 'dotclaude show' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "5. Verifying .claude symlink..."' >> /root/test-activate.sh && \
+    echo 'ls -la ~/.claude' >> /root/test-activate.sh && \
+    echo 'echo' >> /root/test-activate.sh && \
+    echo 'echo "6. Checking CLAUDE.md contents..."' >> /root/test-activate.sh && \
+    echo 'head -20 ~/.claude/CLAUDE.md' >> /root/test-activate.sh && \
+    echo 'echo "=== Test Complete ==="' >> /root/test-activate.sh && \
+    chmod +x /root/test-activate.sh
+
+WORKDIR /root
+
+CMD ["bash"]

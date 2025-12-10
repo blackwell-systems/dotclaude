@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.2] - 2025-12-10
+
+### Added
+- **activate command** - Most complex command complete
+  - Merges base + profile CLAUDE.md with separator header
+  - Applies settings.json (profile or base fallback)
+  - Creates timestamped backups on profile switch
+  - Detects re-activation and updates in place
+  - Keeps only 5 most recent backups per file
+  - Updates .current-profile state file
+  - Creates Claude directory if missing
+
+- **Container Testing Environment** (`Dockerfile.go-test`)
+  - Go 1.23 Alpine with full toolchain
+  - Automated test script at `/root/test-activate.sh`
+  - Forced Go backend for testing
+  - Helper script: `scripts/test-in-container.sh`
+
+### Progress
+- **7/13 commands complete (54%)**
+- **activate** now functional with full backup/merge logic
+- **Profile Management** expanded with activation functions:
+  - `Activate()` - Main activation with backup management
+  - `mergeCLAUDEmd()` - Merge base + profile with separator
+  - `applySettings()` - Apply profile or base settings
+  - `backupFile()` - Timestamped backups with cleanup
+  - `cleanupBackups()` - Keep only N most recent backups
+
+### Changed
+- State file standardized to `.current-profile` (was `.dotclaude-active`)
+- Go module requirement changed from `go 1.25.5` to `go 1.23` for compatibility
+
+### Testing
+- ✅ First activation creates backups
+- ✅ Re-activation updates in place
+- ✅ Delete command prevents removing active profile
+- ✅ Backup cleanup keeps only 5 most recent
+- ✅ Settings fallback to base if profile has none
+
+**Migration Timeline:** 5 hours completed, 8-13 hours estimated remaining (1-2 weekends)
+
+**Branch:** `go-migration`
+
 ## [1.0.0-alpha.1] - 2025-12-10
 
 ### Added
