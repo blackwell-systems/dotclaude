@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.1] - 2025-12-10
+
+### Added
+- **Go Implementation** - Started migration from shell to Go using strangler fig pattern
+  - Cobra CLI framework with full command structure
+  - Smart wrapper (`base/scripts/dotclaude`) routes commands to Go or shell implementation
+  - Environment variable control: `DOTCLAUDE_BACKEND=go|shell|auto`
+  - Shell version preserved as `base/scripts/dotclaude-shell` for reference
+  - See [GO-MIGRATION.md](GO-MIGRATION.md) for full migration plan and progress
+
+- **Go Commands Implemented (6/13 - 46% complete)**
+  - `version` - Display version and build information
+  - `list` - List all profiles with active indicator
+  - `show` - Show active profile information
+  - `create` - Create new profile from template with git initialization
+  - `delete` - Delete profile with confirmation prompt and safety checks
+  - `edit` - Open CLAUDE.md or settings.json in $EDITOR
+
+- **Profile Management Foundation**
+  - Profile struct with metadata (Name, Path, IsActive, LastModified)
+  - Manager with RepoDir, ProfilesDir, ClaudeDir, StateFile
+  - Core operations: ListProfiles(), GetActiveProfile(), ProfileExists(), ValidateProfileName()
+  - File operations: Create(), Delete(), copyDir(), copyFile(), initGitRepo()
+
+- **Build System**
+  - Makefile with build, test, clean, install targets
+  - Go module: `github.com/blackwell-systems/dotclaude`
+  - Dependencies: `github.com/spf13/cobra v1.10.2`
+
+### Changed
+- Original shell implementation renamed to `dotclaude-shell`
+- New wrapper script enables transparent routing between implementations
+- Profile creation now initializes git repository (Go version only)
+
+### In Progress
+- **Remaining Commands (7/13 - 54%)**
+  - activate (HIGH priority - most complex)
+  - deactivate
+  - backup
+  - restore
+  - sync
+  - check-branches
+  - feature-branch
+
+**Migration Timeline:** 3 hours completed, 10-16 hours estimated remaining (2-3 weekends)
+
+**Branch:** `go-migration`
+
+**Commits:**
+- 8db41e1 - Foundation + version command
+- ba96f9c - list and show commands
+- 2d32d5c - create command
+- e17314c - delete and edit commands
+
 ## [0.5.1] - 2025-12-02
 
 ### Fixed
