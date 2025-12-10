@@ -81,6 +81,8 @@ func init() {
 		newListCmd(),
 		newShowCmd(),
 		newCreateCmd(),
+		newDeleteCmd(),
+		newEditCmd(),
 	)
 }
 
