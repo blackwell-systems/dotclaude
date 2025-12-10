@@ -1,8 +1,8 @@
 # Go Migration Plan
 
-**Status:** In Progress (67% complete)
+**Status:** In Progress (75% complete)
 **Strategy:** Strangler Fig Pattern
-**Timeline:** 1-2 weekends estimated
+**Timeline:** 1 weekend remaining
 **Branch:** `go-migration`
 
 ## Overview
@@ -45,9 +45,10 @@ dotclaude/
 │   │   ├── create.go       # ✅
 │   │   ├── delete.go       # ✅
 │   │   ├── edit.go         # ✅
-│   │   ├── activate.go     # ✅
-│   │   ├── restore.go      # ✅
-│   │   └── ... (4 more)
+│   │   ├── activate.go        # ✅
+│   │   ├── restore.go         # ✅
+│   │   ├── check_branches.go  # ✅
+│   │   └── ... (3 more)
 │   └── profile/            # Profile management
 │       ├── profile.go      # ✅ Core types and Manager
 │       ├── create.go       # ✅ Profile creation
@@ -59,7 +60,7 @@ dotclaude/
 
 ## Progress
 
-### ✅ Completed Commands (8/12 - 67%)
+### ✅ Completed Commands (9/12 - 75%)
 
 | Command | Status | Lines | Commit |
 |---------|--------|-------|--------|
@@ -70,18 +71,18 @@ dotclaude/
 | **delete** | ✅ Complete | ~80 | e17314c |
 | **edit** | ✅ Complete | ~70 | e17314c |
 | **activate** | ✅ Complete | ~220 | 1c2afb3 |
-| **restore** | ✅ Complete | ~170 | TBD |
+| **restore** | ✅ Complete | ~170 | aa5c989 |
+| **check-branches** | ✅ Complete | ~100 | TBD |
 
-### 🔲 Remaining Commands (4/12 - 33%)
+### 🔲 Remaining Commands (3/12 - 25%)
 
 | Command | Priority | Complexity | Estimate |
 |---------|----------|------------|----------|
 | **deactivate** | HIGH | Medium | 2-3 hours |
 | **sync** | LOW | Medium | 2-3 hours |
-| **check-branches** | LOW | Simple | 1 hour |
 | **feature-branch** | LOW | Medium | 2-3 hours |
 
-**Total Remaining:** ~7-11 hours
+**Total Remaining:** ~6-9 hours
 
 **Note:** The "backup" command was removed from the plan as backups are created automatically by the `activate` command. The shell version never implemented a separate backup command.
 
@@ -120,17 +121,17 @@ dotclaude/
 - ✅ edit.go - Open CLAUDE.md or settings.json in $EDITOR
 - ✅ activate.go - Activate profile (merge base + profile)
 - ✅ restore.go - Interactive backup restoration
+- ✅ check_branches.go - Check which branches are behind main
 
 ### Still Needed
 
 **Profile Management:**
 - 🔲 Deactivate() - Restore backup, clean state
-- 🔲 Git operations - sync, branch checking, feature branch
+- 🔲 Git operations - sync, feature branch
 
 **CLI Commands:**
 - 🔲 deactivate.go
 - 🔲 sync.go
-- 🔲 check-branches.go
 - 🔲 feature-branch.go
 
 ## Testing
@@ -282,16 +283,16 @@ make install  # Install to ~/bin
 | Date | Hours | Work Completed |
 |------|-------|----------------|
 | 2025-12-10 AM | 3h | Foundation + 6 commands (version, list, show, create, delete, edit) |
-| 2025-12-10 PM | 3h | activate + restore commands + container testing + docs cleanup |
+| 2025-12-10 PM | 4h | activate + restore + check-branches + container + docs cleanup |
 
 ### Estimated Remaining
 
 | Phase | Hours | Status |
 |-------|-------|--------|
-| Complex Commands | 2-3h | In Progress (activate ✅, restore ✅, deactivate pending) |
-| Git Workflow | 4-6h | Pending |
+| Complex Commands | 2-3h | deactivate pending |
+| Git Workflow | 4-6h | sync + feature-branch pending |
 | Finalization | 2-4h | Pending |
-| **Total Remaining** | **7-11h** | **1 weekend** |
+| **Total Remaining** | **6-9h** | **1 weekend** |
 
 ## Rollback Strategy
 

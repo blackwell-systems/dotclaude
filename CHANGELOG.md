@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-alpha.4] - 2025-12-10
+
+### Added
+- **check-branches command** - Check which branches are behind main
+  - Lists all feature branches (excludes main/master)
+  - Shows commits ahead/behind for each branch
+  - Fetches from origin automatically
+  - Configurable base branch with `--base` flag
+  - Clean output showing only divergent branches
+
+### Progress
+- **9/12 commands complete (75%)**
+- **check-branches** now functional
+- Only 3 commands remaining (deactivate, sync, feature-branch)
+
+**Migration Timeline:** 7 hours completed, 6-9 hours estimated remaining (~1 weekend)
+
+**Branch:** `go-migration`
+
 ## [1.0.0-alpha.3] - 2025-12-10
 
 ### Added

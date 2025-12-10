@@ -85,6 +85,7 @@ func init() {
 		newEditCmd(),
 		newActivateCmd(),
 		newRestoreCmd(),
+		newCheckBranchesCmd(),
 	)
 }
 
