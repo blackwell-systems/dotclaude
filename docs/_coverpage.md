@@ -5,7 +5,7 @@
 > The _definitive_ profile management system for Claude Code
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
+go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
 ```
 
 - **One-command switching** between work contexts
@@ -14,7 +14,7 @@ curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/in
 - **Git workflow tools** - Manage long-lived feature branches
 - **Multi-provider** - AWS Bedrock + Claude Max support
 - **Automatic backups** - Never lose your configuration
-- **Cross-platform** - Linux, macOS, and WSL2
+- **Cross-platform** - Linux, macOS, and Windows
 - **Version controlled** - Sync profiles across all your machines
 
 [Get Started](https://github.com/blackwell-systems/dotclaude#readme)
