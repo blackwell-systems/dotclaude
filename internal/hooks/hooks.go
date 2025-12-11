@@ -33,20 +33,20 @@ import (
 type HookType string
 
 const (
-	HookSessionStart  HookType = "session-start"
-	HookPostToolBash  HookType = "post-tool-bash"
-	HookPostToolEdit  HookType = "post-tool-edit"
-	HookPreToolBash   HookType = "pre-tool-bash"
-	HookPreToolEdit   HookType = "pre-tool-edit"
+	HookSessionStart HookType = "session-start"
+	HookPostToolBash HookType = "post-tool-bash"
+	HookPostToolEdit HookType = "post-tool-edit"
+	HookPreToolBash  HookType = "pre-tool-bash"
+	HookPreToolEdit  HookType = "pre-tool-edit"
 )
 
 // Runner executes hooks for a given hook type
 type Runner struct {
-	HooksDir   string            // Directory containing hook subdirectories
-	ClaudeDir  string            // ~/.claude directory
-	RepoDir    string            // DOTCLAUDE_REPO_DIR
-	BuiltIns   map[HookType][]BuiltInHook // Built-in hooks by type
-	Env        map[string]string // Additional environment variables
+	HooksDir  string                     // Directory containing hook subdirectories
+	ClaudeDir string                     // ~/.claude directory
+	RepoDir   string                     // DOTCLAUDE_REPO_DIR
+	BuiltIns  map[HookType][]BuiltInHook // Built-in hooks by type
+	Env       map[string]string          // Additional environment variables
 }
 
 // BuiltInHook represents a hook implemented in Go
