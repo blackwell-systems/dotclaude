@@ -32,6 +32,8 @@ func TestValidateProfileName(t *testing.T) {
 		{"starts with space", " profile", true},
 		{"ends with space", "profile ", true},
 		{"path traversal", "../etc", true},
+		{"too long", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", true}, // 65 chars
+		{"max length", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", false},  // 64 chars
 	}
 
 	for _, tt := range tests {
