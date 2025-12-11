@@ -119,58 +119,57 @@ echo ""
 mkdir -p "$CLAUDE_DIR/agents"
 mkdir -p "$HOME/.local/bin"
 
-# Install dotclaude CLI
-echo "[1/3] Installing dotclaude CLI..."
-if [ -f "$BASE_DIR/scripts/dotclaude" ]; then
-    # Check if CLI already exists
-    if [ -f "$HOME/.local/bin/dotclaude" ] && [ "$FORCE_INSTALL" = "false" ]; then
-        # Check if they're different
-        if cmp -s "$BASE_DIR/scripts/dotclaude" "$HOME/.local/bin/dotclaude"; then
-            echo -e "  ${GREEN}✓${NC} dotclaude CLI already up-to-date"
-        else
-            echo -e "  ${YELLOW}⚠${NC}  dotclaude CLI already exists (use --force to overwrite)"
-            echo "     Existing: ~/.local/bin/dotclaude"
-            echo "     New version: $BASE_DIR/scripts/dotclaude"
-        fi
-    else
-        cp "$BASE_DIR/scripts/dotclaude" "$HOME/.local/bin/dotclaude"
-        chmod +x "$HOME/.local/bin/dotclaude"
-        echo -e "  ${GREEN}✓${NC} Installed to ~/.local/bin/dotclaude"
-    fi
+# Build and install dotclaude binary
+echo "[1/2] Building and installing dotclaude..."
 
-    # Check if ~/.local/bin is in PATH
-    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-        echo -e "  ${YELLOW}⚠${NC}  ~/.local/bin is not in your PATH"
-        echo "     Add this to your ~/.bashrc or ~/.zshrc:"
-        echo "     export PATH=\"\$HOME/.local/bin:\$PATH\""
-    fi
-else
-    echo "  ${YELLOW}⚠${NC}  dotclaude CLI not found in base/scripts"
-fi
+BINARY_INSTALLED=false
 
-# Build Go binary if needed
-echo ""
-echo "[2/3] Building Go binary..."
 if command -v go >/dev/null 2>&1; then
-    if [ ! -f "$REPO_DIR/bin/dotclaude-go" ] || [ "$FORCE_INSTALL" = "true" ]; then
+    # Build the binary
+    if [ ! -f "$REPO_DIR/bin/dotclaude" ] || [ "$FORCE_INSTALL" = "true" ]; then
         echo "  Building dotclaude binary..."
         (cd "$REPO_DIR" && make build 2>/dev/null) || {
             echo -e "  ${YELLOW}⚠${NC}  Make not available, using go build directly"
             mkdir -p "$REPO_DIR/bin"
-            go build -o "$REPO_DIR/bin/dotclaude-go" "$REPO_DIR/cmd/dotclaude"
+            go build -o "$REPO_DIR/bin/dotclaude" "$REPO_DIR/cmd/dotclaude"
         }
-        echo -e "  ${GREEN}✓${NC} Built Go binary at $REPO_DIR/bin/dotclaude-go"
-    else
-        echo -e "  ${GREEN}✓${NC} Go binary already exists"
+        echo -e "  ${GREEN}✓${NC} Built: $REPO_DIR/bin/dotclaude"
+    fi
+
+    # Install to ~/.local/bin
+    if [ -f "$REPO_DIR/bin/dotclaude" ]; then
+        if [ -f "$HOME/.local/bin/dotclaude" ] && [ "$FORCE_INSTALL" = "false" ]; then
+            if cmp -s "$REPO_DIR/bin/dotclaude" "$HOME/.local/bin/dotclaude"; then
+                echo -e "  ${GREEN}✓${NC} dotclaude already up-to-date in ~/.local/bin"
+            else
+                cp "$REPO_DIR/bin/dotclaude" "$HOME/.local/bin/dotclaude"
+                chmod +x "$HOME/.local/bin/dotclaude"
+                echo -e "  ${GREEN}✓${NC} Updated ~/.local/bin/dotclaude"
+            fi
+        else
+            cp "$REPO_DIR/bin/dotclaude" "$HOME/.local/bin/dotclaude"
+            chmod +x "$HOME/.local/bin/dotclaude"
+            echo -e "  ${GREEN}✓${NC} Installed to ~/.local/bin/dotclaude"
+        fi
+        BINARY_INSTALLED=true
     fi
 else
-    echo -e "  ${YELLOW}⚠${NC}  Go not installed - download pre-built binary from:"
-    echo "     https://github.com/blackwell-systems/dotclaude/releases"
+    echo -e "  ${YELLOW}⚠${NC}  Go not installed"
+    echo "     Option 1: Install Go from https://go.dev/dl/"
+    echo "     Option 2: Download pre-built binary from:"
+    echo "               https://github.com/blackwell-systems/dotclaude/releases"
+fi
+
+# Check PATH
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo -e "  ${YELLOW}⚠${NC}  ~/.local/bin is not in your PATH"
+    echo "     Add this to your ~/.bashrc or ~/.zshrc:"
+    echo "     export PATH=\"\$HOME/.local/bin:\$PATH\""
 fi
 
 # Install agents
 echo ""
-echo "[3/3] Installing global agents..."
+echo "[2/2] Installing global agents..."
 if [ -d "$BASE_DIR/agents" ]; then
     for agent_dir in "$BASE_DIR/agents"/*; do
         if [ -d "$agent_dir" ]; then
@@ -303,13 +302,11 @@ else
     VALIDATION_PASS=false
 fi
 
-# Check 2: Go binary exists
-if [ -f "$REPO_DIR/bin/dotclaude-go" ]; then
-    echo -e "${GREEN}✓${NC} Go binary built successfully"
+# Check 2: Binary exists in repo
+if [ -f "$REPO_DIR/bin/dotclaude" ]; then
+    echo -e "${GREEN}✓${NC} Binary built at $REPO_DIR/bin/dotclaude"
 else
-    echo -e "${RED}✗${NC} Go binary not found"
-    echo "  Run: cd $REPO_DIR && make build"
-    VALIDATION_PASS=false
+    echo -e "${YELLOW}⚠${NC}  Binary not in repo (OK if installed from release)"
 fi
 
 # Check 3: Repository accessible

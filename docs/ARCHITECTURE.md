@@ -9,11 +9,10 @@ Technical overview of how dotclaude works internally.
 ```mermaid
 flowchart TB
     repo["<b>dotclaude Repository</b><br/>(Version-Controlled Git Repo)"]
-    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>[Shared across ALL profiles]"]
+    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>[Shared across ALL profiles]"]
     profiles["profiles/<br/>• client-work-oss/CLAUDE.md<br/>• client-work/CLAUDE.md<br/>• work-project/CLAUDE.md<br/>[Context-specific additions]"]
 
-    wrapper["<b>base/scripts/dotclaude</b><br/>Launcher Script"]
-    go_binary["<b>bin/dotclaude-go</b><br/>Go Binary<br/>(Cross-platform)"]
+    go_binary["<b>~/.local/bin/dotclaude</b><br/>Go Binary<br/>(Cross-platform)"]
 
     claude_dir["<b>~/.claude/</b><br/>(Deployed Configuration)"]
     merged_claude["CLAUDE.md<br/>(base + profile merged)"]
@@ -24,8 +23,7 @@ flowchart TB
 
     repo --> base
     repo --> profiles
-    repo -->|"make build"| go_binary
-    wrapper --> go_binary
+    repo -->|"make install"| go_binary
     go_binary -->|"Commands"| claude_dir
     claude_dir --> merged_claude
     claude_dir --> deployed_settings
@@ -35,7 +33,6 @@ flowchart TB
     style repo fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
     style go_binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
     style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style merged_claude fill:#1a365d,stroke:#2c5282,color:#e2e8f0
@@ -150,12 +147,7 @@ flowchart TD
 flowchart TD
     start["User runs: dotclaude <command> [args]"]
 
-    wrapper["Wrapper Script<br/>base/scripts/dotclaude<br/>• Check DOTCLAUDE_BACKEND env var<br/>• Default: 'go'"]
-
-    backend_check{"Backend<br/>Selection?"}
-
-    go_path["Go Binary<br/>bin/dotclaude-go<br/>• Cobra framework<br/>• cobra.Command execution"]
-    shell_path["Shell Script<br/>base/scripts/dotclaude-shell<br/>• Legacy fallback"]
+    binary["Go Binary<br/>~/.local/bin/dotclaude<br/>• Cobra framework<br/>• cobra.Command execution"]
 
     cobra["Cobra Dispatch<br/>• rootCmd.Execute()<br/>• Find matching subcommand<br/>• Parse flags<br/>• Validate args"]
 
@@ -165,17 +157,10 @@ flowchart TD
 
     done["Return to Shell"]
 
-    start --> wrapper --> backend_check
-    backend_check -->|"go (default)"| go_path
-    backend_check -->|"shell"| shell_path
-    go_path --> cobra --> manager --> execute --> done
-    shell_path --> done
+    start --> binary --> cobra --> manager --> execute --> done
 
     style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style backend_check fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style go_path fill:#22543d,stroke:#2f855a,color:#e2e8f0
-    style shell_path fill:#4a5568,stroke:#718096,color:#e2e8f0
+    style binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
     style cobra fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style manager fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style execute fill:#1a365d,stroke:#2c5282,color:#e2e8f0
@@ -254,29 +239,11 @@ flowchart TB
     style output fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
-## Backend Selection (Strangler Fig Pattern)
+## Implementation Notes
 
-The wrapper script `base/scripts/dotclaude` routes commands based on `DOTCLAUDE_BACKEND`:
+As of v1.0.0-rc.1, dotclaude is a pure Go implementation with no shell dependencies.
 
-| Value | Behavior |
-|-------|----------|
-| `go` (default) | Execute Go binary directly |
-| `shell` | Execute shell implementation |
-| `auto` | Try Go first, fall back to shell for unknown commands |
-
-```bash
-# Force Go backend (default)
-export DOTCLAUDE_BACKEND=go
-dotclaude list
-
-# Force shell backend
-export DOTCLAUDE_BACKEND=shell
-dotclaude list
-
-# Smart routing (deprecated)
-export DOTCLAUDE_BACKEND=auto
-dotclaude list
-```
+**Historical:** The migration from shell to Go used the Strangler Fig pattern. See [SHELL-TO-GO-MIGRATION.md](SHELL-TO-GO-MIGRATION.md) for details on this migration strategy.
 
 ## Commands Reference
 
@@ -311,15 +278,18 @@ dotclaude/                              # Repository (version controlled)
 │   └── main.go                         # Go entry point
 ├── internal/
 │   ├── cli/                            # Command implementations
+│   ├── hooks/                          # Hook system
 │   └── profile/                        # Profile business logic
 ├── bin/
-│   └── dotclaude-go                    # Compiled Go binary
+│   └── dotclaude                       # Compiled Go binary
 ├── base/                               # Shared base configuration
 │   ├── CLAUDE.md                       # Base development standards
 │   ├── settings.json                   # Base hooks & settings
-│   └── scripts/
-│       ├── dotclaude                   # Wrapper script
-│       └── dotclaude-shell             # Shell implementation (legacy)
+│   ├── hooks/                          # Hook scripts
+│   └── agents/                         # Shared agents
+├── archive/                            # Archived shell implementation
+│   ├── dotclaude-shell                 # Legacy shell CLI
+│   └── README.md                       # Rollback instructions
 ├── profiles/                           # Context-specific profiles
 │   ├── my-project/
 │   │   └── CLAUDE.md
@@ -328,9 +298,12 @@ dotclaude/                              # Repository (version controlled)
 ├── examples/
 │   └── sample-profile/                 # Template for new profiles
 └── tests/
-    ├── commands.bats                   # Command tests
+    ├── commands.bats                   # Legacy BATS tests
     ├── security.bats                   # Security tests
     └── integration.bats                # Integration tests
+
+~/.local/bin/
+└── dotclaude                           # Installed Go binary
 
 ~/.claude/                              # Deployed configuration
 ├── .current-profile                    # Active profile name
@@ -345,21 +318,30 @@ dotclaude/                              # Repository (version controlled)
 ### Makefile Targets
 
 ```bash
-make build    # Build bin/dotclaude-go
-make test     # Run all tests (bats)
+make build    # Build bin/dotclaude
+make test     # Run Go tests
 make clean    # Remove bin/
-make install  # Install to ~/bin
+make install  # Install to ~/.local/bin
 ```
 
 ### Dependencies
 
 - **Go 1.23+** - Build requirement
 - **github.com/spf13/cobra v1.10.2** - CLI framework
-- **bats** - Test framework (for tests only)
 
 ## Testing
 
-The project includes 114+ automated tests:
+### Go Tests (Primary)
+
+```bash
+go test ./...                  # All Go tests
+go test ./... -cover           # With coverage
+go test ./internal/profile/... # Specific package
+```
+
+### BATS Tests (Legacy)
+
+The project includes 114+ legacy BATS tests for the archived shell implementation:
 
 | Suite | Count | Description |
 |-------|-------|-------------|
@@ -367,11 +349,9 @@ The project includes 114+ automated tests:
 | `security.bats` | 40 | Input validation, path safety |
 | `integration.bats` | 24 | End-to-end workflows |
 
-Run tests:
 ```bash
-bats tests/                    # All tests
+bats tests/                    # All BATS tests
 bats tests/commands.bats       # Command tests only
-bats tests/security.bats       # Security tests only
 ```
 
 ## Environment Variables
@@ -380,7 +360,6 @@ bats tests/security.bats       # Security tests only
 |----------|---------|-------------|
 | `DOTCLAUDE_REPO_DIR` | `~/code/dotclaude` | Repository location |
 | `CLAUDE_DIR` | `~/.claude` | Claude config directory |
-| `DOTCLAUDE_BACKEND` | `go` | Backend selection |
 | `EDITOR` | `vim` | Editor for `edit` command |
 
 ---

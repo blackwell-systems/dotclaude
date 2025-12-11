@@ -6,7 +6,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/blackwell-systems/dotclaude.svg)](https://pkg.go.dev/github.com/blackwell-systems/dotclaude)
 [![Go Report Card](https://goreportcard.com/badge/github.com/blackwell-systems/dotclaude)](https://goreportcard.com/report/github.com/blackwell-systems/dotclaude)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://github.com/blackwell-systems/dotclaude)
-[![Version](https://img.shields.io/badge/Version-1.0.0--beta.2-informational)](https://github.com/blackwell-systems/dotclaude/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/blackwell-systems/dotclaude?include_prereleases)](https://github.com/blackwell-systems/dotclaude/releases)
 
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/Tests-122_passing-success)](https://github.com/blackwell-systems/dotclaude/tree/main/tests)
