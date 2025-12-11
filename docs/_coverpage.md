@@ -5,7 +5,8 @@
 > The _definitive_ profile management system for Claude Code
 
 ```bash
-go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
+# macOS/Linux - download binary (no Go required)
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz | tar xz
 ```
 
 - **One-command switching** between work contexts
