@@ -11,9 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Summary
 
-Bug fix release addressing issues discovered during comprehensive Go migration audit.
+Bug fix release addressing issues discovered during comprehensive Go migration audit, plus addition of comprehensive Go unit tests.
 
 ### Added
+
+**Go Unit Tests:**
+- Profile package tests (83.3% coverage)
+  - ValidateProfileName - 17 test cases for name validation
+  - Manager operations - NewManager, ListProfiles, GetActiveProfile
+  - Create/Delete/Activate operations with error paths
+  - Backup and restore functionality tests
+  - Edge cases and error path coverage
+- CLI package tests (30.1% coverage)
+  - Command registration and structure tests
+  - Error handling for invalid inputs
+  - Flag verification for all commands
+- Total: 80+ new Go test cases
 
 **switch command:**
 - New interactive profile selector command
