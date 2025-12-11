@@ -2,7 +2,7 @@
 
 Technical overview of how dotclaude works internally.
 
-> **Note**: dotclaude v1.0.0 was migrated from shell scripts to Go using the Strangler Fig Pattern. The Go implementation is now the default backend.
+> **Note**: dotclaude v1.0.0+ uses a cross-platform Go implementation as the primary (and recommended) backend on all platforms: Linux, macOS, and Windows. The legacy shell implementation is deprecated but available via `DOTCLAUDE_BACKEND=shell` for backwards compatibility on Unix systems.
 
 ## System Architecture
 
@@ -65,13 +65,20 @@ dotclaude/
 │   │   ├── show.go          # show command
 │   │   ├── create.go        # create/new command
 │   │   ├── delete.go        # delete/rm command
-│   │   ├── edit.go          # edit command
+│   │   ├── edit.go          # edit command (cross-platform editor)
 │   │   ├── activate.go      # activate/use command
 │   │   ├── switch.go        # switch/select command
 │   │   ├── restore.go       # restore command
 │   │   ├── diff.go          # diff command
 │   │   ├── check_branches.go # check-branches command
-│   │   └── sync.go          # sync command
+│   │   ├── sync.go          # sync command
+│   │   ├── hook.go          # hook run/list/init commands
+│   │   ├── terminal.go      # Cross-platform color support
+│   │   ├── terminal_unix.go # Unix terminal handling
+│   │   └── terminal_windows.go # Windows ANSI VT support
+│   ├── hooks/               # Hook system
+│   │   ├── hooks.go         # Hook runner, priority ordering
+│   │   └── builtins.go      # Built-in hook implementations
 │   └── profile/             # Business logic
 │       ├── profile.go       # Manager, Profile types, validation
 │       ├── create.go        # Profile creation with git init
@@ -290,6 +297,9 @@ dotclaude list
 | `diff` | - | Compare profiles | `--verbose` |
 | `check-branches` | `branches`, `br` | Check branch status | `--base` |
 | `sync` | - | Sync with main | `--base` |
+| `hook run` | - | Execute hooks of a type | - |
+| `hook list` | - | List available hooks | - |
+| `hook init` | - | Initialize hooks directory | - |
 
 ## File System Layout
 
