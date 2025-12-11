@@ -7,6 +7,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-beta.4] - 2025-12-11
+
+### Summary
+
+Cross-platform release infrastructure and hook system. This release adds GoReleaser for automated cross-platform builds and introduces a new hook system that replaces shell-specific hooks with platform-agnostic Go implementations.
+
+### Added
+
+**Cross-Platform Release Infrastructure:**
+- GoReleaser configuration for automated releases
+- GitHub Actions release workflow (triggered on `v*` tags)
+- Pre-built binaries for:
+  - Linux (amd64, arm64)
+  - macOS (amd64, arm64 / Intel, Apple Silicon)
+  - Windows (amd64)
+- Makefile targets: `build-all`, `release-dry-run`
+- pkg.go.dev documentation with doc.go
+- Go badges (pkg.go.dev reference, Go Report Card)
+
+**Hook System (Cross-Platform):**
+- New `dotclaude hook` command with subcommands:
+  - `hook run <type>` - Execute hooks of a given type
+  - `hook list [type]` - List available hooks
+  - `hook init` - Initialize hooks directory structure
+- Built-in hooks (implemented in Go):
+  - `session-info` - Session start information
+  - `check-dotclaude` - Profile mismatch detection
+  - `git-tips` - Git workflow suggestions
+- Custom hook support:
+  - Drop executable scripts in `~/.claude/hooks/<type>/`
+  - Numeric prefix ordering (00-first.sh runs before 50-second.sh)
+  - Cross-platform: `.sh`, `.bash`, `.ps1`, `.cmd`, `.bat`, `.exe`
+- Hook types: `session-start`, `post-tool-bash`, `post-tool-edit`, `pre-tool-bash`, `pre-tool-edit`
+
+**Documentation:**
+- HOOKS.md - Complete hook system documentation
+- GO-RELEASE-GUIDE.md - Go release best practices
+- Updated README with binary download instructions
+- Updated coverpage with binary install command
+
+### Changed
+
+**settings.json Simplified:**
+```json
+{
+  "hooks": {
+    "SessionStart": [{"type": "command", "command": "dotclaude hook run session-start"}],
+    "PostToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "dotclaude hook run post-tool-bash"}]}]
+  }
+}
+```
+
+**Platform Support:**
+- Windows now fully supported (native binary, not just WSL2)
+- README updated to reflect native Windows support
+
+### Technical Details
+
+**Hook Architecture:**
+- `internal/hooks/hooks.go` - Hook runner with priority ordering
+- `internal/hooks/builtins.go` - Built-in hook implementations
+- Hooks run in alphabetical order (use numeric prefixes)
+- Built-in hooks run alongside custom hooks
+- Errors logged but don't fail the session
+
+**GoReleaser:**
+- Version 2 configuration
+- CGO disabled for maximum portability
+- ldflags inject version, commit, date
+- Archives include base/, examples/, docs/
+
 ## [1.0.0-beta.3] - 2025-12-11
 
 ### Summary
