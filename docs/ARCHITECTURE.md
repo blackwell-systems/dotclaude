@@ -2,44 +2,113 @@
 
 Technical overview of how dotclaude works internally.
 
+> **Note**: dotclaude v1.0.0 was migrated from shell scripts to Go using the Strangler Fig Pattern. The Go implementation is now the default backend.
+
 ## System Architecture
 
 ```mermaid
 flowchart TB
     repo["<b>dotclaude Repository</b><br/>(Version-Controlled Git Repo)"]
-    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>• agents/<br/>[Shared across ALL profiles]"]
+    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>[Shared across ALL profiles]"]
     profiles["profiles/<br/>• client-work-oss/CLAUDE.md<br/>• client-work/CLAUDE.md<br/>• work-project/CLAUDE.md<br/>[Context-specific additions]"]
 
-    cli["<b>~/.local/bin/dotclaude</b><br/>Main CLI entry point"]
+    wrapper["<b>base/scripts/dotclaude</b><br/>Wrapper Script<br/>Routes to Go or Shell"]
+    go_binary["<b>bin/dotclaude-go</b><br/>Go Implementation<br/>(Primary)"]
+    shell["<b>base/scripts/dotclaude-shell</b><br/>Shell Implementation<br/>(Fallback/Reference)"]
 
     claude_dir["<b>~/.claude/</b><br/>(Deployed Configuration)"]
     merged_claude["CLAUDE.md<br/>(base + profile merged)"]
     deployed_settings["settings.json<br/>(base or profile-specific)"]
-    deployed_scripts["scripts/<br/>• activate-profile.sh<br/>• sync-feature-branch.sh"]
     current_profile[".current-profile"]
 
-    session["<b>Claude Code Session</b><br/>• Loads CLAUDE.md<br/>• Applies settings.json hooks<br/>• Makes agents available<br/>• Executes hooks"]
+    session["<b>Claude Code Session</b><br/>• Loads CLAUDE.md<br/>• Applies settings.json hooks<br/>• Executes hooks"]
 
     repo --> base
     repo --> profiles
-    repo -->|"./install.sh<br/>dotclaude activate"| cli
-    cli -->|"Commands"| claude_dir
+    repo -->|"make build"| go_binary
+    wrapper -->|"DOTCLAUDE_BACKEND=go"| go_binary
+    wrapper -->|"DOTCLAUDE_BACKEND=shell"| shell
+    go_binary -->|"Commands"| claude_dir
     claude_dir --> merged_claude
     claude_dir --> deployed_settings
-    claude_dir --> deployed_scripts
     claude_dir --> current_profile
     claude_dir -->|"Claude Code<br/>reads on startup"| session
 
     style repo fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style cli fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style go_binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style shell fill:#4a5568,stroke:#718096,color:#e2e8f0
     style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style merged_claude fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style deployed_settings fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style deployed_scripts fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style current_profile fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style session fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+```
+
+## Go Implementation Architecture
+
+dotclaude v1.0.0 is implemented in Go using the [Cobra](https://github.com/spf13/cobra) CLI framework.
+
+### Package Structure
+
+```
+dotclaude/
+├── cmd/dotclaude/
+│   └── main.go              # Entry point
+├── internal/
+│   ├── cli/                 # Cobra command implementations
+│   │   ├── root.go          # Root command, global flags, config
+│   │   ├── version.go       # version command
+│   │   ├── list.go          # list/ls command
+│   │   ├── show.go          # show command
+│   │   ├── create.go        # create/new command
+│   │   ├── delete.go        # delete/rm command
+│   │   ├── edit.go          # edit command
+│   │   ├── activate.go      # activate/use command
+│   │   ├── restore.go       # restore command
+│   │   ├── diff.go          # diff command
+│   │   ├── check_branches.go # check-branches command
+│   │   └── sync.go          # sync command
+│   └── profile/             # Business logic
+│       ├── profile.go       # Manager, Profile types, validation
+│       ├── create.go        # Profile creation with git init
+│       ├── delete.go        # Safe profile deletion
+│       ├── activate.go      # Profile activation with merge
+│       └── restore.go       # Backup restoration
+├── go.mod                   # Go module definition
+├── go.sum                   # Dependency checksums
+└── Makefile                 # Build targets
+```
+
+### Key Types
+
+```go
+// Profile represents a dotclaude profile
+type Profile struct {
+    Name         string
+    Path         string
+    IsActive     bool
+    LastModified time.Time
+}
+
+// Manager handles profile operations
+type Manager struct {
+    RepoDir     string  // dotclaude repository location
+    ProfilesDir string  // RepoDir/profiles
+    ClaudeDir   string  // ~/.claude
+    StateFile   string  // ~/.claude/.current-profile
+}
+
+// Backup represents a backup file
+type Backup struct {
+    Path      string
+    Filename  string
+    Timestamp string
+    Size      int64
+    Type      string  // "CLAUDE.md" or "settings.json"
+}
 ```
 
 ## Profile Activation Flow
@@ -48,17 +117,16 @@ flowchart TB
 flowchart TD
     start["User runs: dotclaude activate my-profile"]
 
-    step1["1. Validate Profile Name<br/>• Alphanumeric + hyphens only<br/>• No path traversal (.., /)"]
-    step2["2. Acquire File Lock<br/>• ~/.claude/.lock<br/>• Timeout: 10 seconds<br/>• Prevents concurrent execution"]
-    step3["3. Check Current Profile<br/>• Read ~/.claude/.current-profile<br/>• Skip backup if same profile"]
-    step4["4. Backup Existing Config<br/>• CLAUDE.md → .backup.timestamp<br/>• settings.json → .backup...<br/>• chmod 600 (secure)<br/>• Keep only 5 recent backups"]
-    step5["5. Merge CLAUDE.md<br/>base/CLAUDE.md<br/>+<br/>profiles/my-profile/CLAUDE.md<br/>↓<br/>~/.claude/CLAUDE.md"]
-    step6["6. Apply Settings<br/>• Use profile settings.json if exists, else base<br/>• Copy to ~/.claude/"]
+    step1["1. Validate Profile Name<br/>• profile.ValidateProfileName()<br/>• Alphanumeric + hyphens only<br/>• No path traversal (.., /)"]
+    step2["2. Check Profile Exists<br/>• mgr.ProfileExists(name)<br/>• Returns error if not found"]
+    step3["3. Check Current Profile<br/>• mgr.GetActiveProfileName()<br/>• Read ~/.claude/.current-profile<br/>• Skip backup if same profile"]
+    step4["4. Backup Existing Config<br/>• mgr.backupFile('CLAUDE.md')<br/>• mgr.backupFile('settings.json')<br/>• Timestamped: *.backup.20241210-155544<br/>• Keep only 5 recent backups"]
+    step5["5. Merge CLAUDE.md<br/>• mgr.mergeCLAUDEmd(name)<br/>• Read base/CLAUDE.md<br/>• Read profiles/X/CLAUDE.md<br/>• Concatenate with separator<br/>• Write to ~/.claude/CLAUDE.md"]
+    step6["6. Apply Settings<br/>• mgr.applySettings(name)<br/>• Use profile settings.json if exists<br/>• Fall back to base settings.json<br/>• Copy to ~/.claude/"]
     step7["7. Mark Active Profile<br/>• Write profile name to<br/>~/.claude/.current-profile"]
-    step8["8. Release Lock<br/>• Close file descriptor<br/>• Allow next operation"]
-    complete["✓ Complete"]
+    complete["Complete"]
 
-    start --> step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> step8 --> complete
+    start --> step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> complete
 
     style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style step1 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
@@ -68,7 +136,6 @@ flowchart TD
     style step5 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style step6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style step7 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step8 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style complete fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
@@ -76,39 +143,36 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    start["User runs: dotclaude &lt;command&gt; [args]"]
+    start["User runs: dotclaude <command> [args]"]
 
-    entry["dotclaude<br/>(bash script with shebang)"]
-    load["Load Validation Library<br/>• source lib/validation.sh<br/>• Or use fallback inline"]
-    validate["Validate Repository Structure<br/>• Check REPO_DIR exists<br/>• Verify base/ and profiles/ dirs"]
-    trap["Set Trap Handler<br/>• cleanup() on EXIT/ERR/INT/TERM<br/>• Release locks on exit"]
-    parse["Parse Command<br/>• show, list, activate, switch,<br/>create, edit, sync, branches,<br/>version, help"]
+    wrapper["Wrapper Script<br/>base/scripts/dotclaude<br/>• Check DOTCLAUDE_BACKEND env var<br/>• Default: 'go'"]
 
-    show["Show<br/>Profile"]
-    activate["Activate<br/>Profile"]
-    sync["Sync<br/>Feature<br/>Branch"]
+    backend_check{"Backend<br/>Selection?"}
 
-    execute["Execute Command<br/>• Display UI (forest theme)<br/>• Perform operations<br/>• Handle errors"]
+    go_path["Go Binary<br/>bin/dotclaude-go<br/>• Cobra framework<br/>• cobra.Command execution"]
+    shell_path["Shell Script<br/>base/scripts/dotclaude-shell<br/>• Legacy fallback"]
+
+    cobra["Cobra Dispatch<br/>• rootCmd.Execute()<br/>• Find matching subcommand<br/>• Parse flags<br/>• Validate args"]
+
+    manager["Create Profile Manager<br/>profile.NewManager(RepoDir, ClaudeDir)"]
+
+    execute["Execute Command<br/>• Perform operations<br/>• Handle errors<br/>• Display formatted output"]
+
     done["Return to Shell"]
 
-    start --> entry --> load --> validate --> trap --> parse
-    parse --> show
-    parse --> activate
-    parse --> sync
-    show --> execute
-    activate --> execute
-    sync --> execute
-    execute --> done
+    start --> wrapper --> backend_check
+    backend_check -->|"go (default)"| go_path
+    backend_check -->|"shell"| shell_path
+    go_path --> cobra --> manager --> execute --> done
+    shell_path --> done
 
     style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style entry fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style load fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style validate fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style trap fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style parse fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style show fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style activate fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style sync fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
+    style backend_check fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style go_path fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style shell_path fill:#4a5568,stroke:#718096,color:#e2e8f0
+    style cobra fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style manager fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style execute fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style done fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
@@ -117,36 +181,36 @@ flowchart TD
 
 ```mermaid
 graph TB
-    title["Security Layers"]
+    title["Security Layers (Go Implementation)"]
 
     subgraph layer1["Layer 1: Input Validation"]
-        l1_func["validate_profile_name()"]
-        l1_rules["• Regex: ^[a-zA-Z0-9_-]+$<br/>• No path traversal (.., /)<br/>• No special chars"]
+        l1_func["profile.ValidateProfileName()"]
+        l1_rules["• Check: a-zA-Z0-9_- only<br/>• Reject: empty, .., /, spaces<br/>• Returns error on invalid"]
     end
 
     subgraph layer2["Layer 2: Path Safety"]
-        l2_func["validate_directory()"]
-        l2_rules["• Check not symlink<br/>• Verify real directory<br/>• Prevent symlink attacks"]
+        l2_func["filepath.Join() usage"]
+        l2_rules["• OS-agnostic path construction<br/>• Profile path: ProfilesDir/name<br/>• Validated name prevents traversal"]
     end
 
-    subgraph layer3["Layer 3: Command Safety"]
-        l3_func["Single-quoted heredocs"]
-        l3_rules["• Prevent variable expansion<br/>• Use sed for replacement<br/>• No command injection"]
+    subgraph layer3["Layer 3: File Operations"]
+        l3_func["Go standard library"]
+        l3_rules["• os.ReadFile / os.WriteFile<br/>• No shell command injection<br/>• Direct file I/O"]
     end
 
-    subgraph layer4["Layer 4: File Locking"]
-        l4_func["acquire_lock()"]
-        l4_rules["• flock with timeout<br/>• Prevent race conditions<br/>• Concurrent execution safe"]
+    subgraph layer4["Layer 4: Directory Listing"]
+        l4_func["os.ReadDir filtering"]
+        l4_rules["• entry.IsDir() check<br/>• Symlinks filtered out<br/>• Only real directories listed"]
     end
 
     subgraph layer5["Layer 5: Secure Permissions"]
-        l5_func["Backup files: chmod 600"]
-        l5_rules["• Only owner can read<br/>• Protect sensitive data<br/>• CLAUDE.md may have secrets"]
+        l5_func["File mode settings"]
+        l5_rules["• Backups: 0600 (owner only)<br/>• Config files: 0644<br/>• Directories: 0755"]
     end
 
-    subgraph layer6["Layer 6: Safe Removal"]
-        l6_func["safe_remove_directory()"]
-        l6_rules["• Validate not symlink<br/>• Check canonical path<br/>• Must be in safe zones"]
+    subgraph layer6["Layer 6: Safe Deletion"]
+        l6_func["profile.Delete()"]
+        l6_rules["• Check not active profile<br/>• Validate profile exists<br/>• os.RemoveAll on validated path"]
     end
 
     title --> layer1 --> layer2 --> layer3 --> layer4 --> layer5 --> layer6
@@ -160,45 +224,19 @@ graph TB
     style layer6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
 ```
 
-## Hook Execution Flow
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Claude as Claude Code
-    participant Settings as ~/.claude/settings.json
-    participant Hook as Hook Command
-
-    User->>Claude: Start Claude Code Session
-    Claude->>Settings: Read settings.json
-    Settings-->>Claude: Return hooks configuration<br/>{<br/>  "hooks": {<br/>    "SessionStart": [...],<br/>    "PostToolUse": [...]<br/>  }<br/>}
-
-    Claude->>Claude: Parse hooks configuration
-    Claude->>Claude: Event: SessionStart
-    Claude->>Claude: Match event hooks<br/>• matcher: "*" (all directories)<br/>• or matcher: "/path/to/project"
-
-    Claude->>Hook: Execute hook command<br/>• type: "command"<br/>• command: "bash script..."<br/>• Runs in bash subshell
-    Hook-->>Claude: Return output
-
-    Claude->>User: Display output<br/>• stdout shown in Claude UI<br/>• stderr shown as error
-    Claude->>Claude: Continue normal operation
-
-    Note over Claude,Hook: Example Hook: SessionStart Git Branch Check<br/>1. Check if in git repo<br/>2. Get current branch name<br/>3. Compare with main/master<br/>4. Calculate commits behind<br/>5. If behind > 0: Display warning<br/>6. Suggest: sync-feature-branch
-```
-
 ## Data Flow: Profile Merge
 
 ```mermaid
 flowchart TB
     subgraph inputs["Input Files"]
-        base["base/CLAUDE.md<br/>────────────────<br/># Global Instructions<br/>- Development Standards<br/>- Code Quality<br/>- File Operations<br/>- Security<br/>- Git Practices<br/>- Tool Usage<br/>- Project Context<br/>- Communication<br/>..."]
+        base["base/CLAUDE.md<br/>────────────────<br/># Global Instructions<br/>- Development Standards<br/>- Code Quality<br/>- File Operations<br/>- Security<br/>- Git Practices<br/>..."]
 
-        profile["profiles/my-profile/CLAUDE.md<br/>────────────────────────────<br/># Profile: My Profile<br/>- Context-specific standards<br/>- Tech stack preferences<br/>- Licensing (for OSS)<br/>- Compliance (for work)<br/>- Team practices<br/>..."]
+        profile["profiles/my-profile/CLAUDE.md<br/>────────────────────────────<br/># Profile: My Profile<br/>- Context-specific standards<br/>- Tech stack preferences<br/>- Licensing (for OSS)<br/>- Compliance (for work)<br/>..."]
     end
 
-    merge["Merge Process<br/>────────────<br/>{<br/>  cat 'base/CLAUDE.md'<br/>  echo ''<br/>  echo '# ==============='<br/>  echo '# Profile: X'<br/>  echo '# ==============='<br/>  echo ''<br/>  cat 'profiles/X/CLAUDE.md'<br/>} > ~/.claude/CLAUDE.md"]
+    merge["mergeCLAUDEmd() in Go<br/>────────────────────<br/>baseContent, _ := os.ReadFile(basePath)<br/>profileContent, _ := os.ReadFile(profilePath)<br/><br/>separator := '# =========...<br/># Profile: X<br/># =========...'<br/><br/>merged := base + separator + profile<br/>os.WriteFile(outputPath, merged, 0644)"]
 
-    output["Output File<br/>────────────<br/>~/.claude/CLAUDE.md<br/><br/>[Base content]<br/># Global Instructions<br/>...<br/><br/># ===============<br/># Profile: My Profile<br/># ===============<br/><br/>[Profile content]<br/># Profile-specific additions<br/>..."]
+    output["Output File<br/>────────────<br/>~/.claude/CLAUDE.md<br/><br/>[Base content]<br/># Global Instructions<br/>...<br/><br/># ===============<br/># Profile: my-profile<br/># ===============<br/><br/>[Profile content]<br/>..."]
 
     base --> merge
     profile --> merge
@@ -211,215 +249,131 @@ flowchart TB
     style output fill:#22543d,stroke:#2f855a,color:#e2e8f0
 ```
 
-## Installation Architecture
+## Backend Selection (Strangler Fig Pattern)
 
-```mermaid
-flowchart TD
-    start["./install.sh"]
+The wrapper script `base/scripts/dotclaude` routes commands based on `DOTCLAUDE_BACKEND`:
 
-    flags["Parse Flags<br/>• --force<br/>• --non-interactive<br/>• --help"]
-    tty["Check TTY (Interactive?)<br/>• if [ ! -t 0 ]; then<br/>    NON_INTERACTIVE=true"]
-    dirs["Create Directories<br/>• ~/.claude/agents/<br/>• ~/.claude/scripts/<br/>• ~/.local/bin/"]
-    cli["Install dotclaude CLI<br/>• Copy to ~/.local/bin/dotclaude<br/>• chmod +x<br/>• Check if ~/.local/bin in PATH"]
-    scripts["Install Scripts<br/>• Copy base/scripts/* to<br/>  ~/.claude/scripts/<br/>• chmod +x *.sh"]
-    agents["Install Agents<br/>• For each base/agents/*<br/>• Check if already exists<br/>• Validate not symlink<br/>• Prompt or auto-overwrite<br/>• Copy to ~/.claude/agents/"]
-    select["Select Profile (if interactive)<br/>• List available profiles<br/>• Prompt user for selection<br/>• Or skip if non-interactive"]
-    activate["Activate Selected Profile<br/>• bash activate-profile.sh &lt;name&gt;<br/>• Merges CLAUDE.md<br/>• Applies settings.json"]
-    complete["✓ Complete"]
+| Value | Behavior |
+|-------|----------|
+| `go` (default) | Execute Go binary directly |
+| `shell` | Execute shell implementation |
+| `auto` | Try Go first, fall back to shell for unknown commands |
 
-    start --> flags --> tty --> dirs --> cli --> scripts --> agents --> select --> activate --> complete
+```bash
+# Force Go backend (default)
+export DOTCLAUDE_BACKEND=go
+dotclaude list
 
-    style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style flags fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style tty fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style dirs fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style cli fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style scripts fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style agents fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style select fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style activate fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style complete fill:#22543d,stroke:#2f855a,color:#e2e8f0
+# Force shell backend
+export DOTCLAUDE_BACKEND=shell
+dotclaude list
+
+# Smart routing (deprecated)
+export DOTCLAUDE_BACKEND=auto
+dotclaude list
 ```
 
-## Component Responsibilities
+## Commands Reference
 
-### `dotclaude` (Main CLI)
-- **Purpose**: Unified command-line interface
-- **Responsibilities**:
-  - Parse and dispatch commands
-  - Load validation library
-  - Validate repository structure
-  - Handle trap cleanup
-  - Display forest-themed UI
-- **Key Functions**: `cmd_show()`, `cmd_list()`, `cmd_activate()`, `cmd_switch()`, `cmd_create()`, `cmd_edit()`
-
-### `lib/validation.sh`
-- **Purpose**: Centralized security validation
-- **Responsibilities**:
-  - Profile name validation
-  - Directory safety checks
-  - Symlink attack prevention
-  - File locking
-  - Disk space checks
-  - Command verification
-- **Key Functions**: `validate_profile_name()`, `validate_directory()`, `safe_remove_directory()`, `acquire_lock()`, `release_lock()`
-
-### `activate-profile.sh`
-- **Purpose**: Profile activation backend
-- **Responsibilities**:
-  - Acquire exclusive lock
-  - Backup existing config
-  - Merge CLAUDE.md files
-  - Apply settings.json
-  - Mark active profile
-  - Release lock on exit
-- **Called by**: `dotclaude activate`, `dotclaude switch`
-
-### `sync-feature-branch.sh`
-- **Purpose**: Git branch sync automation
-- **Responsibilities**:
-  - Check git repo status
-  - Detect uncommitted changes
-  - Calculate ahead/behind commits
-  - Guide user through rebase/merge
-  - Handle conflicts
-  - Push changes safely
-- **Called by**: `dotclaude sync`, sourced function `sync-feature-branch`
-
-### `shell-functions.sh`
-- **Purpose**: Shell convenience functions
-- **Responsibilities**:
-  - Provide wrapper functions
-  - Git workflow helpers
-  - Branch status checking
-  - Post-PR workflows
-- **Sourced by**: User's `~/.bashrc` or `~/.zshrc`
-
-### `profile-management.sh`
-- **Purpose**: Legacy profile management functions
-- **Responsibilities**:
-  - Profile activation wrapper
-  - Show profile status
-  - List available profiles
-  - Quick profile switches
-- **Sourced by**: User's `~/.bashrc` or `~/.zshrc` (optional)
+| Command | Aliases | Description | Flags |
+|---------|---------|-------------|-------|
+| `version` | - | Show version | - |
+| `list` | `ls` | List all profiles | `--verbose` |
+| `show` | - | Show active profile | `--debug` |
+| `create` | `new` | Create new profile | `--verbose` |
+| `delete` | `rm`, `remove` | Delete profile | `--force` |
+| `edit` | - | Edit profile in $EDITOR | `--settings` |
+| `activate` | `use` | Activate profile | `--dry-run`, `--preview`, `--verbose`, `--debug` |
+| `restore` | - | Restore from backup | - |
+| `diff` | - | Compare profiles | `--verbose` |
+| `check-branches` | - | Check branch status | `--base` |
+| `sync` | - | Sync with main | `--base` |
 
 ## File System Layout
 
 ```
 dotclaude/                              # Repository (version controlled)
 ├── README.md                           # Quick start guide
-├── install.sh                          # Installer with flags
+├── install.sh                          # Installer
+├── Makefile                            # Build targets
+├── go.mod                              # Go module
+├── go.sum                              # Dependencies
+├── cmd/dotclaude/
+│   └── main.go                         # Go entry point
+├── internal/
+│   ├── cli/                            # Command implementations
+│   └── profile/                        # Profile business logic
+├── bin/
+│   └── dotclaude-go                    # Compiled Go binary
 ├── base/                               # Shared base configuration
-│   ├── CLAUDE.md                      # Base development standards
-│   ├── settings.json                  # Base hooks & settings
-│   ├── scripts/
-│   │   ├── dotclaude                  # Main CLI (deployed to ~/.local/bin)
-│   │   ├── activate-profile.sh        # Profile activation
-│   │   ├── sync-feature-branch.sh     # Git branch sync
-│   │   ├── shell-functions.sh         # Shell helpers
-│   │   ├── profile-management.sh      # Profile wrappers
-│   │   └── lib/
-│   │       └── validation.sh          # Security validation
-│   └── agents/
-│       └── best-in-class-gap-analysis/
-│           └── definition.json
+│   ├── CLAUDE.md                       # Base development standards
+│   ├── settings.json                   # Base hooks & settings
+│   └── scripts/
+│       ├── dotclaude                   # Wrapper script
+│       └── dotclaude-shell             # Shell implementation (legacy)
 ├── profiles/                           # Context-specific profiles
 │   ├── my-project/
 │   │   └── CLAUDE.md
-│   ├── client-work/
-│   │   └── CLAUDE.md
 │   └── work-project/
 │       └── CLAUDE.md
-└── docs/
-    ├── USAGE.md                        # Complete user guide
-    └── ARCHITECTURE.md                 # This file
-
-~/.local/bin/                           # User binaries (in PATH)
-└── dotclaude                          # Main CLI (copy from base/scripts)
+├── examples/
+│   └── sample-profile/                 # Template for new profiles
+└── tests/
+    ├── commands.bats                   # Command tests
+    ├── security.bats                   # Security tests
+    └── integration.bats                # Integration tests
 
 ~/.claude/                              # Deployed configuration
-├── .current-profile                   # Active profile name
-├── .lock                              # Concurrent execution lock
-├── CLAUDE.md                          # Merged: base + profile
-├── CLAUDE.md.backup.*                 # Up to 5 recent backups
-├── settings.json                      # Active settings
-├── settings.json.backup.*             # Up to 5 recent backups
-├── scripts/                           # Management scripts (copied)
-│   ├── dotclaude
-│   ├── activate-profile.sh
-│   ├── sync-feature-branch.sh
-│   ├── shell-functions.sh
-│   ├── profile-management.sh
-│   └── lib/
-│       └── validation.sh
-└── agents/                            # Shared agents (copied)
-    └── best-in-class-gap-analysis/
-        └── definition.json
+├── .current-profile                    # Active profile name
+├── CLAUDE.md                           # Merged: base + profile
+├── CLAUDE.md.backup.*                  # Up to 5 recent backups
+├── settings.json                       # Active settings
+└── settings.json.backup.*              # Up to 5 recent backups
 ```
 
-## Concurrency Model
+## Build System
 
-```mermaid
-sequenceDiagram
-    participant P1 as Process 1:<br/>dotclaude activate profile-a
-    participant Lock as ~/.claude/.lock
-    participant P2 as Process 2:<br/>dotclaude activate profile-b
+### Makefile Targets
 
-    Note over P1,P2: Concurrent Execution Prevention
-
-    P1->>Lock: acquire_lock(timeout=10)<br/>exec 200>"~/.claude/.lock"<br/>flock -w 10 200
-    Lock-->>P1: ✓ Lock acquired
-
-    P2->>Lock: acquire_lock(timeout=10)<br/>exec 200>"~/.claude/.lock"<br/>flock -w 10 200
-    Note over P2,Lock: ⏳ Waiting for lock...<br/>(blocked until Process 1 releases)
-
-    P1->>P1: Perform activation...
-    P1->>Lock: release_lock()<br/>exec 200>&- (close FD)
-    Lock-->>P1: Lock released
-
-    Lock-->>P2: ✗ After 10s timeout:<br/>Error: Another operation in progress
-
-    Note over P1,P2: Key Points:<br/>• Uses flock for advisory file locking<br/>• Timeout prevents indefinite blocking<br/>• Trap handler ensures lock release on exit/error<br/>• Lock file: ~/.claude/.lock<br/>• Lock scope: All dotclaude operations that modify files
+```bash
+make build    # Build bin/dotclaude-go
+make test     # Run all tests (bats)
+make clean    # Remove bin/
+make install  # Install to ~/bin
 ```
 
-## Provider-Agnostic Design
+### Dependencies
 
-```mermaid
-graph TB
-    global["Global Config (~/.claude/)<br/>────────────────────────────────<br/>• No hardcoded model IDs<br/>• Provider-neutral hooks<br/>• Universal agents (no model in definition)"]
+- **Go 1.23+** - Build requirement
+- **github.com/spf13/cobra v1.10.2** - CLI framework
+- **bats** - Test framework (for tests only)
 
-    subgraph bedrock["AWS Bedrock Project"]
-        bedrock_dir[".claude/"]
-        bedrock_settings["settings.json<br/>{<br/>  'model':<br/>  'us.anthropic.claude-sonnet-...'<br/>}"]
-    end
+## Testing
 
-    subgraph claude_max["Claude Max Project"]
-        max_dir[".claude/"]
-        max_settings["settings.json<br/>{<br/>  'model':<br/>  'claude-sonnet-4.5-...'<br/>}"]
-    end
+The project includes 114+ automated tests:
 
-    precedence["Settings Precedence:<br/>1. Enterprise policies (if applicable)<br/>2. CLI arguments<br/>3. Project .claude/settings.local.json (gitignored)<br/>4. Project .claude/settings.json (team-shared)<br/>5. Global ~/.claude/settings.json (from dotclaude)"]
+| Suite | Count | Description |
+|-------|-------|-------------|
+| `commands.bats` | 50 | All CLI commands and flags |
+| `security.bats` | 40 | Input validation, path safety |
+| `integration.bats` | 24 | End-to-end workflows |
 
-    result["Result: Same global standards, project-specific providers"]
-
-    global --> bedrock
-    global --> claude_max
-    bedrock --> precedence
-    claude_max --> precedence
-    precedence --> result
-
-    style global fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style bedrock fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style bedrock_dir fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style bedrock_settings fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style claude_max fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style max_dir fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style max_settings fill:#2c5282,stroke:#4299e1,color:#e2e8f0
-    style precedence fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style result fill:#22543d,stroke:#2f855a,color:#e2e8f0
+Run tests:
+```bash
+bats tests/                    # All tests
+bats tests/commands.bats       # Command tests only
+bats tests/security.bats       # Security tests only
 ```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DOTCLAUDE_REPO_DIR` | `~/code/dotclaude` | Repository location |
+| `CLAUDE_DIR` | `~/.claude` | Claude config directory |
+| `DOTCLAUDE_BACKEND` | `go` | Backend selection |
+| `EDITOR` | `vim` | Editor for `edit` command |
 
 ---
 
-**Back to:** [README.md](../README.md) | **See also:** [USAGE.md](USAGE.md)
+**Back to:** [README.md](../README.md) | **See also:** [USAGE.md](USAGE.md) | [GO-MIGRATION.md](../GO-MIGRATION.md)
