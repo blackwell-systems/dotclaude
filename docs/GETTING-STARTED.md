@@ -99,10 +99,13 @@ dotclaude activate client-work
 
 ```
 dotclaude/
+├── bin/                       # Go binary (after build)
+│   └── dotclaude             # CLI binary
+│
 ├── base/                      # Universal standards (applies to ALL profiles)
 │   ├── CLAUDE.md             # Git, security, tools, task management
 │   ├── settings.json         # Base hooks & settings
-│   ├── scripts/              # Management tools
+│   ├── hooks/                # Hook scripts
 │   └── agents/               # Shared agents
 │
 ├── examples/                  # Example profile templates
@@ -177,11 +180,11 @@ Changes to profiles persist on your host, but `~/.claude/` stays in the containe
 
 ### Platform Requirements
 
-- **Linux** - Fully supported
-- **macOS** - Fully supported
-- **Windows** - Requires [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux 2)
+- **Linux** (amd64, arm64) - Full support
+- **macOS** (Intel & Apple Silicon) - Full support
+- **Windows** (amd64) - Full support (native binary)
 
-> **Windows Users:** dotclaude requires a Unix/Linux environment with Bash. Native Windows (CMD/PowerShell) is not supported. Install WSL2 first, then run the installation commands from your WSL2 terminal.
+> **Note:** All platforms use a native Go binary. No shell dependencies required for core functionality.
 
 ### Quick Install (Recommended)
 
