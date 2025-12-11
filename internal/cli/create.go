@@ -9,10 +9,11 @@ import (
 
 func newCreateCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "create <profile-name>",
-		Short: "Create a new profile",
-		Long:  "Create a new dotclaude profile from the template.",
-		Args:  cobra.ExactArgs(1),
+		Use:     "create <profile-name>",
+		Aliases: []string{"new"},
+		Short:   "Create a new profile",
+		Long:    "Create a new dotclaude profile from the template.",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			profileName := args[0]
 

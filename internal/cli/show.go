@@ -9,11 +9,24 @@ import (
 )
 
 func newShowCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "show",
 		Short: "Show active profile",
 		Long:  "Display information about the currently active profile.",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Check for debug flag
+			debug, _ := cmd.Flags().GetBool("debug")
+			if debug {
+				Verbose = true
+			}
+
+			if Verbose {
+				fmt.Fprintf(os.Stderr, "[DEBUG] RepoDir: %s\n", RepoDir)
+				fmt.Fprintf(os.Stderr, "[DEBUG] ClaudeDir: %s\n", ClaudeDir)
+				fmt.Fprintf(os.Stderr, "[DEBUG] ProfilesDir: %s\n", ProfilesDir)
+				fmt.Fprintln(os.Stderr)
+			}
+
 			mgr := profile.NewManager(RepoDir, ClaudeDir)
 
 			activeProfile, err := mgr.GetActiveProfile()
@@ -59,4 +72,9 @@ func newShowCmd() *cobra.Command {
 			return nil
 		},
 	}
+
+	// Add debug flag
+	cmd.Flags().Bool("debug", false, "Show debug output")
+
+	return cmd
 }

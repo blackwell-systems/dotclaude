@@ -51,6 +51,10 @@ func Execute() error {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	// Version flag
+	rootCmd.Version = Version
+	rootCmd.SetVersionTemplate("dotclaude version {{.Version}}\n")
+
 	// Global flags
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 
@@ -87,6 +91,7 @@ func init() {
 		newRestoreCmd(),
 		newCheckBranchesCmd(),
 		newSyncCmd(),
+		newDiffCmd(),
 	)
 }
 
