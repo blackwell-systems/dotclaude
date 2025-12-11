@@ -62,34 +62,10 @@ jobs:
           git config --global user.name "CI Test"
           git config --global user.email "ci@dotclaude.test"
 
-      - name: Setup Node.js (for bats-core)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install bats-core
-        run: npm install -g bats
-
-      - name: Verify bats installation
-        run: bats --version
-
-      - name: Run security tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'security' }}
-        run: bats tests/security.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-
-      - name: Run integration tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'integration' }}
-        run: bats tests/integration.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-
-      - name: Run command tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
-        run: bats tests/commands.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+      # Note: BATS tests are legacy and test the archived shell implementation.
+      # The Go implementation is now the primary codebase. Go unit tests above
+      # cover the functionality that was previously tested by BATS.
+      # See tests/README.md for details on the test migration.
 
       - name: Test results summary
         if: always()
@@ -135,34 +111,10 @@ jobs:
           git config --global user.name "CI Test"
           git config --global user.email "ci@dotclaude.test"
 
-      - name: Setup Node.js (for bats-core)
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install bats-core
-        run: npm install -g bats
-
-      - name: Verify bats installation
-        run: bats --version
-
-      - name: Run security tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'security' }}
-        run: bats tests/security.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-
-      - name: Run integration tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'integration' }}
-        run: bats tests/integration.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-
-      - name: Run command tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
-        run: bats tests/commands.bats
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+      # Note: BATS tests are legacy and test the archived shell implementation.
+      # The Go implementation is now the primary codebase. Go unit tests above
+      # cover the functionality that was previously tested by BATS.
+      # See tests/README.md for details on the test migration.
 
       - name: Test results summary
         if: always()
@@ -175,25 +127,36 @@ jobs:
           echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
 
   lint:
-    name: Shell Linting
+    name: Go & Shell Linting
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Check go fmt
+        run: |
+          if [ -n "$(gofmt -l .)" ]; then
+            echo "Go files need formatting:"
+            gofmt -l .
+            exit 1
+          fi
+
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-      - name: Run shellcheck on scripts
-        run: |
-          find base/scripts -name "*.sh" -o -name "dotclaude" | while read -r file; do
-            echo "Checking $file"
-            # Exclude SC1091 (sourced files), SC2162 (read -r), SC2086 (quoting), SC2119/SC2120 (function args), SC2181 (exit code check)
-            shellcheck -e SC1091,SC2162,SC2086,SC2119,SC2120,SC2155,SC2181 "$file" || exit 1
-          done
+      - name: Run shellcheck on install script
+        run: shellcheck -e SC1091,SC2162,SC2086 install.sh
 
-      - name: Run shellcheck on tests
+      - name: Run shellcheck on test helpers
         run: |
           find tests -name "*.bash" | while read -r file; do
             echo "Checking $file"
@@ -270,14 +233,6 @@ jobs:
         with:
           go-version: '1.23'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install bats-core
-        run: npm install -g bats
-
       - name: Download Go coverage artifacts
         uses: actions/download-artifact@v4
         with:
@@ -293,38 +248,21 @@ jobs:
           echo "go_tests=$GO_TEST_COUNT" >> $GITHUB_OUTPUT
           echo "go_coverage=$GO_COVERAGE" >> $GITHUB_OUTPUT
 
-      - name: Count bats tests
-        id: count
-        run: |
-          SECURITY_COUNT=$(grep -c "^@test" tests/security.bats || echo 0)
-          INTEGRATION_COUNT=$(grep -c "^@test" tests/integration.bats || echo 0)
-          COMMANDS_COUNT=$(grep -c "^@test" tests/commands.bats || echo 0)
-          TOTAL=$((SECURITY_COUNT + INTEGRATION_COUNT + COMMANDS_COUNT))
-          echo "security=$SECURITY_COUNT" >> $GITHUB_OUTPUT
-          echo "integration=$INTEGRATION_COUNT" >> $GITHUB_OUTPUT
-          echo "commands=$COMMANDS_COUNT" >> $GITHUB_OUTPUT
-          echo "total=$TOTAL" >> $GITHUB_OUTPUT
-
       - name: Generate coverage report
         run: |
           echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Go Unit Tests" >> $GITHUB_STEP_SUMMARY
+          echo "### Go Unit Tests (Primary)" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Go Tests | ${{ steps.go_count.outputs.go_tests }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Coverage | ${{ steps.go_count.outputs.go_coverage }}% |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Integration Tests (bats)" >> $GITHUB_STEP_SUMMARY
-          echo "| Test Suite | Test Count |" >> $GITHUB_STEP_SUMMARY
-          echo "|------------|------------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Security Tests | ${{ steps.count.outputs.security }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Integration Tests | ${{ steps.count.outputs.integration }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Command Tests | ${{ steps.count.outputs.commands }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Total** | **${{ steps.count.outputs.total }}** |" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Packages" >> $GITHUB_STEP_SUMMARY
+          echo "- \`internal/profile/\` - Profile management, validation, activation" >> $GITHUB_STEP_SUMMARY
+          echo "- \`internal/cli/\` - Command handlers, flags, output" >> $GITHUB_STEP_SUMMARY
+          echo "- \`internal/hooks/\` - Hook execution and management" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Test Files" >> $GITHUB_STEP_SUMMARY
-          echo "- Go: \`internal/*/\` - Unit tests for CLI, hooks, profile packages" >> $GITHUB_STEP_SUMMARY
-          echo "- \`tests/security.bats\` - Validation functions, path traversal, injection prevention" >> $GITHUB_STEP_SUMMARY
-          echo "- \`tests/integration.bats\` - Profile activation, merge, backup/restore" >> $GITHUB_STEP_SUMMARY
-          echo "- \`tests/commands.bats\` - All 12 commands, flags, exit codes" >> $GITHUB_STEP_SUMMARY
+          echo "### Legacy BATS Tests" >> $GITHUB_STEP_SUMMARY
+          echo "BATS tests in \`tests/\` are legacy and test the archived shell implementation." >> $GITHUB_STEP_SUMMARY
+          echo "The Go implementation now provides equivalent functionality with Go unit tests." >> $GITHUB_STEP_SUMMARY

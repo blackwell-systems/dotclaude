@@ -6,7 +6,7 @@ Comprehensive test suite for dotclaude.
 
 ### Go Tests (Primary)
 
-The Go implementation includes unit tests in the `internal/` directories:
+The Go implementation includes unit tests in the `internal/` directories. These are the **primary tests** run in CI.
 
 ```bash
 # Run all Go tests
@@ -15,29 +15,59 @@ go test ./...
 # Run with coverage
 go test ./... -cover
 
+# Run with verbose output
+go test -v ./...
+
 # Run specific package tests
 go test ./internal/profile/...
 go test ./internal/cli/...
 go test ./internal/hooks/...
 ```
 
-### BATS Tests (Legacy)
+#### What Go Tests Cover
 
-The BATS tests were used for the shell implementation, which has been archived to `archive/`.
+- **Profile validation**: Name validation, path traversal prevention, injection attacks
+- **Profile management**: Activation, creation, deletion, listing
+- **Backup system**: Automatic backup, rotation, restore
+- **Settings handling**: JSON merging, configuration
+- **Hook execution**: Pre/post tool hooks, session hooks
+- **CLI commands**: All command handlers, flags, output formatting
 
-The test suite contains 145+ tests covering:
-- **Security tests** (45 tests): Validation functions, path traversal prevention, injection attacks
-- **Integration tests** (42 tests): Profile activation, merging, backup/restore, profile switching
-- **Command tests** (58 tests): All 12 commands, flags, exit codes
+### BATS Tests (Legacy - Not Run in CI)
+
+⚠️ **Note**: The BATS tests in this directory are legacy tests for the archived shell implementation. They are **not executed** in CI since the shell scripts they test have been archived to `archive/`.
+
+The shell functions like `validate_profile_name`, `validate_directory`, etc. no longer exist. The equivalent functionality is now implemented in Go and tested by Go unit tests.
+
+The BATS test files remain in the repository for historical reference and as documentation of the expected behaviors, but they will fail if run directly.
 
 ## Running Tests
 
-### Prerequisites
-
-Install bats-core:
+### Go Tests (Recommended)
 
 ```bash
-# Using npm (recommended)
+# Run all tests
+go test ./...
+
+# Run with verbose output
+go test -v ./...
+
+# Run with coverage
+go test ./... -cover
+
+# Run with race detector
+go test -race ./...
+
+# Run specific package
+go test -v ./internal/profile/...
+```
+
+### Prerequisites for BATS (Legacy)
+
+If you need to run the legacy BATS tests for reference:
+
+```bash
+# Using npm
 npm install -g bats
 
 # Or using Homebrew (macOS)
@@ -47,47 +77,27 @@ brew install bats-core
 sudo apt-get install bats
 ```
 
-### Run All Tests
-
-```bash
-# From repository root
-bats tests/*.bats
-
-# Or run individually
-bats tests/security.bats
-bats tests/integration.bats
-bats tests/commands.bats
-```
-
-### Run Specific Test
-
-```bash
-# Run single test by name
-bats tests/security.bats --filter "validate_profile_name: rejects path traversal"
-
-# Run tests matching pattern
-bats tests/integration.bats --filter "activate"
-```
-
-### Verbose Output
-
-```bash
-# Show all test output (including passing tests)
-bats tests/security.bats --tap
-
-# Show timing information
-bats tests/security.bats --timing
-```
+⚠️ **Note**: BATS tests will fail because they test archived shell functions.
 
 ## Test Structure
 
 ```
+# Go Tests (Primary - Run in CI)
+internal/
+├── profile/
+│   └── *_test.go          # Profile management tests
+├── cli/
+│   └── *_test.go          # CLI command tests
+└── hooks/
+    └── *_test.go          # Hook system tests
+
+# BATS Tests (Legacy - Not Run in CI)
 tests/
-├── security.bats           # Security validation tests (45 tests)
-├── integration.bats        # Core workflow tests (42 tests)
-├── commands.bats           # Command tests (58 tests)
+├── security.bats           # Legacy security validation tests
+├── integration.bats        # Legacy workflow tests
+├── commands.bats           # Legacy command tests
 ├── helpers/
-│   └── test_helper.bash   # Setup/teardown and utility functions
+│   └── test_helper.bash   # Setup/teardown utilities
 └── fixtures/              # Test data (empty - generated dynamically)
 ```
 
@@ -216,22 +226,24 @@ Tests run automatically on:
 
 1. **Go Tests** (Ubuntu + macOS)
    - Unit tests for all packages
-   - Integration tests
+   - Race condition detection
    - Coverage reporting
 
-2. **BATS Tests** (Legacy)
-   - Security tests
-   - Integration tests
-   - Command tests
+2. **Go & Shell Linting**
+   - `go vet` for Go code analysis
+   - `gofmt` for Go code formatting
+   - `shellcheck` for install script and test helpers
 
 3. **Installation Test**
-   - Install script
+   - Install script execution
    - Profile creation
    - Profile activation
 
 4. **Coverage Report**
-   - Go test coverage
-   - Test count summary
+   - Go test coverage percentage
+   - Test package summary
+
+**Note**: BATS tests are not run in CI as they test the archived shell implementation.
 
 ### View Results
 
