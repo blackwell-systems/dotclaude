@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.1] - 2025-12-10
+
+### Summary
+
+Release Candidate 1 - Complete migration to Go implementation. The shell version has been fully replaced with a native Go binary. This release marks the completion of the migration phase and readiness for production use.
+
 ### Changed
 
 **Architecture Simplification:**
@@ -19,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All shell scripts moved to `archive/` directory
 - README added with emergency rollback instructions
 - Shell version preserved for reference only
+
+**License:**
+- Changed from MIT to Apache 2.0
 
 ### Added
 
@@ -40,8 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Helpful error messages when shell not found
 - `.cmd`/`.bat` properly restricted to Windows
 
-### Changed
-
 **Editor Detection (edit command):**
 - Cross-platform editor detection:
   - Checks `EDITOR` and `VISUAL` environment variables
@@ -49,10 +56,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unix: code → vim → nano → vi
 - Handles editor commands with arguments (e.g., "code --wait")
 
-**Documentation:**
+### Fixed
+
+- shellcheck warnings in install.sh
+- Go formatting issues across codebase
+- Profile name length validation (max 100 characters)
+
+### Documentation
+
 - HOOKS.md updated with Windows and Linux examples
 - Platform-specific troubleshooting sections
 - Cross-platform path references
+- Complete documentation overhaul for Go-only architecture
 
 ### Technical Details
 
@@ -61,6 +76,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `internal/cli/terminal.go` - Cross-platform color support
 - `internal/cli/terminal_unix.go` - Unix terminal handling
 - `internal/cli/terminal_windows.go` - Windows terminal handling (ANSI VT)
+
+**CI/CD:**
+- Go unit tests added to CI workflow
+- Legacy BATS tests removed from CI workflow
+- Test coverage tracking added
 
 ## [1.0.0-beta.4] - 2025-12-11
 
