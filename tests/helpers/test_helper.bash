@@ -52,14 +52,15 @@ EOF
         chmod +x "$TEST_REPO_DIR/bin/dotclaude-go"
     fi
 
-    # Configure git for profile creation (Go version needs this for git commit)
-    git config --global user.name "Test User" 2>/dev/null || true
-    git config --global user.email "test@dotclaude.test" 2>/dev/null || true
-
-    # Set environment variables for tests
+    # Set environment variables for tests (must be before git config)
     export DOTCLAUDE_REPO_DIR="$TEST_REPO_DIR"
     export HOME="$TEST_HOME"
     export CLAUDE_DIR="$TEST_CLAUDE_DIR"
+
+    # Configure git for profile creation (Go version needs this for git commit)
+    # Must run AFTER HOME is set so config goes to TEST_HOME/.gitconfig
+    git config --global user.name "Test User" 2>/dev/null || true
+    git config --global user.email "test@dotclaude.test" 2>/dev/null || true
 
     # Make dotclaude command available
     export PATH="$TEST_REPO_DIR/base/scripts:$PATH"
