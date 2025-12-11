@@ -40,6 +40,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build Go binary
+        run: make build
+
+      - name: Configure git for tests
+        run: |
+          git config --global user.name "CI Test"
+          git config --global user.email "ci@dotclaude.test"
+
       - name: Setup Node.js (for bats-core)
         uses: actions/setup-node@v4
         with:
@@ -62,12 +75,14 @@ jobs:
         run: bats tests/integration.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Run command tests
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
         run: bats tests/commands.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Test results summary
         if: always()
@@ -91,6 +106,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build Go binary
+        run: make build
+
+      - name: Configure git for tests
+        run: |
+          git config --global user.name "CI Test"
+          git config --global user.email "ci@dotclaude.test"
+
       - name: Setup Node.js (for bats-core)
         uses: actions/setup-node@v4
         with:
@@ -113,12 +141,14 @@ jobs:
         run: bats tests/integration.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Run command tests
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
         run: bats tests/commands.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
+          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Test results summary
         if: always()
@@ -164,6 +194,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build Go binary
+        run: make build
+
+      - name: Configure git for tests
+        run: |
+          git config --global user.name "CI Test"
+          git config --global user.email "ci@dotclaude.test"
 
       - name: Test install script (non-interactive)
         run: ./install.sh --non-interactive
