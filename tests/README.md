@@ -1,8 +1,29 @@
 # dotclaude Test Suite
 
-Comprehensive test suite for dotclaude using bats-core (Bash Automated Testing System).
+Comprehensive test suite for dotclaude.
 
 ## Overview
+
+### Go Tests (Primary)
+
+The Go implementation includes unit tests in the `internal/` directories:
+
+```bash
+# Run all Go tests
+go test ./...
+
+# Run with coverage
+go test ./... -cover
+
+# Run specific package tests
+go test ./internal/profile/...
+go test ./internal/cli/...
+go test ./internal/hooks/...
+```
+
+### BATS Tests (Legacy)
+
+The BATS tests were used for the shell implementation, which has been archived to `archive/`.
 
 The test suite contains 145+ tests covering:
 - **Security tests** (45 tests): Validation functions, path traversal prevention, injection attacks
@@ -74,7 +95,7 @@ tests/
 
 ### Security Tests (`security.bats`)
 
-Tests all validation functions in `base/scripts/lib/validation.sh`:
+Tests all validation functions (originally in shell, now implemented in Go):
 
 - **Path traversal prevention**: Rejects `../../../etc/passwd`
 - **Symlink attack prevention**: Rejects symlinked directories
@@ -107,15 +128,28 @@ Tests core workflows end-to-end:
 - **Concurrent execution**: File locking prevents conflicts
 - **Edge cases**: Empty profiles, long content, special characters
 
-**Example:**
+**Example (legacy BATS test):**
 ```bash
 @test "activate: merges base + profile into ~/.claude/CLAUDE.md" {
-    run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
+    run dotclaude activate test-profile-1
     [ "$status" -eq 0 ]
 
     assert_file_exists "$TEST_CLAUDE_DIR/CLAUDE.md"
     assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Base Configuration"
     assert_file_contains "$TEST_CLAUDE_DIR/CLAUDE.md" "Test Profile 1"
+}
+```
+
+**Go Test Example:**
+```go
+func TestActivateProfile(t *testing.T) {
+    m := profile.NewManager(testRepoDir, testClaudeDir)
+    err := m.Activate("test-profile-1", false)
+    assert.NoError(t, err)
+
+    content, _ := os.ReadFile(filepath.Join(testClaudeDir, "CLAUDE.md"))
+    assert.Contains(t, string(content), "Base Configuration")
+    assert.Contains(t, string(content), "Test Profile 1")
 }
 ```
 
@@ -138,10 +172,10 @@ Tests all 12 commands:
 | version | Show version, aliases (-v, --version) |
 | help | Show help, aliases (-h, --help), command list |
 
-**Example:**
+**Example (legacy BATS test):**
 ```bash
 @test "list: shows all available profiles" {
-    run bash "$TEST_REPO_DIR/base/scripts/dotclaude" list
+    run dotclaude list
     [ "$status" -eq 0 ]
     [[ "$output" =~ "test-profile-1" ]]
     [[ "$output" =~ "test-profile-2" ]]
@@ -180,14 +214,15 @@ Tests run automatically on:
 
 `.github/workflows/test.yml` runs:
 
-1. **Test Suite** (Ubuntu + macOS)
+1. **Go Tests** (Ubuntu + macOS)
+   - Unit tests for all packages
+   - Integration tests
+   - Coverage reporting
+
+2. **BATS Tests** (Legacy)
    - Security tests
    - Integration tests
    - Command tests
-
-2. **Shell Linting** (shellcheck)
-   - All scripts in `base/scripts/`
-   - All test helpers
 
 3. **Installation Test**
    - Install script
@@ -195,8 +230,8 @@ Tests run automatically on:
    - Profile activation
 
 4. **Coverage Report**
+   - Go test coverage
    - Test count summary
-   - Success/failure status
 
 ### View Results
 
@@ -218,7 +253,28 @@ Tests run automatically on:
 }
 ```
 
-### Add Integration Test
+### Add Go Test (Recommended)
+
+```go
+// In internal/profile/manager_test.go
+
+func TestNewFeature(t *testing.T) {
+    m := profile.NewManager(testRepoDir, testClaudeDir)
+
+    // Arrange
+    err := m.Activate("test-profile-1", false)
+    require.NoError(t, err)
+
+    // Act
+    result, err := m.SomeNewMethod()
+
+    // Assert
+    require.NoError(t, err)
+    assert.Contains(t, result, "expected-content")
+}
+```
+
+### Add Legacy BATS Test
 
 ```bash
 # In tests/integration.bats
@@ -230,26 +286,14 @@ setup() {
 
 @test "new workflow: description" {
     # Arrange
-    bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1
+    dotclaude activate test-profile-1
 
     # Act
-    run bash "$TEST_REPO_DIR/base/scripts/dotclaude" some-command
+    run dotclaude some-command
 
     # Assert
     [ "$status" -eq 0 ]
     assert_file_contains "$TEST_CLAUDE_DIR/some-file" "expected-content"
-}
-```
-
-### Add Command Test
-
-```bash
-# In tests/commands.bats
-
-@test "new-command: does expected thing" {
-    run bash "$TEST_REPO_DIR/base/scripts/dotclaude" new-command
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "success message" ]]
 }
 ```
 
@@ -317,8 +361,11 @@ npm install -g bats
 ### Tests fail with "permission denied"
 
 ```bash
-chmod +x base/scripts/dotclaude
-chmod +x base/scripts/lib/*.sh
+# For Go binary
+chmod +x bin/dotclaude
+
+# For legacy shell tests (if running)
+chmod +x archive/dotclaude-shell
 ```
 
 ### Tests leave temp files

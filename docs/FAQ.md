@@ -391,9 +391,7 @@ profiles/my-project/CLAUDE.md
 
 ### Can I have profile-specific scripts or tools?
 
-**Not currently.** All scripts live in `base/scripts/` and are shared.
-
-**Workaround:** Use hooks in profile's `settings.json`:
+**Yes!** Use hooks in your profile's `settings.json`:
 ```json
 {
   "hooks": {

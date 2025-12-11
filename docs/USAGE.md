@@ -1044,17 +1044,14 @@ After activation, your `~/.claude/` directory contains:
 ├── .current-profile               # Active profile marker
 ├── CLAUDE.md                      # Base + Profile merged
 ├── settings.json                  # Base or Profile settings
-├── scripts/                       # Management scripts
-│   ├── dotclaude                 # Main CLI
-│   ├── sync-feature-branch.sh
-│   ├── shell-functions.sh
-│   ├── activate-profile.sh
-│   ├── profile-management.sh
-│   └── lib/
-│       └── validation.sh
+├── hooks/                         # Hook scripts (optional)
+│   ├── session-start/
+│   └── post-tool-bash/
 └── agents/                        # Shared agents
     └── best-in-class-gap-analysis/
 ```
+
+The `dotclaude` CLI is installed separately to `~/.local/bin/dotclaude` (not in `~/.claude/`).
 
 ### Backups
 
@@ -1147,46 +1144,19 @@ Available in all projects without per-project configuration.
 - You moved the repo after installation
 - You're using a shell other than bash/zsh
 
-**Optional:** Add sourced convenience functions to your shell:
+The `dotclaude` CLI is a standalone Go binary installed to `~/.local/bin/`. All git workflow commands are built into the CLI:
 
-**For bash (`~/.bashrc`):**
 ```bash
-# DOTCLAUDE_REPO_DIR already added by installer
-
-# Optional: Source convenience functions for git workflows
-if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
-    source "$HOME/.claude/scripts/shell-functions.sh"
-fi
-```
-
-**For zsh (`~/.zshrc`):**
-```bash
-# DOTCLAUDE_REPO_DIR already added by installer
-
-# Optional: Source convenience functions for git workflows
-if [ -f "$HOME/.claude/scripts/shell-functions.sh" ]; then
-    source "$HOME/.claude/scripts/shell-functions.sh"
-fi
+dotclaude sync              # Sync feature branch
+dotclaude branches          # Check branch status
 ```
 
 ### Shell Compatibility
 
 **Main CLI (`dotclaude`):**
-- Uses `#!/bin/bash` shebang
-- Runs in bash regardless of your shell
-- Works in any shell environment (bash, zsh, fish, etc.)
-
-**Sourced functions:**
-- POSIX-compatible syntax
-- Tested with bash 5.x and zsh 5.x
-- Use `[[ ]]` conditionals (bash/zsh)
-- `export -f` fails gracefully in zsh (not needed, functions already available)
-
-**Functions available after sourcing:**
-- `sync-feature-branch` - Sync current branch
-- `check-branches` - Check all branches
-- `pr-merged` - Post-PR workflow
-- `list-feature-branches` - List branches with status
+- Native Go binary (no shell dependencies)
+- Works in any shell environment (bash, zsh, fish, PowerShell, etc.)
+- Cross-platform (Linux, macOS, Windows)
 
 ---
 
@@ -1232,14 +1202,18 @@ export EDITOR="vim"
 
 ```bash
 # In your dotclaude repo
+cd ~/code/dotclaude
 git pull origin main
 
-# Redeploy (updates CLI and scripts)
+# Option 1: Rebuild and install
+make install
+
+# Option 2: Run installer again
 ./install.sh --force
 
-# Or just update CLI
-cp base/scripts/dotclaude ~/.local/bin/dotclaude
-chmod +x ~/.local/bin/dotclaude
+# Option 3: Download latest release
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_linux_amd64.tar.gz | tar xz
+sudo mv dotclaude /usr/local/bin/
 ```
 
 ### Sharing Profiles Across Machines

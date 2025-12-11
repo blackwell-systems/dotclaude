@@ -134,8 +134,8 @@ You'll see JSON with:
 # Just browse the codebase
 cd /dotclaude
 
-# Read the main script
-cat base/scripts/dotclaude
+# View the Go CLI source
+cat cmd/dotclaude/main.go
 
 # Check base configuration
 cat base/CLAUDE.md
