@@ -18,7 +18,7 @@ Hooks are scripts that run at specific points in the Claude Code lifecycle.
 They enable cross-platform automation and customization.
 
 Built-in hooks provide core functionality (session info, profile mismatch detection).
-Custom hooks can be added to ~/.claude/hooks/<hook-type>/ directories.
+Custom hooks can be added to the hooks directory (<claude-dir>/hooks/<hook-type>/).
 
 Hook types:
   session-start    Runs when a Claude Code session starts
@@ -27,7 +27,12 @@ Hook types:
   pre-tool-bash    Runs before Bash tool execution
   pre-tool-edit    Runs before Edit tool execution
 
-Hooks are executed in order by numeric prefix (00-first.sh runs before 50-second.sh).`,
+Hooks are executed in order by numeric prefix (00-first runs before 50-second).
+
+Supported hook formats:
+  Unix:    .sh, .bash (requires bash)
+  Windows: .ps1, .cmd, .bat, .exe
+  Any:     executable files without extension`,
 	}
 
 	cmd.AddCommand(
@@ -147,13 +152,13 @@ func newHookInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize hooks directory structure",
-		Long: `Create the hooks directory structure in ~/.claude/hooks/.
+		Long: `Create the hooks directory structure for custom hooks.
 
 This creates directories for each hook type where custom hooks can be placed.
 Custom hooks are executable files that run alongside built-in hooks.
 
 Example hook structure after init:
-  ~/.claude/hooks/
+  <claude-dir>/hooks/
   ├── session-start/
   ├── post-tool-bash/
   ├── post-tool-edit/
@@ -161,7 +166,9 @@ Example hook structure after init:
   └── pre-tool-edit/
 
 To add a custom hook, place an executable script in the appropriate directory.
-Use numeric prefixes to control execution order (e.g., 20-myhook.sh).`,
+Use numeric prefixes to control execution order:
+  Unix:    20-myhook.sh, 30-another.bash
+  Windows: 20-myhook.ps1, 30-another.cmd`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			runner := hooks.NewRunner(ClaudeDir, RepoDir)
 
@@ -176,7 +183,9 @@ Use numeric prefixes to control execution order (e.g., 20-myhook.sh).`,
 			}
 
 			fmt.Println("\nTo add custom hooks, place executable scripts in these directories.")
-			fmt.Println("Use numeric prefixes to control order (e.g., 20-myhook.sh)")
+			fmt.Println("Use numeric prefixes to control order:")
+			fmt.Println("  Unix:    20-myhook.sh")
+			fmt.Println("  Windows: 20-myhook.ps1")
 
 			return nil
 		},
