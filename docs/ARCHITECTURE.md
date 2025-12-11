@@ -2,7 +2,7 @@
 
 Technical overview of how dotclaude works internally.
 
-> **Note**: dotclaude v1.0.0+ uses a cross-platform Go implementation as the primary (and recommended) backend on all platforms: Linux, macOS, and Windows. The legacy shell implementation is deprecated but available via `DOTCLAUDE_BACKEND=shell` for backwards compatibility on Unix systems.
+> **Note**: dotclaude v1.0.0-rc.1+ is a pure Go implementation that runs natively on Linux, macOS, and Windows. The legacy shell implementation has been archived to `archive/` for reference only.
 
 ## System Architecture
 
@@ -12,9 +12,8 @@ flowchart TB
     base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>[Shared across ALL profiles]"]
     profiles["profiles/<br/>• client-work-oss/CLAUDE.md<br/>• client-work/CLAUDE.md<br/>• work-project/CLAUDE.md<br/>[Context-specific additions]"]
 
-    wrapper["<b>base/scripts/dotclaude</b><br/>Wrapper Script<br/>Routes to Go or Shell"]
-    go_binary["<b>bin/dotclaude-go</b><br/>Go Implementation<br/>(Primary)"]
-    shell["<b>base/scripts/dotclaude-shell</b><br/>Shell Implementation<br/>(Fallback/Reference)"]
+    wrapper["<b>base/scripts/dotclaude</b><br/>Launcher Script"]
+    go_binary["<b>bin/dotclaude-go</b><br/>Go Binary<br/>(Cross-platform)"]
 
     claude_dir["<b>~/.claude/</b><br/>(Deployed Configuration)"]
     merged_claude["CLAUDE.md<br/>(base + profile merged)"]
@@ -26,8 +25,7 @@ flowchart TB
     repo --> base
     repo --> profiles
     repo -->|"make build"| go_binary
-    wrapper -->|"DOTCLAUDE_BACKEND=go"| go_binary
-    wrapper -->|"DOTCLAUDE_BACKEND=shell"| shell
+    wrapper --> go_binary
     go_binary -->|"Commands"| claude_dir
     claude_dir --> merged_claude
     claude_dir --> deployed_settings
@@ -39,7 +37,6 @@ flowchart TB
     style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
     style go_binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
-    style shell fill:#4a5568,stroke:#718096,color:#e2e8f0
     style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style merged_claude fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style deployed_settings fill:#1a365d,stroke:#2c5282,color:#e2e8f0
