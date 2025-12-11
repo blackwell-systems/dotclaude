@@ -166,11 +166,32 @@ func (r *Runner) runExternal(path string) error {
 
 	switch ext {
 	case ".ps1":
-		// PowerShell script
-		cmd = exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", path)
+		// PowerShell script - try pwsh first (cross-platform), fall back to powershell (Windows)
+		if pwsh, err := exec.LookPath("pwsh"); err == nil {
+			cmd = exec.Command(pwsh, "-ExecutionPolicy", "Bypass", "-File", path)
+		} else if powershell, err := exec.LookPath("powershell"); err == nil {
+			cmd = exec.Command(powershell, "-ExecutionPolicy", "Bypass", "-File", path)
+		} else {
+			return fmt.Errorf("PowerShell not found - install PowerShell Core (pwsh) to run .ps1 hooks")
+		}
 	case ".sh", ".bash":
-		// Shell script
-		cmd = exec.Command("bash", path)
+		// Shell script - check if bash is available
+		if bash, err := exec.LookPath("bash"); err == nil {
+			cmd = exec.Command(bash, path)
+		} else if runtime.GOOS == "windows" {
+			// On Windows, suggest Git Bash or WSL
+			return fmt.Errorf("bash not found - install Git for Windows or WSL to run .sh hooks")
+		} else {
+			// On Unix, try sh as fallback
+			cmd = exec.Command("sh", path)
+		}
+	case ".cmd", ".bat":
+		// Windows batch scripts
+		if runtime.GOOS == "windows" {
+			cmd = exec.Command("cmd", "/c", path)
+		} else {
+			return fmt.Errorf(".cmd/.bat hooks only work on Windows")
+		}
 	default:
 		// Try to execute directly (works for shebang scripts on Unix, .exe on Windows)
 		cmd = exec.Command(path)

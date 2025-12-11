@@ -65,13 +65,17 @@ dotclaude hook init
 
 This creates:
 ```
-~/.claude/hooks/
+<claude-dir>/hooks/
 ├── session-start/
 ├── post-tool-bash/
 ├── post-tool-edit/
 ├── pre-tool-bash/
 └── pre-tool-edit/
 ```
+
+Where `<claude-dir>` is:
+- **Linux/macOS**: `~/.claude`
+- **Windows**: `%USERPROFILE%\.claude`
 
 ## Built-in Hooks
 
@@ -218,9 +222,29 @@ profiles/my-profile/
 
 ### Hook Not Running
 
-1. Check the hook is executable: `ls -la ~/.claude/hooks/session-start/`
-2. Verify the hook directory exists: `dotclaude hook init`
-3. List hooks to confirm registration: `dotclaude hook list session-start`
+**Linux/macOS:**
+```bash
+# Check the hook is executable
+ls -la ~/.claude/hooks/session-start/
+
+# Verify the hook directory exists
+dotclaude hook init
+
+# List hooks to confirm registration
+dotclaude hook list session-start
+```
+
+**Windows (PowerShell):**
+```powershell
+# Check the hooks directory
+Get-ChildItem "$env:USERPROFILE\.claude\hooks\session-start"
+
+# Verify the hook directory exists
+dotclaude hook init
+
+# List hooks to confirm registration
+dotclaude hook list session-start
+```
 
 ### Hook Errors
 
@@ -230,15 +254,43 @@ Hook 20-myhook.sh warning: exit status 1
 ```
 
 To debug, run the hook directly:
+
+**Linux/macOS:**
 ```bash
 ~/.claude/hooks/session-start/20-myhook.sh
 ```
 
-### Windows Script Execution
-
-If PowerShell scripts don't run, ensure execution policy allows them:
+**Windows:**
 ```powershell
+& "$env:USERPROFILE\.claude\hooks\session-start\20-myhook.ps1"
+```
+
+### Windows-Specific Issues
+
+**PowerShell scripts don't run:**
+```powershell
+# Ensure execution policy allows scripts
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Bash hooks (.sh) don't run:**
+- Install [Git for Windows](https://gitforwindows.org/) which includes Git Bash
+- Or use Windows Subsystem for Linux (WSL)
+- Or convert hooks to PowerShell (.ps1)
+
+### Linux/macOS-Specific Issues
+
+**Permission denied:**
+```bash
+chmod +x ~/.claude/hooks/session-start/20-myhook.sh
+```
+
+**Shebang issues:**
+Ensure your script starts with a proper shebang:
+```bash
+#!/bin/bash
+# or
+#!/usr/bin/env bash
 ```
 
 ## Best Practices
