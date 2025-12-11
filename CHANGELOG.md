@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] - 2025-12-11
+
+### Summary
+
+Bug fix release addressing issues discovered during comprehensive Go migration audit.
+
+### Added
+
+**New command aliases:**
+- `branches` alias for check-branches command
+- `br` alias for check-branches command
+
+**edit command enhancement:**
+- Now works without argument (uses active profile)
+- If no active profile, shows helpful error message
+
+### Fixed
+
+**Bug Fixes:**
+- `check-branches` command now has `branches` and `br` aliases for discoverability
+- `edit` command now supports editing active profile without specifying name
+- Path construction in delete.go now uses `filepath.Join()` for cross-platform safety
+- File permissions standardized to 0644 for all backup and config files
+
+### Changed
+
+**Code Quality:**
+- Removed unused `getCommitCountForSync()` function from sync.go
+- Standardized file permissions: backups and restored files both use 0644
+
+### Documentation
+
+- Complete rewrite of ARCHITECTURE.md for Go implementation
+- Added Go package structure documentation
+- Updated security architecture diagrams
+- Added backend selection documentation
+
 ## [1.0.0-beta.2] - 2025-12-10
 
 ### Summary

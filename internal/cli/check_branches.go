@@ -13,10 +13,11 @@ func newCheckBranchesCmd() *cobra.Command {
 	var defaultBranch string
 
 	cmd := &cobra.Command{
-		Use:   "check-branches",
-		Short: "Check which branches are behind main",
-		Long:  "Quick check to see which feature branches are ahead of or behind the default branch.",
-		Args:  cobra.NoArgs,
+		Use:     "check-branches",
+		Aliases: []string{"branches", "br"},
+		Short:   "Check which branches are behind main",
+		Long:    "Quick check to see which feature branches are ahead of or behind the default branch.",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Check if we're in a git repository
 			if err := exec.Command("git", "rev-parse", "--git-dir").Run(); err != nil {

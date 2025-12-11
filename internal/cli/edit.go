@@ -14,14 +14,25 @@ func newEditCmd() *cobra.Command {
 	var editSettings bool
 
 	cmd := &cobra.Command{
-		Use:   "edit <profile-name>",
+		Use:   "edit [profile-name]",
 		Short: "Edit a profile",
-		Long:  "Open a profile's CLAUDE.md file in your editor.",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			profileName := args[0]
+		Long: `Open a profile's CLAUDE.md file in your editor.
 
+If no profile name is provided, edits the currently active profile.`,
+		Args: cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			mgr := profile.NewManager(RepoDir, ClaudeDir)
+
+			var profileName string
+			if len(args) == 0 {
+				// Use active profile
+				profileName = mgr.GetActiveProfileName()
+				if profileName == "" {
+					return fmt.Errorf("no active profile. Specify a profile name or activate one first")
+				}
+			} else {
+				profileName = args[0]
+			}
 
 			// Check if profile exists
 			if !mgr.ProfileExists(profileName) {
