@@ -21,7 +21,7 @@ Manage your Claude Code configuration as layered, version-controlled profiles. S
 
 ## What is dotclaude?
 
-Stop manually editing `~/.claude/CLAUDE.md` every time you switch projects.
+Stop manually editing `~/.claude/CLAUDE.md` (or `%USERPROFILE%\.claude\CLAUDE.md` on Windows) every time you switch projects.
 
 **dotclaude** lets you define universal practices once in a **base** configuration, then create **profiles** that add context-specific details (tech stack, coding standards, compliance requirements). Switch between them instantly.
 
@@ -40,11 +40,12 @@ Each profile merges your base configuration with project-specific additions - no
 - **One-command switching** between work contexts
 - **Layered profiles** (base + context-specific overlays)
 - **Auto-detection** via `.dotclaude` file
+- **Hook system** for automation (session start, post-tool events)
 - **Preview mode** (dry-run before applying)
 - **Backup & restore** with automatic versioning
 - **Version controlled** (sync across machines via git)
 - **Git workflow tools** for long-lived feature branches
-- **Multi-provider** (AWS Bedrock + Claude Max)
+- **Cross-platform** (Linux, macOS, Windows native)
 
 ## Platform Support
 
@@ -100,6 +101,11 @@ sudo mv dotclaude /usr/local/bin/
 # Linux (ARM64)
 curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_linux_arm64.tar.gz | tar xz
 sudo mv dotclaude /usr/local/bin/
+
+# Windows (PowerShell - as Administrator)
+Invoke-WebRequest -Uri "https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_windows_amd64.zip" -OutFile dotclaude.zip
+Expand-Archive dotclaude.zip -DestinationPath "$env:ProgramFiles\dotclaude"
+# Add $env:ProgramFiles\dotclaude to your PATH
 ```
 
 Or browse all releases at the [releases page](https://github.com/blackwell-systems/dotclaude/releases).
@@ -116,8 +122,14 @@ go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
 
 One-line install (clones repository with base configs):
 
+**Linux/macOS:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+iex (iwr -Uri "https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.ps1").Content
 ```
 
 Then follow the guided setup:
@@ -135,6 +147,7 @@ dotclaude show                 # Verify it's active
 
 - **[Getting Started](https://blackwell-systems.github.io/dotclaude/#/GETTING-STARTED)** - Installation, concepts, and first steps
 - **[Commands Reference](https://blackwell-systems.github.io/dotclaude/#/COMMANDS)** - Complete command guide
+- **[Hooks Guide](https://blackwell-systems.github.io/dotclaude/#/HOOKS)** - Automation and custom hooks
 - **[Usage Guide](https://blackwell-systems.github.io/dotclaude/#/USAGE)** - Advanced workflows and features
 - **[blackdot Integration](https://blackwell-systems.github.io/dotclaude/#/BLACKDOT-INTEGRATION)** - Use with blackdot for complete environment
 - **[Architecture](https://blackwell-systems.github.io/dotclaude/#/ARCHITECTURE)** - How it works under the hood
