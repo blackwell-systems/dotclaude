@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -265,20 +264,4 @@ func syncMerge(currentBranch, defaultBranch string, reader *bufio.Reader) error 
 	}
 
 	return nil
-}
-
-// Reuse getCommitCount from check_branches.go
-func getCommitCountForSync(from, to string) (int, error) {
-	countCmd := exec.Command("git", "rev-list", "--count", fmt.Sprintf("%s..%s", from, to))
-	output, err := countCmd.Output()
-	if err != nil {
-		return 0, err
-	}
-
-	count, err := strconv.Atoi(strings.TrimSpace(string(output)))
-	if err != nil {
-		return 0, err
-	}
-
-	return count, nil
 }

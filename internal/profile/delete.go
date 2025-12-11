@@ -3,6 +3,7 @@ package profile
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // Delete removes a profile.
@@ -24,7 +25,7 @@ func (m *Manager) Delete(name string) error {
 	}
 
 	// Delete profile directory
-	profilePath := m.ProfilesDir + "/" + name
+	profilePath := filepath.Join(m.ProfilesDir, name)
 	if err := os.RemoveAll(profilePath); err != nil {
 		return fmt.Errorf("failed to delete profile: %w", err)
 	}
