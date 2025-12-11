@@ -27,7 +27,7 @@ func newCreateCmd() *cobra.Command {
 			// Success message
 			fmt.Println()
 			fmt.Println("╭─────────────────────────────────────────────────────────────╮")
-			fmt.Printf("│  ✓ Profile Created: \033[1;32m%-39s\033[0m│\n", profileName)
+			fmt.Printf("│  ✓ Profile Created: %-39s│\n", Green(profileName))
 			fmt.Println("╰─────────────────────────────────────────────────────────────╯")
 			fmt.Println()
 			fmt.Printf("Profile created at: %s/profiles/%s\n", RepoDir, profileName)

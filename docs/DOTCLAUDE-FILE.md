@@ -212,7 +212,8 @@ The `.dotclaude` file follows the same pattern: project-level configuration that
 1. Verify `.dotclaude` file exists: `ls -la .dotclaude`
 2. Check file contents: `cat .dotclaude`
 3. Ensure SessionStart hook is enabled in `~/.claude/settings.json`
-4. Verify check-dotclaude.sh script exists: `ls ~/.claude/scripts/check-dotclaude.sh`
+4. Verify check-dotclaude hook is registered: `dotclaude hook list session-start`
+   - Should show `check-dotclaude (built-in, enabled)`
 
 ## Examples
 

@@ -489,9 +489,126 @@ dotclaude activate my-first-profile
 
 ---
 
+## Hook System Questions
+
+### How do I add custom hooks?
+
+Create executable scripts in the hooks directory:
+
+**Linux/macOS:**
+```bash
+mkdir -p ~/.claude/hooks/session-start
+cat > ~/.claude/hooks/session-start/20-greeting.sh << 'EOF'
+#!/bin/bash
+echo "Welcome to $(basename $(pwd))!"
+EOF
+chmod +x ~/.claude/hooks/session-start/20-greeting.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+$hookDir = "$env:USERPROFILE\.claude\hooks\session-start"
+mkdir -Force $hookDir | Out-Null
+@'
+Write-Host "Welcome to $((Get-Item .).Name)!"
+'@ | Out-File "$hookDir\20-greeting.ps1" -Encoding UTF8
+```
+
+---
+
+### What hook types are available?
+
+| Hook Type | Trigger |
+|-----------|---------|
+| `session-start` | When Claude Code starts |
+| `post-tool-bash` | After Bash tool execution |
+| `post-tool-edit` | After Edit tool execution |
+| `pre-tool-bash` | Before Bash tool execution |
+| `pre-tool-edit` | Before Edit tool execution |
+
+See [HOOKS.md](HOOKS.md) for full documentation.
+
+---
+
+### Why isn't my hook running?
+
+1. **Verify it's registered:** `dotclaude hook list`
+2. **Check file location:** Must be in `~/.claude/hooks/<type>/`
+3. **Check permissions:** On Linux/macOS, run `chmod +x` on the file
+4. **Check naming:** Use numeric prefix (e.g., `20-myhook.sh`)
+
+---
+
+## Windows-Specific Questions
+
+### How do I install on Windows?
+
+**Option 1: Download binary**
+```powershell
+Invoke-WebRequest -Uri "https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_windows_amd64.zip" -OutFile dotclaude.zip
+Expand-Archive dotclaude.zip -DestinationPath "$env:ProgramFiles\dotclaude"
+```
+
+**Option 2: Install script**
+```powershell
+iex (iwr -Uri "https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.ps1").Content
+```
+
+**Option 3: Go install (if Go is installed)**
+```powershell
+go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
+```
+
+---
+
+### Where is the config directory on Windows?
+
+| Unix | Windows |
+|------|---------|
+| `~/.claude/` | `%USERPROFILE%\.claude\` |
+| `~/code/dotclaude/` | `%USERPROFILE%\code\dotclaude\` |
+
+Example:
+```powershell
+# View config
+Get-Content "$env:USERPROFILE\.claude\CLAUDE.md"
+
+# Set DOTCLAUDE_REPO_DIR
+[Environment]::SetEnvironmentVariable("DOTCLAUDE_REPO_DIR", "$env:USERPROFILE\code\dotclaude", "User")
+```
+
+---
+
+### PowerShell hooks not executing
+
+**Cause:** Execution policy may be blocking scripts.
+
+**Fix:**
+```powershell
+# Check current policy
+Get-ExecutionPolicy
+
+# Allow user scripts
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+---
+
+### Bash hooks (.sh) not running on Windows
+
+**Cause:** Bash is not installed.
+
+**Options:**
+1. Install [Git for Windows](https://gitforwindows.org/) (includes Git Bash)
+2. Use Windows Subsystem for Linux (WSL)
+3. Convert hooks to PowerShell (.ps1) format
+
+---
+
 ## Still Have Questions?
 
 - **[Complete Usage Guide](USAGE.md)** - Comprehensive command reference
+- **[Hooks Documentation](HOOKS.md)** - Hook system details
 - **[Architecture Documentation](ARCHITECTURE.md)** - Technical details
 - **[GitHub Issues](https://github.com/blackwell-systems/dotclaude/issues)** - Report bugs or ask questions
 - **[Sample Profile](https://github.com/blackwell-systems/dotclaude/blob/main/examples/sample-profile/README.md)** - Learn by example

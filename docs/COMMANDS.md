@@ -10,6 +10,7 @@ dotclaude provides commands organized into four categories:
 |----------|----------|---------|
 | **Profile Management** | show, active, list, activate, switch, create, edit, diff, restore | Manage and switch between profiles |
 | **Git Workflow** | sync, branches | Keep feature branches in sync |
+| **Hooks** | hook run, hook list, hook init | Automation and custom hooks |
 | **System** | version, help | Version info and help |
 | **Debug** | --verbose flag | Troubleshooting |
 

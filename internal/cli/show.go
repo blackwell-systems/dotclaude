@@ -55,7 +55,7 @@ func newShowCmd() *cobra.Command {
 			fmt.Println("│  Active Profile                                             │")
 			fmt.Println("╰─────────────────────────────────────────────────────────────╯")
 			fmt.Println()
-			fmt.Printf("  Profile:  \033[1;32m%s\033[0m\n", activeProfile.Name)
+			fmt.Printf("  Profile:  %s\n", Green(activeProfile.Name))
 			fmt.Printf("  Location: %s\n", activeProfile.Path)
 			fmt.Printf("  Modified: %s\n", activeProfile.LastModified.Format("2006-01-02 15:04:05"))
 			fmt.Println()

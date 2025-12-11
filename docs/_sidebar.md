@@ -15,6 +15,7 @@
   - [Command Reference](COMMANDS.md)
   - [Profile Management](COMMANDS.md#profile-management-commands)
   - [Git Workflow Tools](COMMANDS.md#git-workflow-commands)
+  - [Hook Commands](COMMANDS.md#hook-commands)
   - [Debug Mode](COMMANDS.md#debug-mode)
 
 - **User Guide**
@@ -28,6 +29,7 @@
   - [Troubleshooting](FAQ.md#troubleshooting)
 
 - **Advanced**
+  - [Hook System](HOOKS.md)
   - [Architecture](ARCHITECTURE.md)
   - [.dotclaude File Format](DOTCLAUDE-FILE.md)
 
