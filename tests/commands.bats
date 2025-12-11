@@ -125,7 +125,7 @@ teardown() {
 @test "activate: rejects unknown flag" {
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" activate test-profile-1 --unknown-flag
     [ "$status" -eq 1 ]
-    [[ "$output" =~ "Unknown flag" ]]
+    [[ "$output" =~ "unknown flag" ]]
 }
 
 # ============================================================================
@@ -318,7 +318,7 @@ teardown() {
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" help
     [ "$status" -eq 0 ]
     [[ "$output" =~ "dotclaude" ]]
-    [[ "$output" =~ "USAGE" ]] || [[ "$output" =~ "COMMANDS" ]]
+    [[ "$output" =~ "Usage" ]] || [[ "$output" =~ "Commands" ]]
 }
 
 @test "help: works with alias -h" {
@@ -348,7 +348,7 @@ teardown() {
 @test "unknown command: returns error" {
     run bash "$TEST_REPO_DIR/base/scripts/dotclaude" nonexistent-command
     [ "$status" -eq 1 ]
-    [[ "$output" =~ "Unknown command" ]] || [[ "$output" =~ "not found" ]]
+    [[ "$output" =~ "unknown command" ]] || [[ "$output" =~ "Unknown command" ]] || [[ "$output" =~ "not found" ]]
 }
 
 @test "no command: shows help" {
