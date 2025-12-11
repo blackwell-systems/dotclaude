@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+**Windows Platform Support:**
+- `install.ps1` - PowerShell installer for Windows users
+  - Downloads pre-built binary or builds from source
+  - Configures PATH and environment variables
+  - Creates hooks directory structure
+
+**Cross-Platform Terminal Support:**
+- Terminal color detection with platform-specific handling
+- Windows 10+ ANSI virtual terminal processing
+- Respects `NO_COLOR` environment variable
+- Graceful fallback when colors unavailable
+
+**Enhanced Hook System:**
+- Shell availability detection before running hooks
+- PowerShell Core (`pwsh`) support on all platforms
+- Helpful error messages when shell not found
+- `.cmd`/`.bat` properly restricted to Windows
+
+### Changed
+
+**Editor Detection (edit command):**
+- Cross-platform editor detection:
+  - Checks `EDITOR` and `VISUAL` environment variables
+  - Windows: VS Code → notepad++ → notepad
+  - Unix: code → vim → nano → vi
+- Handles editor commands with arguments (e.g., "code --wait")
+
+**Documentation:**
+- HOOKS.md updated with Windows and Linux examples
+- Platform-specific troubleshooting sections
+- Cross-platform path references
+
+### Technical Details
+
+**New Files:**
+- `install.ps1` - Windows PowerShell installer
+- `internal/cli/terminal.go` - Cross-platform color support
+- `internal/cli/terminal_unix.go` - Unix terminal handling
+- `internal/cli/terminal_windows.go` - Windows terminal handling (ANSI VT)
+
 ## [1.0.0-beta.4] - 2025-12-11
 
 ### Summary
