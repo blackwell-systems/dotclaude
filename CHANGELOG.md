@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0-rc.1] - 2025-12-10
+## [1.0.0-rc.2] - 2025-12-10
 
 ### Summary
 
-Release Candidate 1 - Complete migration to Go implementation. The shell version has been fully replaced with a native Go binary. This release marks the completion of the migration phase and readiness for production use.
+Release Candidate 2 - Complete migration to Go implementation. The shell version has been fully replaced with a native Go binary. This release marks the completion of the migration phase and readiness for production use.
 
 ### Changed
 
