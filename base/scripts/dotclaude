@@ -1,6 +1,6 @@
 #!/bin/bash
-# dotclaude wrapper - routes to Go or shell implementation
-# Part of the strangler fig migration strategy
+# dotclaude - profile management for Claude Code
+# Go-only implementation (v1.0.0-rc.1+)
 
 set -e
 
@@ -13,49 +13,17 @@ else
 fi
 
 GO_BINARY="$REPO_DIR/bin/dotclaude-go"
-SHELL_BINARY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dotclaude-shell"
 
-# Allow manual override: DOTCLAUDE_BACKEND=go|shell|auto
-BACKEND="${DOTCLAUDE_BACKEND:-go}"
+# Check if Go binary exists
+if [ ! -x "$GO_BINARY" ]; then
+    echo "Error: Go binary not found at $GO_BINARY" >&2
+    echo "" >&2
+    echo "To build:" >&2
+    echo "  cd $REPO_DIR && make build" >&2
+    echo "" >&2
+    echo "Or install via go:" >&2
+    echo "  go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest" >&2
+    exit 1
+fi
 
-case "$BACKEND" in
-    go)
-        # Force Go implementation
-        if [ ! -x "$GO_BINARY" ]; then
-            echo "Error: Go binary not found at $GO_BINARY" >&2
-            echo "Run: make build" >&2
-            exit 1
-        fi
-        exec "$GO_BINARY" "$@"
-        ;;
-    shell)
-        # Force shell implementation
-        exec "$SHELL_BINARY" "$@"
-        ;;
-    auto)
-        # Smart routing: Try Go first, fall back to shell if not implemented
-        if [ -x "$GO_BINARY" ]; then
-            # Capture output and exit code
-            output=$("$GO_BINARY" "$@" 2>&1)
-            exit_code=$?
-
-            # Check if command is unknown (not yet implemented in Go)
-            if echo "$output" | grep -q "unknown command"; then
-                # Fall back to shell for unimplemented commands
-                exec "$SHELL_BINARY" "$@"
-            fi
-
-            # Output the result and exit with same code
-            echo "$output"
-            exit $exit_code
-        else
-            # Go binary not built yet, use shell
-            exec "$SHELL_BINARY" "$@"
-        fi
-        ;;
-    *)
-        echo "Error: Unknown DOTCLAUDE_BACKEND=$BACKEND" >&2
-        echo "Valid options: go, shell, auto" >&2
-        exit 1
-        ;;
-esac
+exec "$GO_BINARY" "$@"

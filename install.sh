@@ -101,19 +101,14 @@ if [ ! -t 0 ]; then
     NON_INTERACTIVE=true
 fi
 
-# Load validation library if available
-if [ -f "$BASE_DIR/scripts/lib/validation.sh" ]; then
-    source "$BASE_DIR/scripts/lib/validation.sh"
-else
-    # Fallback inline validation
-    validate_directory() {
-        if [ -L "$1" ]; then
-            echo -e "${RED}Error: Path is a symlink: $1${NC}" >&2
-            return 1
-        fi
-        return 0
-    }
-fi
+# Inline validation (Go binary handles all profile operations)
+validate_directory() {
+    if [ -L "$1" ]; then
+        echo -e "${RED}Error: Path is a symlink: $1${NC}" >&2
+        return 1
+    fi
+    return 0
+}
 
 echo -e "${BLUE}=== dotclaude installer ===${NC}"
 echo "Repo: $REPO_DIR"
@@ -122,7 +117,6 @@ echo ""
 
 # Create directories
 mkdir -p "$CLAUDE_DIR/agents"
-mkdir -p "$CLAUDE_DIR/scripts"
 mkdir -p "$HOME/.local/bin"
 
 # Install dotclaude CLI
@@ -154,15 +148,24 @@ else
     echo "  ${YELLOW}⚠${NC}  dotclaude CLI not found in base/scripts"
 fi
 
-# Install scripts (needed for profile activation)
+# Build Go binary if needed
 echo ""
-echo "[2/3] Installing management scripts..."
-if [ -d "$BASE_DIR/scripts" ]; then
-    cp -r "$BASE_DIR/scripts/"* "$CLAUDE_DIR/scripts/"
-    chmod +x "$CLAUDE_DIR/scripts/"*.sh
-    echo -e "  ${GREEN}✓${NC} Installed scripts to ~/.claude/scripts/"
+echo "[2/3] Building Go binary..."
+if command -v go >/dev/null 2>&1; then
+    if [ ! -f "$REPO_DIR/bin/dotclaude-go" ] || [ "$FORCE_INSTALL" = "true" ]; then
+        echo "  Building dotclaude binary..."
+        (cd "$REPO_DIR" && make build 2>/dev/null) || {
+            echo -e "  ${YELLOW}⚠${NC}  Make not available, using go build directly"
+            mkdir -p "$REPO_DIR/bin"
+            go build -o "$REPO_DIR/bin/dotclaude-go" "$REPO_DIR/cmd/dotclaude"
+        }
+        echo -e "  ${GREEN}✓${NC} Built Go binary at $REPO_DIR/bin/dotclaude-go"
+    else
+        echo -e "  ${GREEN}✓${NC} Go binary already exists"
+    fi
 else
-    echo "  No scripts found in base"
+    echo -e "  ${YELLOW}⚠${NC}  Go not installed - download pre-built binary from:"
+    echo "     https://github.com/blackwell-systems/dotclaude/releases"
 fi
 
 # Install agents
@@ -300,11 +303,12 @@ else
     VALIDATION_PASS=false
 fi
 
-# Check 2: Base files copied
-if [ -d "$CLAUDE_DIR/scripts" ] && [ -f "$CLAUDE_DIR/scripts/activate-profile.sh" ]; then
-    echo -e "${GREEN}✓${NC} Management scripts installed"
+# Check 2: Go binary exists
+if [ -f "$REPO_DIR/bin/dotclaude-go" ]; then
+    echo -e "${GREEN}✓${NC} Go binary built successfully"
 else
-    echo -e "${RED}✗${NC} Management scripts missing"
+    echo -e "${RED}✗${NC} Go binary not found"
+    echo "  Run: cd $REPO_DIR && make build"
     VALIDATION_PASS=false
 fi
 
