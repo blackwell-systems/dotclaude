@@ -80,19 +80,41 @@ Nothing touches your system. When you're ready, install for real.
 
 ## Quick Install
 
-### Option 1: Go Install (Recommended for Go users)
+### Option 1: Download Pre-built Binary (No Go Required)
+
+Download the latest release for your platform:
+
+```bash
+# macOS (Apple Silicon)
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_darwin_arm64.tar.gz | tar xz
+sudo mv dotclaude /usr/local/bin/
+
+# macOS (Intel)
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_darwin_amd64.tar.gz | tar xz
+sudo mv dotclaude /usr/local/bin/
+
+# Linux (x86_64)
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_linux_amd64.tar.gz | tar xz
+sudo mv dotclaude /usr/local/bin/
+
+# Linux (ARM64)
+curl -sL https://github.com/blackwell-systems/dotclaude/releases/latest/download/dotclaude_linux_arm64.tar.gz | tar xz
+sudo mv dotclaude /usr/local/bin/
+```
+
+Or browse all releases at the [releases page](https://github.com/blackwell-systems/dotclaude/releases).
+
+### Option 2: Go Install
+
+If you have Go installed:
 
 ```bash
 go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
 ```
 
-### Option 2: Download Binary
-
-Download the latest release for your platform from the [releases page](https://github.com/blackwell-systems/dotclaude/releases).
-
 ### Option 3: Install Script
 
-One-line install (clones to `~/code/dotclaude` automatically):
+One-line install (clones repository with base configs):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
