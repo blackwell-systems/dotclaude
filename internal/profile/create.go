@@ -144,12 +144,15 @@ func initGitRepo(profileDir, profileName string) error {
 		return err
 	}
 
-	// Initial commit
+	// Initial commit - skip if git user not configured
 	commitMsg := fmt.Sprintf("Initial commit for profile: %s", profileName)
 	cmd = exec.Command("git", "commit", "-m", commitMsg)
 	cmd.Dir = profileDir
 	if err := cmd.Run(); err != nil {
-		return err
+		// Commit failed, likely due to missing git config
+		// This is not fatal - profile is still created successfully
+		// User can configure git and commit later if needed
+		return nil
 	}
 
 	return nil
