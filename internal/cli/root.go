@@ -10,7 +10,7 @@ import (
 
 const (
 	// Version is the current dotclaude version
-	Version = "1.0.0-beta.3"
+	Version = "1.0.0-beta.4"
 )
 
 var (
@@ -93,6 +93,7 @@ func init() {
 		newCheckBranchesCmd(),
 		newSyncCmd(),
 		newDiffCmd(),
+		newHookCmd(),
 	)
 }
 

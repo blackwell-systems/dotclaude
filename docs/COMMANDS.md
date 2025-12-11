@@ -553,6 +553,93 @@ Checking branches against main...
 
 ---
 
+## Hook Commands
+
+### `dotclaude hook run`
+
+Execute all hooks of a given type.
+
+**Usage:**
+```bash
+dotclaude hook run <hook-type>
+```
+
+**Hook Types:**
+| Type | Trigger | Description |
+|------|---------|-------------|
+| `session-start` | Session starts | Session info, profile checks |
+| `post-tool-bash` | After Bash tool | Git workflow tips |
+| `post-tool-edit` | After Edit tool | Custom post-edit hooks |
+| `pre-tool-bash` | Before Bash tool | Pre-command validation |
+| `pre-tool-edit` | Before Edit tool | Pre-edit validation |
+
+**Examples:**
+```bash
+# Run session start hooks
+dotclaude hook run session-start
+
+# Run post-bash hooks
+dotclaude hook run post-tool-bash
+```
+
+**When to use:**
+- Called automatically by Claude Code via settings.json hooks
+- Manually for testing custom hooks
+
+---
+
+### `dotclaude hook list`
+
+List all available hooks for a given type.
+
+**Usage:**
+```bash
+dotclaude hook list [hook-type]
+```
+
+**Examples:**
+```bash
+# List all hooks
+dotclaude hook list
+
+# List session-start hooks only
+dotclaude hook list session-start
+```
+
+**Output:**
+```
+session-start:
+  [00] session-info (built-in, enabled)
+  [10] check-dotclaude (built-in, enabled)
+  [20] custom-greeting.sh (enabled)
+
+post-tool-bash:
+  [10] git-tips (built-in, enabled)
+```
+
+---
+
+### `dotclaude hook init`
+
+Initialize the hooks directory structure.
+
+**Usage:**
+```bash
+dotclaude hook init
+```
+
+**What it does:**
+Creates `~/.claude/hooks/` with subdirectories for each hook type.
+
+**When to use:**
+- First-time setup
+- After fresh installation
+- To add custom hooks
+
+**See also:** [HOOKS.md](HOOKS.md) for complete hook system documentation.
+
+---
+
 ## System Commands
 
 ### `dotclaude version`
