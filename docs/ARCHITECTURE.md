@@ -9,11 +9,10 @@ Technical overview of how dotclaude works internally.
 ```mermaid
 flowchart TB
     repo["<b>dotclaude Repository</b><br/>(Version-Controlled Git Repo)"]
-    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>• scripts/<br/>[Shared across ALL profiles]"]
+    base["base/<br/>• CLAUDE.md<br/>• settings.json<br/>[Shared across ALL profiles]"]
     profiles["profiles/<br/>• client-work-oss/CLAUDE.md<br/>• client-work/CLAUDE.md<br/>• work-project/CLAUDE.md<br/>[Context-specific additions]"]
 
-    wrapper["<b>base/scripts/dotclaude</b><br/>Launcher Script"]
-    go_binary["<b>bin/dotclaude-go</b><br/>Go Binary<br/>(Cross-platform)"]
+    go_binary["<b>~/.local/bin/dotclaude</b><br/>Go Binary<br/>(Cross-platform)"]
 
     claude_dir["<b>~/.claude/</b><br/>(Deployed Configuration)"]
     merged_claude["CLAUDE.md<br/>(base + profile merged)"]
@@ -24,8 +23,7 @@ flowchart TB
 
     repo --> base
     repo --> profiles
-    repo -->|"make build"| go_binary
-    wrapper --> go_binary
+    repo -->|"make install"| go_binary
     go_binary -->|"Commands"| claude_dir
     claude_dir --> merged_claude
     claude_dir --> deployed_settings
@@ -35,7 +33,6 @@ flowchart TB
     style repo fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style base fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style profiles fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style wrapper fill:#2c5282,stroke:#4299e1,color:#e2e8f0
     style go_binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
     style claude_dir fill:#2d3748,stroke:#4a5568,color:#e2e8f0
     style merged_claude fill:#1a365d,stroke:#2c5282,color:#e2e8f0
