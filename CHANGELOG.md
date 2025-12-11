@@ -15,6 +15,12 @@ Bug fix release addressing issues discovered during comprehensive Go migration a
 
 ### Added
 
+**switch command:**
+- New interactive profile selector command
+- Displays numbered list of profiles
+- `select` alias for `switch` command
+- Shows current active profile with indicator
+
 **New command aliases:**
 - `branches` alias for check-branches command
 - `br` alias for check-branches command
