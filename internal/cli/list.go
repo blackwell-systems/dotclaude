@@ -9,9 +9,9 @@ import (
 
 func newListCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: "List all profiles",
-		Long:  "Display all available dotclaude profiles with their status.",
+		Use:     "list",
+		Short:   "List all profiles",
+		Long:    "Display all available dotclaude profiles with their status.",
 		Aliases: []string{"ls"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			mgr := profile.NewManager(RepoDir, ClaudeDir)
