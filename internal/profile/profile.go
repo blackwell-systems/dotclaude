@@ -126,10 +126,18 @@ func (m *Manager) ProfileExists(name string) bool {
 	return err == nil
 }
 
+// MaxProfileNameLength is the maximum allowed length for a profile name.
+const MaxProfileNameLength = 64
+
 // ValidateProfileName checks if a profile name is valid.
 func ValidateProfileName(name string) error {
 	if name == "" {
 		return fmt.Errorf("profile name cannot be empty")
+	}
+
+	// Check length limit (filesystem compatibility)
+	if len(name) > MaxProfileNameLength {
+		return fmt.Errorf("profile name too long: %d characters (maximum %d allowed)", len(name), MaxProfileNameLength)
 	}
 
 	// Check for invalid characters
