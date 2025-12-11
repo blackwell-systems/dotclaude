@@ -75,14 +75,12 @@ jobs:
         run: bats tests/integration.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Run command tests
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
         run: bats tests/commands.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Test results summary
         if: always()
@@ -141,14 +139,12 @@ jobs:
         run: bats tests/integration.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Run command tests
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.test_suite == 'all' || inputs.test_suite == 'commands' }}
         run: bats tests/commands.bats
         env:
           DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
-          DOTCLAUDE_BACKEND: shell  # Use shell for legacy tests
 
       - name: Test results summary
         if: always()
