@@ -67,6 +67,7 @@ dotclaude/
 │   │   ├── delete.go        # delete/rm command
 │   │   ├── edit.go          # edit command
 │   │   ├── activate.go      # activate/use command
+│   │   ├── switch.go        # switch/select command
 │   │   ├── restore.go       # restore command
 │   │   ├── diff.go          # diff command
 │   │   ├── check_branches.go # check-branches command
@@ -282,11 +283,12 @@ dotclaude list
 | `show` | - | Show active profile | `--debug` |
 | `create` | `new` | Create new profile | `--verbose` |
 | `delete` | `rm`, `remove` | Delete profile | `--force` |
-| `edit` | - | Edit profile in $EDITOR | `--settings` |
+| `edit` | - | Edit profile in $EDITOR (uses active if no name) | `--settings` |
 | `activate` | `use` | Activate profile | `--dry-run`, `--preview`, `--verbose`, `--debug` |
+| `switch` | `select` | Interactive profile selector | - |
 | `restore` | - | Restore from backup | - |
 | `diff` | - | Compare profiles | `--verbose` |
-| `check-branches` | - | Check branch status | `--base` |
+| `check-branches` | `branches`, `br` | Check branch status | `--base` |
 | `sync` | - | Sync with main | `--base` |
 
 ## File System Layout
