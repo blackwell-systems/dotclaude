@@ -3,9 +3,10 @@
 [![Blackwell Systems™](https://raw.githubusercontent.com/blackwell-systems/blackwell-docs-theme/main/badge-trademark.svg)](https://github.com/blackwell-systems)
 [![Claude Code](https://img.shields.io/badge/Built_for-Claude_Code-8A2BE2?logo=anthropic)](https://claude.ai/claude-code)
 [![blackdot](https://img.shields.io/badge/Integrates-blackdot-2c5282)](https://blackwell-systems.github.io/blackdot/#/)
-[![Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL2-blue)](https://github.com/blackwell-systems/dotclaude)
-[![Version](https://img.shields.io/badge/Version-0.3.0-informational)](https://github.com/blackwell-systems/dotclaude/releases)
+[![Go Reference](https://pkg.go.dev/badge/github.com/blackwell-systems/dotclaude.svg)](https://pkg.go.dev/github.com/blackwell-systems/dotclaude)
+[![Go Report Card](https://goreportcard.com/badge/github.com/blackwell-systems/dotclaude)](https://goreportcard.com/report/github.com/blackwell-systems/dotclaude)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://github.com/blackwell-systems/dotclaude)
+[![Version](https://img.shields.io/badge/Version-1.0.0--beta.2-informational)](https://github.com/blackwell-systems/dotclaude/releases)
 
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/Tests-122_passing-success)](https://github.com/blackwell-systems/dotclaude/tree/main/tests)
@@ -47,11 +48,9 @@ Each profile merges your base configuration with project-specific additions - no
 
 ## Platform Support
 
-- **Linux** - Full support
-- **macOS** - Full support
-- **Windows (WSL2)** - Full support via Windows Subsystem for Linux 2
-
-> **Windows Users:** dotclaude requires a Unix environment. Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) to run dotclaude on Windows. Native Windows (CMD/PowerShell) is not supported.
+- **Linux** (amd64, arm64) - Full support
+- **macOS** (Intel & Apple Silicon) - Full support
+- **Windows** (amd64) - Full support (native binary)
 
 ## Try Before Installing
 
@@ -80,6 +79,18 @@ exit  # Nothing persists
 Nothing touches your system. When you're ready, install for real.
 
 ## Quick Install
+
+### Option 1: Go Install (Recommended for Go users)
+
+```bash
+go install github.com/blackwell-systems/dotclaude/cmd/dotclaude@latest
+```
+
+### Option 2: Download Binary
+
+Download the latest release for your platform from the [releases page](https://github.com/blackwell-systems/dotclaude/releases).
+
+### Option 3: Install Script
 
 One-line install (clones to `~/code/dotclaude` automatically):
 
