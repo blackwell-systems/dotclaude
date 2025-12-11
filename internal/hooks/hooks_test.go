@@ -293,3 +293,200 @@ func TestIsValidProfileName(t *testing.T) {
 		})
 	}
 }
+
+func TestRunExternalErrors(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "hooks-test-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	runner := NewRunner(tmpDir, tmpDir)
+
+	t.Run("cmd on non-windows", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping on Windows")
+		}
+
+		cmdFile := filepath.Join(tmpDir, "test.cmd")
+		if err := os.WriteFile(cmdFile, []byte("echo test"), 0755); err != nil {
+			t.Fatal(err)
+		}
+
+		err := runner.runExternal(cmdFile)
+		if err == nil {
+			t.Error("Expected error running .cmd on non-Windows")
+		}
+	})
+
+	t.Run("bat on non-windows", func(t *testing.T) {
+		if runtime.GOOS == "windows" {
+			t.Skip("Skipping on Windows")
+		}
+
+		batFile := filepath.Join(tmpDir, "test.bat")
+		if err := os.WriteFile(batFile, []byte("echo test"), 0755); err != nil {
+			t.Fatal(err)
+		}
+
+		err := runner.runExternal(batFile)
+		if err == nil {
+			t.Error("Expected error running .bat on non-Windows")
+		}
+	})
+
+	t.Run("non-existent script", func(t *testing.T) {
+		err := runner.runExternal("/nonexistent/script.sh")
+		if err == nil {
+			t.Error("Expected error running non-existent script")
+		}
+	})
+}
+
+func TestHookEntry(t *testing.T) {
+	t.Run("hook entry with builtin", func(t *testing.T) {
+		builtIn := BuiltInHook{
+			Name:     "test-hook",
+			Priority: 10,
+			Run:      func(r *Runner) error { return nil },
+		}
+
+		entry := hookEntry{
+			name:     "10-test-hook",
+			priority: 10,
+			builtin:  &builtIn,
+		}
+
+		if entry.name != "10-test-hook" {
+			t.Errorf("Expected name '10-test-hook', got %q", entry.name)
+		}
+		if entry.priority != 10 {
+			t.Errorf("Expected priority 10, got %d", entry.priority)
+		}
+		if entry.builtin == nil {
+			t.Error("Expected builtin to be set")
+		}
+	})
+
+	t.Run("hook entry with external", func(t *testing.T) {
+		entry := hookEntry{
+			name:     "20-custom.sh",
+			priority: 20,
+			path:     "/path/to/20-custom.sh",
+		}
+
+		if entry.name != "20-custom.sh" {
+			t.Errorf("Expected name '20-custom.sh', got %q", entry.name)
+		}
+		if entry.path != "/path/to/20-custom.sh" {
+			t.Errorf("Expected path '/path/to/20-custom.sh', got %q", entry.path)
+		}
+	})
+}
+
+func TestHookInfo(t *testing.T) {
+	t.Run("built-in hook info", func(t *testing.T) {
+		info := HookInfo{
+			Name:     "session-info",
+			Priority: 0,
+			Type:     "built-in",
+			Enabled:  true,
+		}
+
+		if info.Name != "session-info" {
+			t.Errorf("Expected Name 'session-info', got %q", info.Name)
+		}
+		if info.Type != "built-in" {
+			t.Errorf("Expected Type 'built-in', got %q", info.Type)
+		}
+		if !info.Enabled {
+			t.Error("Expected Enabled to be true")
+		}
+	})
+
+	t.Run("external hook info", func(t *testing.T) {
+		info := HookInfo{
+			Name:     "20-custom.sh",
+			Priority: 20,
+			Type:     "external",
+			Path:     "/path/to/hook",
+			Enabled:  true,
+		}
+
+		if info.Path != "/path/to/hook" {
+			t.Errorf("Expected Path '/path/to/hook', got %q", info.Path)
+		}
+	})
+}
+
+func TestRunWithCustomHook(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping shell script test on Windows")
+	}
+
+	tmpDir, err := os.MkdirTemp("", "hooks-test-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	runner := NewRunner(claudeDir, tmpDir)
+
+	// Ensure hooks dir
+	if err := runner.EnsureHooksDir(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a simple hook that creates a marker file
+	hookDir := filepath.Join(claudeDir, "hooks", "pre-tool-edit")
+	markerFile := filepath.Join(tmpDir, "hook-ran")
+	hookScript := filepath.Join(hookDir, "50-marker.sh")
+
+	script := "#!/bin/bash\ntouch " + markerFile
+	if err := os.WriteFile(hookScript, []byte(script), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	// Run the hooks
+	if err := runner.Run(HookPreToolEdit); err != nil {
+		t.Errorf("Run() error = %v", err)
+	}
+
+	// Check if marker file was created
+	if _, err := os.Stat(markerFile); os.IsNotExist(err) {
+		t.Error("Expected hook to create marker file")
+	}
+}
+
+func TestListEmptyHookType(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "hooks-test-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	claudeDir := filepath.Join(tmpDir, ".claude")
+	runner := NewRunner(claudeDir, tmpDir)
+
+	// List hooks for a type with no external hooks (but has built-ins)
+	hooks := runner.List(HookPostToolEdit)
+
+	// Should only have built-in hooks (if any)
+	for _, h := range hooks {
+		if h.Type != "built-in" {
+			t.Errorf("Expected only built-in hooks, got type %q", h.Type)
+		}
+	}
+}
+
+func TestRunnerEnv(t *testing.T) {
+	runner := NewRunner("/tmp/claude", "/tmp/repo")
+
+	// Test setting environment variables
+	runner.Env["TEST_VAR"] = "test_value"
+
+	if runner.Env["TEST_VAR"] != "test_value" {
+		t.Errorf("Expected TEST_VAR to be 'test_value', got %q", runner.Env["TEST_VAR"])
+	}
+}

@@ -116,6 +116,6 @@ release:
 #       name: homebrew-tap
 #     homepage: https://github.com/blackwell-systems/dotclaude
 #     description: Profile management for Claude Code
-#     license: MIT
+#     license: Apache-2.0
 #     install: |
 #       bin.install "dotclaude"
