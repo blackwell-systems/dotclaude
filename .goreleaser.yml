@@ -1,0 +1,121 @@
+# GoReleaser configuration for dotclaude
+# Documentation: https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: dotclaude
+    main: ./cmd/dotclaude
+    binary: dotclaude
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/blackwell-systems/dotclaude/internal/version.Version={{.Version}}
+      - -X github.com/blackwell-systems/dotclaude/internal/version.Commit={{.Commit}}
+      - -X github.com/blackwell-systems/dotclaude/internal/version.Date={{.Date}}
+    # Ignore Windows ARM64 (less common)
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    # Use zip for Windows
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
+      - base/**/*
+      - examples/**/*
+      - docs/**/*
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: Other
+      order: 999
+
+release:
+  github:
+    owner: blackwell-systems
+    name: dotclaude
+  draft: false
+  prerelease: auto
+  name_template: "{{.ProjectName}} v{{.Version}}"
+  header: |
+    ## dotclaude v{{.Version}}
+
+    Cross-platform profile management for Claude Code.
+  footer: |
+    ## Installation
+
+    ### macOS/Linux
+    ```bash
+    # Download and extract
+    tar -xzf dotclaude_{{.Version}}_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m).tar.gz
+
+    # Install
+    ./install.sh
+    ```
+
+    ### Windows
+    Extract the zip file and run `install.bat` (coming soon) or manually copy `dotclaude.exe` to your PATH.
+
+    ---
+
+    **Full Changelog**: https://github.com/blackwell-systems/dotclaude/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+# Homebrew tap (optional - can enable later)
+# brews:
+#   - name: dotclaude
+#     repository:
+#       owner: blackwell-systems
+#       name: homebrew-tap
+#     homepage: https://github.com/blackwell-systems/dotclaude
+#     description: Profile management for Claude Code
+#     license: MIT
+#     install: |
+#       bin.install "dotclaude"

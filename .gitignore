@@ -1,2 +1,4 @@
-bin/dotclaude-go
+bin/
+dist/
 profiles/
+coverage.out
