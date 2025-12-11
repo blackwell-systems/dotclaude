@@ -23,18 +23,12 @@ Successfully migrated from shell-based implementation to Go CLI. The shell imple
 
 ```
 dotclaude/
-├── base/scripts/
-│   └── dotclaude           # Launcher script → calls Go binary
 ├── bin/
-│   └── dotclaude-go        # Go binary (cross-platform)
+│   └── dotclaude           # Go binary (direct, no wrapper)
 ├── archive/                # Archived shell implementation
 │   ├── dotclaude-shell
 │   ├── shell-functions.sh
-│   ├── sync-feature-branch.sh
-│   ├── activate-profile.sh
-│   ├── check-dotclaude.sh
-│   ├── profile-management.sh
-│   └── lib/validation.sh
+│   └── ...
 ├── cmd/dotclaude/
 │   └── main.go
 ├── internal/
@@ -43,6 +37,8 @@ dotclaude/
 │   └── profile/            # Business logic
 └── go.mod
 ```
+
+**Installation:** Binary installs directly to `~/.local/bin/dotclaude`
 
 ## Completed Commands (10/10)
 
@@ -78,15 +74,15 @@ dotclaude/
    - README added explaining archived files
    - Emergency rollback instructions included
 
-2. **Wrapper Simplified**
-   - No longer routes to shell
-   - Direct launcher for Go binary
-   - Helpful error if binary missing
+2. **Wrapper Removed**
+   - No wrapper script needed
+   - Go binary installed directly to `~/.local/bin/dotclaude`
+   - Uses `DOTCLAUDE_REPO_DIR` env var (defaults to `~/code/dotclaude`)
 
 3. **Install Script Updated**
    - Builds Go binary during install
-   - No longer copies shell scripts
-   - Validation checks for Go binary
+   - Copies binary directly to `~/.local/bin`
+   - No shell scripts involved
 
 4. **Documentation Updated**
    - Architecture diagram simplified
@@ -98,13 +94,13 @@ dotclaude/
 If critical issues are discovered during RC period:
 
 ```bash
-# Restore shell files from archive
-cp archive/dotclaude-shell base/scripts/
-cp archive/shell-functions.sh base/scripts/
-cp -r archive/lib base/scripts/
+# Option 1: Use shell version from archive
+cd ~/code/dotclaude
+chmod +x archive/dotclaude-shell
+alias dotclaude="~/code/dotclaude/archive/dotclaude-shell"
 
-# Update wrapper to route to shell
-# (manual edit needed)
+# Option 2: Download older release
+curl -L https://github.com/blackwell-systems/dotclaude/releases/download/v1.0.0-beta.2/...
 ```
 
 ## Version History

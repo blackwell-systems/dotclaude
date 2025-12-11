@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+**Architecture Simplification:**
+- Removed wrapper script (`base/scripts/dotclaude`)
+- Go binary now installs directly to `~/.local/bin/dotclaude`
+- No shell dependencies for core functionality
+- Binary renamed from `dotclaude-go` to `dotclaude`
+
+**Shell Implementation Archived:**
+- All shell scripts moved to `archive/` directory
+- README added with emergency rollback instructions
+- Shell version preserved for reference only
+
 ### Added
 
 **Windows Platform Support:**
