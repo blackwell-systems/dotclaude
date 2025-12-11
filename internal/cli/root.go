@@ -10,7 +10,7 @@ import (
 
 const (
 	// Version is the current dotclaude version
-	Version = "1.0.0-alpha.5"
+	Version = "1.0.0-beta.2"
 )
 
 var (

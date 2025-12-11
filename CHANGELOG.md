@@ -7,6 +7,115 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2025-12-10
+
+### Summary
+
+Test-driven feature completion release. Comprehensive test suite (122 tests) exposed missing features and infrastructure gaps during migration. All gaps now closed, achieving 100% feature parity with CI/CD validation.
+
+### Added
+
+**diff command:**
+- Compare CLAUDE.md files between two profiles
+- Single argument compares with active profile
+- Uses system diff with unified format (-u)
+- Full error handling for non-existent profiles
+
+**Missing flags:**
+- `--dry-run` / `--preview` on activate - Preview changes without applying
+- `--verbose` / `--debug` on activate - Show debug output during activation
+- `--debug` on show command - Display internal paths and settings
+- `--version` on root command - Cobra built-in version support
+
+**New aliases:**
+- `new` alias for create command
+
+### Fixed
+
+**CI/CD Stabilization:**
+- Added Go 1.23 setup to all test jobs (ubuntu, macos, test-install)
+- Binary builds before tests run
+- Git configured for profile creation tests
+- DOTCLAUDE_REPO_DIR exported in all test-install steps
+
+**Test Infrastructure:**
+- Go binary now copied to test temp directories
+- Git config runs AFTER HOME export (critical ordering fix)
+- Git commit failure made non-fatal in profile creation
+- Tests updated to match Cobra's error message format (lowercase)
+
+**Profile Creation:**
+- Git commit no longer blocks profile creation if user not configured
+- Profile successfully created even if git commit fails
+- Graceful degradation for missing git config
+- Best-effort git initialization
+
+### Technical Details
+
+**Environment Variable Ordering:**
+Git's `--global` flag writes to `$HOME/.gitconfig`. Tests were setting
+git config before changing HOME, causing config to be written to the
+wrong location. Fixed by setting HOME first, then configuring git.
+
+**Error Message Format:**
+Tests expected shell-specific error messages but Cobra uses different
+formatting. Updated tests to accept Cobra's format:
+- "unknown flag" (lowercase)
+- "Usage" / "Commands" (mixed case)
+
+**Test Coverage Impact:**
+The 122-test suite acted as a specification, exposing 9 missing features:
+1. --dry-run flag
+2. --preview flag
+3. --verbose flag on activate
+4. --debug flag on activate + show
+5. --version flag on root
+6. diff command
+7. 'new' alias
+8. Binary not in test directories
+9. Git config ordering issue
+
+### Changed
+
+**Wrapper Behavior:**
+- Default backend changed from `auto` to `go` in v1.0.0-beta.1
+- Now uses Go implementation by default
+- Shell available via `DOTCLAUDE_BACKEND=shell`
+
+**Test Strategy:**
+- CI tests run against Go implementation
+- Validates feature parity automatically
+- Catches regressions immediately
+
+### Migration Progress
+
+**Phase 6: ✅ COMPLETE**
+- 11/11 commands implemented
+- All flags present
+- All aliases working
+- CI/CD stable
+- 122/122 tests passing
+
+**Status:** Ready for production use with validation period
+
+### Commits
+
+- 8c65667 fix: Run git config after HOME export in test helper
+- 610e39d fix: Make git commit failure non-fatal in profile creation
+- 2628538 fix: Configure git in test helper for profile creation
+- 1d1ee5c fix: Update tests to match Cobra's error message format
+- 87a5f75 feat: Add missing features revealed by testing
+- 3b3ac5f fix: Copy Go binary to test directories and export DOTCLAUDE_REPO_DIR
+- ba3e4d9 feat: Add missing flags for feature parity with shell version
+- ad4e929 ci: Add Go build support to test workflows
+
+## [1.0.0-beta.1] - 2025-12-10
+
+### Summary
+
+Initial beta release with Go migration complete (10 commands). Wrapper
+defaults to Go backend, shell fallback available.
+
 ## [1.0.0-alpha.5] - 2025-12-10
 
 ### Added
