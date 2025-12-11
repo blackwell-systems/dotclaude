@@ -45,6 +45,13 @@ EOF
         cp -r "$BATS_TEST_DIRNAME/../base/scripts" "$TEST_REPO_DIR/base/"
     fi
 
+    # Copy Go binary if it exists
+    if [ -f "$BATS_TEST_DIRNAME/../bin/dotclaude-go" ]; then
+        mkdir -p "$TEST_REPO_DIR/bin"
+        cp "$BATS_TEST_DIRNAME/../bin/dotclaude-go" "$TEST_REPO_DIR/bin/"
+        chmod +x "$TEST_REPO_DIR/bin/dotclaude-go"
+    fi
+
     # Set environment variables for tests
     export DOTCLAUDE_REPO_DIR="$TEST_REPO_DIR"
     export HOME="$TEST_HOME"

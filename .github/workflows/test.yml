@@ -212,29 +212,28 @@ jobs:
       - name: Verify dotclaude command available
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          export DOTCLAUDE_REPO_DIR="${{ github.workspace }}"
           dotclaude version
           dotclaude help
 
       - name: Test profile creation
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          export DOTCLAUDE_REPO_DIR="${{ github.workspace }}"
           # Create profiles directory and copy example
           mkdir -p ${{ github.workspace }}/profiles
           cp -r ${{ github.workspace }}/examples/sample-profile ${{ github.workspace }}/profiles/ci-test
           dotclaude create ci-test-2
           dotclaude list
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
       - name: Test profile activation
         run: |
           export PATH="$HOME/.local/bin:$PATH"
+          export DOTCLAUDE_REPO_DIR="${{ github.workspace }}"
           dotclaude activate ci-test
           dotclaude show
           test -f ~/.claude/CLAUDE.md
           grep -q "Global Claude Code Instructions" ~/.claude/CLAUDE.md
-        env:
-          DOTCLAUDE_REPO_DIR: ${{ github.workspace }}
 
   coverage:
     name: Test Coverage Report
