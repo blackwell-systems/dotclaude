@@ -69,7 +69,6 @@ fi
 REPO_DIR="${DOTCLAUDE_REPO_DIR:-$SCRIPT_DIR}"
 CLAUDE_DIR="$HOME/.claude"
 BASE_DIR="$REPO_DIR/base"
-PROFILES_DIR="$REPO_DIR/profiles"
 
 # Parse flags
 FORCE_INSTALL=false
@@ -122,8 +121,6 @@ mkdir -p "$HOME/.local/bin"
 # Build and install dotclaude binary
 echo "[1/2] Building and installing dotclaude..."
 
-BINARY_INSTALLED=false
-
 if command -v go >/dev/null 2>&1; then
     # Build the binary
     if [ ! -f "$REPO_DIR/bin/dotclaude" ] || [ "$FORCE_INSTALL" = "true" ]; then
@@ -151,7 +148,6 @@ if command -v go >/dev/null 2>&1; then
             chmod +x "$HOME/.local/bin/dotclaude"
             echo -e "  ${GREEN}✓${NC} Installed to ~/.local/bin/dotclaude"
         fi
-        BINARY_INSTALLED=true
     fi
 else
     echo -e "  ${YELLOW}⚠${NC}  Go not installed"
@@ -272,9 +268,11 @@ fi
 
 if [ -f "$SHELL_RC" ]; then
     if ! grep -q "DOTCLAUDE_REPO_DIR" "$SHELL_RC"; then
-        echo "" >> "$SHELL_RC"
-        echo "# dotclaude repository location" >> "$SHELL_RC"
-        echo "export DOTCLAUDE_REPO_DIR=\"$REPO_DIR\"" >> "$SHELL_RC"
+        {
+            echo ""
+            echo "# dotclaude repository location"
+            echo "export DOTCLAUDE_REPO_DIR=\"$REPO_DIR\""
+        } >> "$SHELL_RC"
         echo -e "${GREEN}✓${NC} Added DOTCLAUDE_REPO_DIR to $SHELL_RC"
         echo ""
         echo -e "${YELLOW}Run 'source $SHELL_RC' or restart your shell${NC}"
