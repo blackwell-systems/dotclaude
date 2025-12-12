@@ -116,102 +116,129 @@ type Backup struct {
 ## Profile Activation Flow
 
 ```mermaid
-flowchart TD
+flowchart TB
     start["User runs: dotclaude activate my-profile"]
 
-    step1["1. Validate Profile Name<br/>• profile.ValidateProfileName()<br/>• Alphanumeric + hyphens only<br/>• No path traversal (.., /)"]
-    step2["2. Check Profile Exists<br/>• mgr.ProfileExists(name)<br/>• Returns error if not found"]
-    step3["3. Check Current Profile<br/>• mgr.GetActiveProfileName()<br/>• Read ~/.claude/.current-profile<br/>• Skip backup if same profile"]
-    step4["4. Backup Existing Config<br/>• mgr.backupFile('CLAUDE.md')<br/>• mgr.backupFile('settings.json')<br/>• Timestamped: *.backup.20241210-155544<br/>• Keep only 5 recent backups"]
-    step5["5. Merge CLAUDE.md<br/>• mgr.mergeCLAUDEmd(name)<br/>• Read base/CLAUDE.md<br/>• Read profiles/X/CLAUDE.md<br/>• Concatenate with separator<br/>• Write to ~/.claude/CLAUDE.md"]
-    step6["6. Apply Settings<br/>• mgr.applySettings(name)<br/>• Use profile settings.json if exists<br/>• Fall back to base settings.json<br/>• Copy to ~/.claude/"]
-    step7["7. Mark Active Profile<br/>• Write profile name to<br/>~/.claude/.current-profile"]
-    complete["Complete"]
+    subgraph validation["Phase 1: Validation"]
+        val1["Validate Profile Name<br/>• Alphanumeric + hyphens only<br/>• No path traversal"]
+        val2["Check Profile Exists"]
+        val3["Check Current Profile"]
 
-    start --> step1 --> step2 --> step3 --> step4 --> step5 --> step6 --> step7 --> complete
+        val1 --> val2 --> val3
+    end
+
+    subgraph backup["Phase 2: Backup"]
+        check{"Same profile<br/>as current?"}
+        skip["Skip backup"]
+        bkup["Backup Existing<br/>• CLAUDE.md<br/>• settings.json<br/>• Keep 5 recent"]
+
+        check -->|Yes| skip
+        check -->|No| bkup
+    end
+
+    subgraph deploy["Phase 3: Deployment"]
+        direction LR
+        merge["Merge CLAUDE.md<br/>base + profile"]
+        settings["Apply Settings<br/>profile or base"]
+        mark["Mark Active"]
+
+        merge --> settings --> mark
+    end
+
+    complete["✓ Profile Activated"]
+    error["✗ Error: Invalid/Not Found"]
+
+    start --> validation
+    validation -->|Valid| backup
+    validation -.->|Invalid| error
+    backup --> deploy
+    skip --> deploy
+    deploy --> complete
 
     style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style step1 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step2 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step3 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step4 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step5 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style step7 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style validation fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style backup fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style deploy fill:#1a365d,stroke:#2c5282,color:#e2e8f0
     style complete fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style error fill:#742a2a,stroke:#c53030,color:#e2e8f0
+    style check fill:#2c5282,stroke:#4299e1,color:#e2e8f0
 ```
 
 ## CLI Command Flow
 
 ```mermaid
-flowchart TD
-    start["User runs: dotclaude <command> [args]"]
+flowchart LR
+    start["User runs:<br/>dotclaude &lt;command&gt; [args]"]
 
-    binary["Go Binary<br/>~/.local/bin/dotclaude<br/>• Cobra framework<br/>• cobra.Command execution"]
+    subgraph cobra_layer["Cobra Framework"]
+        binary["Go Binary<br/>~/.local/bin/dotclaude"]
+        dispatch["Dispatch<br/>• Find subcommand<br/>• Parse flags<br/>• Validate args"]
 
-    cobra["Cobra Dispatch<br/>• rootCmd.Execute()<br/>• Find matching subcommand<br/>• Parse flags<br/>• Validate args"]
+        binary --> dispatch
+    end
 
-    manager["Create Profile Manager<br/>profile.NewManager(RepoDir, ClaudeDir)"]
+    subgraph execution["Command Execution"]
+        manager["Create<br/>Profile Manager"]
+        execute["Execute<br/>• Operations<br/>• Error handling<br/>• Output"]
 
-    execute["Execute Command<br/>• Perform operations<br/>• Handle errors<br/>• Display formatted output"]
+        manager --> execute
+    end
 
     done["Return to Shell"]
 
-    start --> binary --> cobra --> manager --> execute --> done
+    start --> cobra_layer
+    cobra_layer --> execution
+    execution --> done
 
     style start fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style binary fill:#22543d,stroke:#2f855a,color:#e2e8f0
-    style cobra fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style manager fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style execute fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style done fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style cobra_layer fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style execution fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style done fill:#2d3748,stroke:#4a5568,color:#e2e8f0
 ```
 
 ## Security Architecture
 
 ```mermaid
-graph TB
-    title["Security Layers (Go Implementation)"]
+flowchart TB
+    user["User Input<br/>dotclaude &lt;command&gt; &lt;profile-name&gt;"]
 
-    subgraph layer1["Layer 1: Input Validation"]
-        l1_func["profile.ValidateProfileName()"]
-        l1_rules["• Check: a-zA-Z0-9_- only<br/>• Reject: empty, .., /, spaces<br/>• Returns error on invalid"]
+    subgraph input_layer["Input Validation Layer"]
+        direction LR
+        validate["ValidateProfileName()<br/>• a-zA-Z0-9_- only<br/>• Reject: .., /, spaces"]
+        sanitize["Path Safety<br/>• filepath.Join()<br/>• No traversal"]
+
+        validate --> sanitize
     end
 
-    subgraph layer2["Layer 2: Path Safety"]
-        l2_func["filepath.Join() usage"]
-        l2_rules["• OS-agnostic path construction<br/>• Profile path: ProfilesDir/name<br/>• Validated name prevents traversal"]
+    subgraph file_layer["File System Layer"]
+        direction LR
+        read["Read Operations<br/>• os.ReadFile<br/>• os.ReadDir filtering<br/>• No symlinks"]
+        write["Write Operations<br/>• os.WriteFile<br/>• Secure perms<br/>• 0600/0644/0755"]
+        delete["Delete Operations<br/>• Check not active<br/>• Validate exists<br/>• os.RemoveAll"]
+
+        read ~~~ write ~~~ delete
     end
 
-    subgraph layer3["Layer 3: File Operations"]
-        l3_func["Go standard library"]
-        l3_rules["• os.ReadFile / os.WriteFile<br/>• No shell command injection<br/>• Direct file I/O"]
+    subgraph protection["Protection Layer"]
+        no_shell["✓ No shell injection<br/>Pure Go stdlib"]
+        no_exec["✓ No command execution<br/>Direct file I/O only"]
+        perms["✓ Secure permissions<br/>Owner-only backups"]
+
+        no_shell ~~~ no_exec ~~~ perms
     end
 
-    subgraph layer4["Layer 4: Directory Listing"]
-        l4_func["os.ReadDir filtering"]
-        l4_rules["• entry.IsDir() check<br/>• Symlinks filtered out<br/>• Only real directories listed"]
-    end
+    safe["✓ Safe Operations on<br/>~/.claude/ and profiles/"]
 
-    subgraph layer5["Layer 5: Secure Permissions"]
-        l5_func["File mode settings"]
-        l5_rules["• Backups: 0600 (owner only)<br/>• Config files: 0644<br/>• Directories: 0755"]
-    end
+    user --> input_layer
+    input_layer --> file_layer
+    file_layer --> protection
+    protection --> safe
 
-    subgraph layer6["Layer 6: Safe Deletion"]
-        l6_func["profile.Delete()"]
-        l6_rules["• Check not active profile<br/>• Validate profile exists<br/>• os.RemoveAll on validated path"]
-    end
-
-    title --> layer1 --> layer2 --> layer3 --> layer4 --> layer5 --> layer6
-
-    style title fill:#2d3748,stroke:#4a5568,color:#e2e8f0
-    style layer1 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style layer2 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style layer3 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style layer4 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style layer5 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
-    style layer6 fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style user fill:#2d3748,stroke:#4a5568,color:#e2e8f0
+    style input_layer fill:#742a2a,stroke:#c53030,color:#e2e8f0
+    style file_layer fill:#1a365d,stroke:#2c5282,color:#e2e8f0
+    style protection fill:#22543d,stroke:#2f855a,color:#e2e8f0
+    style safe fill:#22543d,stroke:#2f855a,color:#e2e8f0,stroke-width:3px
 ```
 
 ## Data Flow: Profile Merge
