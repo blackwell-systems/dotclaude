@@ -26,6 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed docs/SHELL-TO-GO-MIGRATION.md (no longer needed)
   - Streamlined repository to focus on current Go implementation
 
+- **Architecture Documentation**
+  - Improved mermaid diagram layouts to reduce linearity
+  - Grouped Profile Activation Flow into phases with conditional branching
+  - Changed CLI Command Flow to left-right orientation
+  - Reorganized Security Architecture into horizontal layers
+
 ## [1.0.0-rc.2] - 2025-12-10
 
 ### Summary
