@@ -5,11 +5,11 @@
 [![blackdot](https://img.shields.io/badge/Integrates-blackdot-2c5282)](https://blackwell-systems.github.io/blackdot/#/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/blackwell-systems/dotclaude.svg)](https://pkg.go.dev/github.com/blackwell-systems/dotclaude)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://github.com/blackwell-systems/dotclaude)
-[![GitHub Release](https://img.shields.io/github/v/release/blackwell-systems/dotclaude?include_prereleases)](https://github.com/blackwell-systems/dotclaude/releases)
 
+[![GitHub Release](https://img.shields.io/github/v/release/blackwell-systems/dotclaude?include_prereleases)](https://github.com/blackwell-systems/dotclaude/releases)
 [![Tests](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml/badge.svg)](https://github.com/blackwell-systems/dotclaude/actions/workflows/test.yml)
-[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-yellow?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/blackwellsystems)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-yellow?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/blackwellsystems)
 
 **The definitive profile management system for Claude Code**
 
