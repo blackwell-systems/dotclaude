@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-rc.3] - TBD
+
+**Release Candidate 3 - Documentation Cleanup**
+
+### Documentation
+
+- **README Improvements**
+  - Removed Go Report Card badge (showing errors)
+  - Removed static test count badge (becomes stale)
+  - Updated badge arrangement for consistency across README and docs site
+  - Added GitHub Release badge
+
+- **Codebase Cleanup**
+  - Removed GO-MIGRATION.md (migration complete)
+  - Removed ONBOARDING-AUDIT.md (historical artifact)
+  - Removed docs/SHELL-TO-GO-MIGRATION.md (no longer needed)
+  - Streamlined repository to focus on current Go implementation
+
 ## [1.0.0-rc.2] - 2025-12-10
 
 ### Summary
