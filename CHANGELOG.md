@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed static test count badge (becomes stale)
   - Updated badge arrangement for consistency across README and docs site
   - Added GitHub Release badge
+  - Simplified coverpage install instructions with platform-specific commands
 
 - **Codebase Cleanup**
   - Removed GO-MIGRATION.md (migration complete)

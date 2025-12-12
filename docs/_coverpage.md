@@ -4,13 +4,11 @@
 
 > The _definitive_ profile management system for Claude Code
 
-```bash
-# macOS / Linux
+**macOS / Linux:**
 curl -sSL https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.sh | bash
 
-# Windows (PowerShell)
-# irm https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.ps1 | iex
-```
+**Windows (PowerShell):**
+irm https://raw.githubusercontent.com/blackwell-systems/dotclaude/main/install.ps1 | iex
 
 - **One-command switching** between work contexts
 - **Layered configuration** - No duplication across profiles
